@@ -1,0 +1,13 @@
+obj/
+
+Temp/
+
+Library/
+
+.vs/
+
+*.csproj
+
+*.sln
+
+*.DotSettings
