@@ -6,17 +6,16 @@ using UnityEngine.UI.Extensions;
 
 public class Grid : Singleton<Grid>
 {
-    List<GameObject> lines = new List<GameObject>();
     public float lineWidth = 1;
 
-    public uint columns
+    public float columns
     {
-        get { return (uint) gridRenderer.GridColumns; }
+        get { return gridRenderer.GridColumns; }
         set { gridRenderer.GridColumns = (int) value; }
     }
-    public uint rows
+    public float rows
     {
-        get { return (uint)gridRenderer.GridRows; }
+        get { return gridRenderer.GridRows; }
         set { gridRenderer.GridRows = (int)value; }
     }
 
@@ -36,8 +35,22 @@ public class Grid : Singleton<Grid>
 
     private void CalculateHorizontalLines()
     {
-        //TODO: implement L = (msPerScreen/1000) * (BPM/60) * (1/division)
+        float lines = GetVisibleTimeRange() / 1000 * (BpmUI.Instance.BPM / 60) * BeatsnapDivisor.Instance.division;
+        rows = lines;
+    }
 
+    private float GetVisibleTimeRange()
+    {
+        return DifficultyRange(ApproachRateUI.Instance.approachRate, 1800, 1200, 450);
+    }
+
+    private float DifficultyRange(float difficulty, float min, float mid, float max)
+    {
+        if (difficulty > 5)
+            return mid + (max - mid) * (difficulty - 5) / 5;
+        if (difficulty < 5)
+            return mid - (mid - min) * (5 - difficulty) / 5;
+        return mid;
     }
 
     /// <summary>
