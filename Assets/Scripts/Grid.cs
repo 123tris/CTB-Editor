@@ -2,24 +2,42 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UI.Extensions;
 
 public class Grid : Singleton<Grid>
 {
     List<GameObject> lines = new List<GameObject>();
     public float lineWidth = 1;
-    public uint columns = 128;
-    public uint rows;
-    private float verticalLineSpacing;
-    private float horizontalLineSpacing;
-    private RectTransform _rectTransform;
-    private RectTransform rectTransform //So when editor code accesses recttranform it will be able to retrieve the component
+
+    public uint columns
     {
-        get
-        {
-            if (_rectTransform == null)
-                _rectTransform = GetComponent<RectTransform>();
-            return _rectTransform;
-        }
+        get { return (uint) gridRenderer.GridColumns; }
+        set { gridRenderer.GridColumns = (int) value; }
+    }
+    public uint rows
+    {
+        get { return (uint)gridRenderer.GridRows; }
+        set { gridRenderer.GridRows = (int)value; }
+    }
+
+    private UIGridRenderer gridRenderer;
+    private RectTransform rectTransform;
+
+    void Start()
+    {
+        gridRenderer = GetComponent<UIGridRenderer>();
+        rectTransform = GetComponent<RectTransform>();
+    }
+
+    void Update()
+    {
+        CalculateHorizontalLines();
+    }
+
+    private void CalculateHorizontalLines()
+    {
+        //TODO: implement L = (msPerScreen/1000) * (BPM/60) * (1/division)
+
     }
 
     /// <summary>
@@ -31,79 +49,6 @@ public class Grid : Singleton<Grid>
     {
         point += new Vector2(transform.position.x, transform.position.y);
         return point;
-    }
-
-    public void SetupLines()
-    {
-        //Cleanup lines
-        for (int i = 0; i < lines.Count; i++)
-        {
-            DestroyImmediate(lines[i]);
-        }
-        lines.Clear();
-
-        //Remove children
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            DestroyImmediate(transform.GetChild(i).gameObject);
-        }
-
-        //Calculate line spacing
-        verticalLineSpacing = rectTransform.sizeDelta.y / rows;
-        horizontalLineSpacing = rectTransform.sizeDelta.x / columns;
-
-        //Create graph lines
-        //CreateLines(rows, columns);
-    }
-
-    private void CreateLines(uint pRows, uint pColumns)
-    {
-        for (uint i = 0; i < pColumns + 1; i++)
-        {
-            //Create vertical line
-            Transform obj = CreateLine("Vertical line " + i, false).transform;
-            RectTransform childRectTrans = obj.GetComponent<RectTransform>();
-
-            //Set position
-            obj.position = new Vector3(i * horizontalLineSpacing, 0) + transform.position;
-            obj.SetParent(transform);
-
-            //Set size
-            childRectTrans.sizeDelta = new Vector2(lineWidth, rectTransform.sizeDelta.y);
-        }
-
-        for (uint i = 0; i < pRows + 1; i++)
-        {
-            //Create horizontal line
-            Transform obj = CreateLine("Horizontal line " + i, true).transform;
-            RectTransform childRectTrans = obj.GetComponent<RectTransform>();
-
-            //Set position
-            obj.position = new Vector3(0, i * verticalLineSpacing) + transform.position;
-            obj.SetParent(transform);
-
-            //Set size
-            childRectTrans.sizeDelta = new Vector2(rectTransform.sizeDelta.x, lineWidth);
-        }
-    }
-
-    private GameObject CreateLine(string objectName, bool horizontal)
-    {
-        //Create and set name of line
-        GameObject obj = new GameObject(objectName);
-        lines.Add(obj);
-
-        //Set color of line
-        var image = obj.AddComponent<Image>();
-        image.color = Color.black;
-
-        //Set pivot of line
-        var childRectTrans = obj.GetComponent<RectTransform>();
-        if (horizontal)
-            childRectTrans.pivot = new Vector2(0, 0.5f);
-        else
-            childRectTrans.pivot = new Vector2(0.5f, 0);
-        return obj;
     }
 
     public bool WithinGridRange(Vector2 position)
@@ -119,22 +64,3 @@ public class Grid : Singleton<Grid>
         return rectTransform.sizeDelta;
     }
 }
-
-
-#if UNITY_EDITOR
-[CustomEditor(typeof(Grid))]
-public class CustomGridEditor : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-
-        var grid = (Grid)target;
-
-        if (GUILayout.Button("Update"))
-        {
-            grid.SetupLines();
-        }
-    }
-}
-#endif
