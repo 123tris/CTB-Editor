@@ -67,9 +67,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feea8d87ca81b7840b9cc2fa398288ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unhighlightedFruit: {fileID: 0}
-  highlightedFruit: {fileID: 0}
   position: {x: 0, y: 0}
+  unhighlightedFruit: {fileID: 21300000, guid: 143c32a6c3b0da54da3085fe6448f621, type: 3}
+  highlightedFruit: {fileID: 21300000, guid: 30a5cd4d1ea4d9a409d48ffa51922776, type: 3}
   hitTime: 0
 --- !u!222 &222316493699431180
 CanvasRenderer:
