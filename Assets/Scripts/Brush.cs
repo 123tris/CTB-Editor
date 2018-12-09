@@ -27,6 +27,8 @@ public class Brush : MonoBehaviour
     private HitObject draggingHitObject = null;
     private Slider createdSlider = null;
 
+    private Vector3 distanceFromSliderFruit;
+
     void Start()
     {
         grid = Grid.Instance;
@@ -72,6 +74,7 @@ public class Brush : MonoBehaviour
 
     private void OnSelectState()
     {
+        //On left click
         if (Input.GetMouseButtonDown(0))
         {
             //Higlighting of hitobjects
@@ -83,6 +86,12 @@ public class Brush : MonoBehaviour
                 {
                     Slider slider = hitObject.transform.parent.GetComponent<Slider>();
                     selectedHitObject = slider;
+
+                    //When the dragging starts
+                    if (draggingHitObject == null)
+                    {
+                        distanceFromSliderFruit = slider.transform.position - Input.mousePosition;
+                    }
                     draggingHitObject = slider;
                     slider.OnHightlight();
                 }
@@ -102,6 +111,13 @@ public class Brush : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
             draggingHitObject = null;
 
+        if (Input.GetKeyDown(KeyCode.Delete))
+        {
+            Destroy(selectedHitObject.gameObject);
+            selectedHitObject = null;
+            draggingHitObject = null;
+        }
+
         if (draggingHitObject == null) return;
         DraggingBehaviour();
     }
@@ -116,21 +132,18 @@ public class Brush : MonoBehaviour
 
     private void DragFruit()
     {
+        hitObjectManager.hitObjects[draggingHitObject.position.y] = null;
+
         //Update position of dragging fruit
-        if (!TimeStampOccupied())
-        {
-            hitObjectManager.hitObjects[draggingHitObject.position.y] = null;
+        draggingHitObject.SetPosition(Input.mousePosition);
 
-            //Update dragged object's position
-            draggingHitObject.SetPosition(Input.mousePosition);
-
-            hitObjectManager.hitObjects[draggingHitObject.position.y] = draggingHitObject;
-        }
+        hitObjectManager.hitObjects[draggingHitObject.position.y] = draggingHitObject;
     }
 
     private void DragSlider()
     {
-        //TODO: drag slider
+        Slider draggingSlider = (Slider) draggingHitObject;
+        draggingSlider.MoveSlider(Input.mousePosition + distanceFromSliderFruit);
     }
 
     private void OnFruitState()
@@ -169,6 +182,7 @@ public class Brush : MonoBehaviour
     {
         Slider slider = Instantiate(sliderPrefab,transform).GetComponent<Slider>();
         slider.fruitPrefab = fruitPrefab;
+        slider.transform.position = Input.mousePosition;
         slider.AddFruit(Input.mousePosition);
         return slider;
     }
@@ -176,7 +190,6 @@ public class Brush : MonoBehaviour
     private Fruit DetectHitObject()
     {
         PointerEventData pointerData = new PointerEventData(EventSystem.current);
-
         pointerData.position = Input.mousePosition;
 
         List<RaycastResult> results = new List<RaycastResult>();

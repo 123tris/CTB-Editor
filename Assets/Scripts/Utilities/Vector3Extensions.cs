@@ -68,6 +68,16 @@ public static class Vector3Extensions
         return vector;
     }
 
+    public static Vector2 ToVector2(this Vector3 vector)
+    {
+        Vector2 output = new Vector2
+        {
+            x = vector.x,
+            y = vector.y
+        };
+        return output;
+    }
+
     public static Vector2Int ToVector2Int(this Vector3 vector)
     {
         Vector2Int output = new Vector2Int();

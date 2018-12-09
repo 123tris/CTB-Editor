@@ -29,11 +29,6 @@ public class TimeLine : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         slider.onValueChanged.AddListener(OnSliderChange);
     }
 
-    void Update()
-    {
-        print("Hovering: "+hovering);
-    }
-
     private void OnSliderChange(float value)
     {
         level.position = new Vector2(level.position.x, -value);
