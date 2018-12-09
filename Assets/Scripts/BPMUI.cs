@@ -12,6 +12,7 @@ public class BpmUI : Singleton<BpmUI>
     void Start()
     {
         inputField = GetComponent<InputField>();
+        BPM = 180;
     }
 
     void Update()

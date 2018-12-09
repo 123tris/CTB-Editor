@@ -12,7 +12,7 @@ public class ApproachRateUI : Singleton<ApproachRateUI>
     void Start()
     {
         inputField = GetComponent<InputField>();
-
+        approachRate = 5;
     }
 
     void Update()

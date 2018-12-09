@@ -18,6 +18,8 @@ public class Slider : HitObject
 
     public void AddFruit(Vector2 spawnPosition)
     {
+        //TODO: Set position of slider when the first fruit is placed
+
         //Spawn fruit
         Fruit fruit = Instantiate(fruitPrefab,transform).GetComponent<Fruit>();
         fruit.SetPosition(spawnPosition);
@@ -29,7 +31,7 @@ public class Slider : HitObject
         UpdateLines();
     }
 
-    private void UpdateLines()
+    public void UpdateLines()
     {
         lineRenderer.Points = new Vector2[fruits.Count];
         for (int i = 0; i < fruits.Count; i++)
@@ -48,5 +50,12 @@ public class Slider : HitObject
     public override void UnHighlight()
     {
         fruits.ForEach(f => f.UnHighlight());
+    }
+
+    public void MoveSlider(Vector2 pPosition)
+    {
+        SetPosition(pPosition);
+        foreach (Fruit fruit in fruits)
+            fruit.SetPosition(fruit.transform.position);
     }
 }
