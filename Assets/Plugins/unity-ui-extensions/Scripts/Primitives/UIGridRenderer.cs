@@ -8,14 +8,15 @@ namespace UnityEngine.UI.Extensions
 	public class UIGridRenderer : UILineRenderer
 	{
 		[SerializeField]
-		private int m_GridColumns = 10;
+		private float m_GridColumns = 10;
 		[SerializeField]
-		private int m_GridRows = 10;
+		private float m_GridRows = 10;
 
+        public int offset = 0;
 		/// <summary>
 		/// Number of columns in the Grid
 		/// </summary>
-        public int GridColumns
+        public float GridColumns
 		{
 			get
 			{
@@ -34,7 +35,7 @@ namespace UnityEngine.UI.Extensions
 		/// <summary>
 		/// Number of rows in the grid.
 		/// </summary>
-        public int GridRows
+        public float GridRows
 		{
 			get
 			{
@@ -54,17 +55,22 @@ namespace UnityEngine.UI.Extensions
 		{
 			relativeSize = true;
 
-			int ArraySize = (GridRows * 3) + 1;
+            int ArraySize = ((int)Mathf.Ceil(GridRows + 1) * 3) + 2;
 			if(GridRows % 2 == 0)
 				++ArraySize; // needs one more line
 
-			ArraySize += (GridColumns * 3) + 1;
+			ArraySize += ((int)Mathf.Ceil(GridColumns) * 3) + 1;
 
 			m_points = new Vector2[ArraySize];
 
-			int Index = 0;
-			for(int i = 0; i < GridRows; ++i)
-			{
+            float relativePixelHeight = 1 / rectTransform.rect.height;
+            int Index = 0;
+            var yDistance = (rectTransform.rect.height / GridRows);
+            offset %= (int)yDistance;
+
+
+            for (int i = 0; i < GridRows; ++i)
+            { 
 				float xFrom = 1;
 				float xTo = 0;
 				if(i % 2 == 0)
@@ -73,31 +79,72 @@ namespace UnityEngine.UI.Extensions
 					xFrom = 0;
 					xTo = 1;
 				}
+                float softOffset = (i == 0) ? 0 : offset;
 
-				float y = ((float)i) / GridRows;
+                float y = ((float)i) / GridRows;
 				m_points[Index].x = xFrom;
-				m_points[Index].y = y;
+				m_points[Index].y = y - relativePixelHeight * softOffset;
 				++Index;
 				m_points[Index].x = xTo;
-				m_points[Index].y = y;
+				m_points[Index].y = y - relativePixelHeight * softOffset;
 				++Index;
 				m_points[Index].x = xTo;
-				m_points[Index].y = (float)(i + 1) / GridRows;
+				m_points[Index].y = Mathf.Min(((i + 1) / GridRows) - relativePixelHeight * softOffset, 1);
 				++Index;
 			}
 
-			if(GridRows % 2 == 0)
-			{
-				// two lines to get to 0, 1
-				m_points[Index].x = 1;
-				m_points[Index].y = 1;
-				++Index;
-			}
+            var additionSize = (int)(yDistance - ((GridRows - Mathf.Floor(GridRows)) / GridRows) * rectTransform.rect.height);
+           
+                
+            if (offset >= additionSize)
+            {
+                if (Mathf.Floor(GridRows) % 2 == 0)
+                {
+                    m_points[Index].x = 0;
+                    m_points[Index].y = 1 - relativePixelHeight * (offset - additionSize);
+                    ++Index;
+                    m_points[Index].x = 0;
+                    m_points[Index].y = 1;
+                    ++Index;
+                    m_points[Index].x = 1;
+                    m_points[Index].y = 1;
+                    ++Index;
+                    m_points[Index].x = 0;
+                    m_points[Index].y = 1;
+                    ++Index;
+                } else
+                {
+                    m_points[Index].x = 1;
+                    m_points[Index].y = 1 - relativePixelHeight * (offset - additionSize);
+                    ++Index;
+                    m_points[Index].x = 0;
+                    m_points[Index].y = 1;
+                    ++Index;
+                }
+            }
+            else
+            {
+                float xFrom = 0;
+                float xTo = 1;
 
-			m_points[Index].x = 0;
-			m_points[Index].y = 1;
-			++Index;
+                if (Mathf.Floor(GridRows) % 2 == 0)
+                {
+                    // reach left instead
+                    xFrom = 1;
+                    xTo = 0;
+                }
 
+                m_points[Index].x = xTo;
+                m_points[Index].y = 1;
+                ++Index;
+                m_points[Index].x = xFrom;
+                m_points[Index].y = 1;
+                ++Index;
+                m_points[Index].x = xFrom;
+                m_points[Index].y = 0;
+                ++Index;
+
+            }
 			// line is now at 0,1, so we can draw the columns
 			for(int i = 0; i < GridColumns; ++i)
 			{
@@ -120,6 +167,8 @@ namespace UnityEngine.UI.Extensions
 				m_points[Index].x = (float)(i + 1) / GridColumns;
 				m_points[Index].y = yTo;
 				++Index;
+
+              
 			}
 
 			if(GridColumns % 2 == 0)
