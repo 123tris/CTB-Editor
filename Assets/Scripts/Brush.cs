@@ -82,7 +82,7 @@ public class Brush : MonoBehaviour
             if (hitObject != null)
             {
                 //Select slider
-                if (hitObject.transform.parent.GetComponent<Slider>())
+                if (!ClickManager.DoubleClick() && hitObject.transform.parent.GetComponent<Slider>())
                 {
                     Slider slider = hitObject.transform.parent.GetComponent<Slider>();
                     selectedHitObject = slider;
@@ -105,6 +105,8 @@ public class Brush : MonoBehaviour
                     hitObject.OnHightlight();
                 }
             }
+
+
         }
 
         //Reset dragging if mouse button is released

@@ -31,7 +31,7 @@ public class Slider : HitObject
         UpdateLines();
     }
 
-    private void UpdateLines()
+    public void UpdateLines()
     {
         lineRenderer.Points = new Vector2[fruits.Count];
         for (int i = 0; i < fruits.Count; i++)

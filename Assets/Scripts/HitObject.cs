@@ -16,6 +16,10 @@ public abstract class HitObject : MonoBehaviour
         transform.position = newPosition.ToInt();
         position = (newPosition - Grid.Instance.transform.position).ToVector2Int();
         position.y += TimeLine.currentTimeStamp;
+
+        //If this is a slider fruit
+        if (transform.parent.GetComponent<Slider>())
+            transform.parent.GetComponent<Slider>().UpdateLines();
     }
 
     public abstract void OnHightlight();
