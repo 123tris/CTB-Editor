@@ -26,7 +26,6 @@ public class Brush : MonoBehaviour
     private HitObject selectedHitObject;
     private HitObject draggingHitObject = null;
     private Slider createdSlider = null;
-    private Vector3 oldMousePosition;
 
     void Start()
     {
@@ -69,11 +68,6 @@ public class Brush : MonoBehaviour
         //    fruitDisplay.SetActive(true);
         //}
         //else fruitDisplay.SetActive(false);
-    }
-
-    private void LateUpdate()
-    {
-        oldMousePosition = Input.mousePosition;
     }
 
     private void OnSelectState()
