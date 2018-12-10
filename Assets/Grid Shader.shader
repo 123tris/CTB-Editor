@@ -5,8 +5,8 @@ Shader "Unlit/Brick Shader"
 	Properties
 	{
 		_BrickColor("Color", Color) = (1,.1,0,1)
-		_Rows("Rows", int) = 3
-		_Columns("Columns", int) = 4
+		_Rows("Rows", float) = 3
+		_Columns("Columns", float) = 4
 		_RowOffset("Row offset",float) = 0.2
 		_RowWidth("Row width",float) = 1
 		_ColumnWidth("Column width",float) = 1
@@ -67,21 +67,46 @@ Shader "Unlit/Brick Shader"
 				float x = i.uv.x;
 				float y = i.uv.y;
 
-				float row = y*_Rows*2;
-				float column = x* _Columns;
+				//Draw rows
 				float rowWidth = _RowWidth;
+				float rows = _Rows - 1;
+				float rowStep = (1 / rows);
+				
+				y *= 100;
+				rowStep *= 100;
+
+				if (y % rowStep <= rowWidth/2 || y % rowStep >= rowStep - rowWidth/2)
+				{
+					return _OutlineColor;
+				}
+
+				//Draw columns
 				float columnWidth = _ColumnWidth;
-				float offset = _RowOffset;
+				float columns = _Columns - 1;
+				float columnStep = (1 / columns);
 
-				row -= rowWidth/2;
+				x *= 100;
+				columnStep *= 100;
 
-				if (row % 2 > (2-rowWidth)) {
+				if (x % columnStep <= columnWidth / 2 || x % columnStep >= columnStep - columnWidth / 2)
+				{
 					return _OutlineColor;
 				}
-				if (column % 2 > (2-rowWidth)) {
-					return _OutlineColor;
-				}
 
+				//float offset = _RowOffset;
+				//float rowWidth = _RowWidth;
+				//float columnWidth = _ColumnWidth;
+				//float row = y *_Rows*2;
+				//float column = x* _Columns;
+
+				//row -= rowWidth/2;
+
+				//if (row % 2 > (2-rowWidth)) {
+				//	return _OutlineColor;
+				//}
+				/*if (column % 2 > (2-rowWidth)) {
+					return _OutlineColor;
+				}*/
 				return float4(0,0,0,255);
 			}
 			ENDCG

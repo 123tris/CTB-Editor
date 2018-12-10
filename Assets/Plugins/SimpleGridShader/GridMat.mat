@@ -62,13 +62,13 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 1
-    - _GridSize: 10
-    - _LineSize: 0.16
+    - _GridSize: 3
+    - _LineSize: 0.025
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _SelectCell: 0
+    - _SelectCell: 1
     - _SelectedCellX: 0
     - _SelectedCellY: 0
     - _SmoothnessTextureChannel: 0

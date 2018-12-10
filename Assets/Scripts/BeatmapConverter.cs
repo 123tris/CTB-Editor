@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class BeatmapConverter {
+public static class BeatmapConverter
+{
     private const int version = 12;
 
     private static List<string> lines;
@@ -88,19 +89,19 @@ public static class BeatmapConverter {
     private static void Section(string str)
     {
         lines.Add("");
-        lines.Add(string.Format("[{0}]", str));
+        lines.Add($"[{str}]");
     }
 
     private static void Pair(string parameter, string value)
     {
-        lines.Add(string.Format("{0}: {1}", parameter, value));
+        lines.Add($"{parameter}: {value}");
     }
 
     private static void TimingPoint(int offset, double mspb, int meter, int sampleSet, int sampleIndex, int volume, byte kiaiMode)
     {
         byte inherited = (mspb < 0) ? (byte)0 : (byte)1;
 
-        lines.Add(string.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}", offset.ToString(), mspb.ToString(), meter.ToString(), sampleSet.ToString(), sampleIndex.ToString(), volume.ToString(), inherited.ToString(), kiaiMode.ToString()));
+        lines.Add($"{offset}, {mspb}, {meter}, {sampleSet}, {sampleIndex}, {volume}, {inherited}, {kiaiMode}");
     }
 
 }

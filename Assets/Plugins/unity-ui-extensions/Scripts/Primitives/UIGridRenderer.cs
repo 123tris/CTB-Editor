@@ -55,17 +55,17 @@ namespace UnityEngine.UI.Extensions
 		{
 			relativeSize = true;
 
-            int ArraySize = ((int)Mathf.Ceil(GridRows + 1) * 3) + 2;
+            int ArraySize = (int)Mathf.Ceil(GridRows + 1) * 3 + 2;
 			if(GridRows % 2 == 0)
 				++ArraySize; // needs one more line
 
-			ArraySize += ((int)Mathf.Ceil(GridColumns) * 3) + 1;
+			ArraySize += (int)Mathf.Ceil(GridColumns) * 3 + 1;
 
 			m_points = new Vector2[ArraySize];
 
             float relativePixelHeight = 1 / rectTransform.rect.height;
             int Index = 0;
-            var yDistance = (rectTransform.rect.height / GridRows);
+            float yDistance = rectTransform.rect.height / GridRows;
             offset %= (int)yDistance;
 
 
@@ -79,9 +79,9 @@ namespace UnityEngine.UI.Extensions
 					xFrom = 0;
 					xTo = 1;
 				}
-                float softOffset = (i == 0) ? 0 : offset;
+                float softOffset = i == 0 ? 0 : offset;
 
-                float y = ((float)i) / GridRows;
+                float y = i / GridRows;
 				m_points[Index].x = xFrom;
 				m_points[Index].y = y - relativePixelHeight * softOffset;
 				++Index;
@@ -89,11 +89,11 @@ namespace UnityEngine.UI.Extensions
 				m_points[Index].y = y - relativePixelHeight * softOffset;
 				++Index;
 				m_points[Index].x = xTo;
-				m_points[Index].y = Mathf.Min(((i + 1) / GridRows) - relativePixelHeight * softOffset, 1);
+				m_points[Index].y = Mathf.Min((i + 1) / GridRows - relativePixelHeight * softOffset, 1);
 				++Index;
 			}
 
-            var additionSize = (int)(yDistance - ((GridRows - Mathf.Floor(GridRows)) / GridRows) * rectTransform.rect.height);
+            int additionSize = (int)(yDistance - (GridRows - Mathf.Floor(GridRows)) / GridRows * rectTransform.rect.height);
            
                 
             if (offset >= additionSize)
@@ -157,14 +157,14 @@ namespace UnityEngine.UI.Extensions
 					yTo = 1;
 				}
 
-				float x = ((float)i) / GridColumns;
+				float x = i / GridColumns;
 				m_points[Index].x = x;
 				m_points[Index].y = yFrom;
 				++Index;
 				m_points[Index].x = x;
 				m_points[Index].y = yTo;
 				++Index;
-				m_points[Index].x = (float)(i + 1) / GridColumns;
+				m_points[Index].x = (i + 1) / GridColumns;
 				m_points[Index].y = yTo;
 				++Index;
 
