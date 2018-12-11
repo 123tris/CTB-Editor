@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - HitObject
+  - BPMField
+  - ARField
+  - CSField
   layers:
   - Default
   - TransparentFX
