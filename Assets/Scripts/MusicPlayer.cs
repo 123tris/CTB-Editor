@@ -16,7 +16,8 @@ public class MusicPlayer : MonoBehaviour
 
     void LateUpdate()
     {
-        TimeLine.instance.SetCurrentTimeStamp((int) (audioSource.time * 1000));
+        if (TimeLine.instance != null)
+            TimeLine.instance.SetCurrentTimeStamp((int) (audioSource.time * 1000));
     }
 
     public void SetSong(string filepath)

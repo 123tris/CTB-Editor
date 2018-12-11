@@ -22,6 +22,8 @@ public class Slider : HitObject
 
         //Spawn fruit
         Fruit fruit = Instantiate(fruitPrefab,transform).GetComponent<Fruit>();
+        HitObjectManager.instance.UpdateFruitCircleSize(fruit);
+
         fruit.SetPosition(spawnPosition);
 
         //Update slider's fruits

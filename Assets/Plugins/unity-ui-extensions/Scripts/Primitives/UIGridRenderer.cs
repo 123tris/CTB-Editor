@@ -55,7 +55,7 @@ namespace UnityEngine.UI.Extensions
 		{
 			relativeSize = true;
 
-            int ArraySize = (int)Mathf.Ceil(GridRows + 1) * 3 + 2;
+            int ArraySize = (int)Mathf.Ceil(GridRows) * 3 + 2;
 			if(GridRows % 2 == 0)
 				++ArraySize; // needs one more line
 

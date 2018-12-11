@@ -54,7 +54,7 @@ public static class BeatmapConverter
         Pair("HPDrainRate", "7"); // TODO
         Pair("CircleSize", "5"); // TODO
         Pair("OverallDifficulty", "5"); // TODO
-        Pair("ApproachRate", ApproachRateUI.Instance.approachRate.ToString());
+        Pair("ApproachRate", TextUI.Instance.AR);
         Pair("SliderMultiplier", "1"); // TODO
         Pair("SliderTickRate", "1"); // TODO
         #endregion
@@ -65,7 +65,7 @@ public static class BeatmapConverter
 
         #region TIMINGPOINTS
         Section("TimingPoints"); // TODO REALLY IMPORTANT, FOR THE MOMENT ONLY 1 POINT AT 0 OFFSET WILL BE PUT
-        TimingPoint(0, 60000f / BpmUI.Instance.BPM, 4, 2, 1, 100, 0);
+        TimingPoint(0, 60000f / TextUI.Instance.BPM, 4, 2, 1, 100, 0);
         #endregion
 
         #region COLOURS
@@ -92,7 +92,7 @@ public static class BeatmapConverter
         lines.Add($"[{str}]");
     }
 
-    private static void Pair(string parameter, string value)
+    private static void Pair(string parameter, object value)
     {
         lines.Add($"{parameter}: {value}");
     }

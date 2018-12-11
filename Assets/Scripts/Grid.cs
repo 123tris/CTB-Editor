@@ -35,13 +35,13 @@ public class Grid : Singleton<Grid>
 
     private void CalculateHorizontalLines()
     {
-        float lines = GetVisibleTimeRange() / 1000 * (BpmUI.Instance.BPM / 60) * BeatsnapDivisor.Instance.division;
+        float lines = GetVisibleTimeRange() / 1000 * (TextUI.Instance.BPM / 60) * BeatsnapDivisor.Instance.division;
         rows = lines;
     }
 
     private float GetVisibleTimeRange()
     {
-        return DifficultyRange(ApproachRateUI.Instance.approachRate, 1800, 1200, 450);
+        return DifficultyRange(TextUI.Instance.AR, 1800, 1200, 450);
     }
 
     private float DifficultyRange(float difficulty, float min, float mid, float max)

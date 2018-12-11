@@ -155,6 +155,7 @@ public class Brush : MonoBehaviour
             if (!TimeStampOccupied())
             {
                 Fruit fruit = Instantiate(fruitPrefab, transform).GetComponent<Fruit>();
+                HitObjectManager.instance.UpdateFruitCircleSize(fruit);
                 fruit.SetPosition(Input.mousePosition);
                 HitObjectManager.instance.AddHitObject(fruit);
             }
