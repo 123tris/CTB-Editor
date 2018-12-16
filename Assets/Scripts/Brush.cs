@@ -17,8 +17,6 @@ public class Brush : MonoBehaviour
 {
     public BrushState state = BrushState.Fruit;
     public Vector3 mousePositionOnGrid;
-    [SerializeField] private GameObject fruitPrefab;
-    [SerializeField] private GameObject sliderPrefab;
 
     [SerializeField] private Text brushCoords;
     private Grid grid;

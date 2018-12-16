@@ -1652,10 +1652,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   state: 0
   mousePositionOnGrid: {x: 0, y: 0, z: 0}
-  fruitPrefab: {fileID: 1606524455772826, guid: 56a891f6b99b7ab44ba8e9d001bbd5e4,
-    type: 2}
-  sliderPrefab: {fileID: 1606524455772826, guid: 33293d4646846544197e62d9a488f232,
-    type: 2}
   brushCoords: {fileID: 2080192701}
 --- !u!1 &879537917
 GameObject:
@@ -2819,6 +2815,7 @@ GameObject:
   - component: {fileID: 1468995266}
   - component: {fileID: 1468995265}
   - component: {fileID: 1468995269}
+  - component: {fileID: 1468995270}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -2938,6 +2935,21 @@ MonoBehaviour:
   ARInputField: {fileID: 879537920}
   BPMInputField: {fileID: 2125488354}
   CSInputField: {fileID: 1901477457}
+--- !u!114 &1468995270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1468995264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94576a97593eee64883499cd775d027c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fruitPrefab: {fileID: 1606524455772826, guid: 56a891f6b99b7ab44ba8e9d001bbd5e4,
+    type: 2}
+  sliderPrefab: {fileID: 1606524455772826, guid: 33293d4646846544197e62d9a488f232,
+    type: 2}
 --- !u!1 &1502101985
 GameObject:
   m_ObjectHideFlags: 0
