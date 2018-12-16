@@ -77,7 +77,7 @@ public static class BeatmapConverter
 
         #region HITOBJECTS
         Section("HitObjects");
-
+        parseHitObjects();
         #endregion
     }
 
@@ -104,4 +104,31 @@ public static class BeatmapConverter
         lines.Add($"{offset}, {mspb}, {meter}, {sampleSet}, {sampleIndex}, {volume}, {inherited}, {kiaiMode}");
     }
 
+    private static void parseHitObjects()
+    {
+        foreach (HitObject h in HitObjectManager.instance.hitObjects.Values)
+        {
+            if ((h.type & (byte)HitObjectType.Fruit) > 0)
+                addFruit((Fruit)h);
+            else if ((h.type & (byte)HitObjectType.Slider) > 0)
+                addSlider((Slider)h);
+            else
+                Debug.Log($"Unknown fruit type '{h.type}' when converting to .osu file.");
+        }
+    }
+
+    private static void addFruit(Fruit f)
+    {
+        lines.Add($@"{(int)(f.position.x / HitObjectManager.WidthRatio)}, 
+            {HitObjectManager.DEFAULT_OSU_PLAYFIELD_HEIGHT / 2},
+            {f.position.y},
+            {f.type},
+            0,
+            0:0:0:0:");
+    }
+
+    private static void addSlider(Slider s)
+    {
+
+    }
 }

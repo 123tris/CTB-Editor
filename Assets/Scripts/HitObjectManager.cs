@@ -5,9 +5,21 @@ using UnityEngine;
 public class HitObjectManager
 {
     public static HitObjectManager instance;
+    
+    public const float DEFAULT_OSU_PLAYFIELD_WIDTH = 512f;
+    public const float DEFAULT_OSU_PLAYFIELD_HEIGHT = 384f;
 
-    public const float DefaultOsuPlayfieldWidth = 512f;
-    public const int EditorFieldWith = 745; // will have to stop being hardcodded 
+    public const int EDITOR_FIELD_WIDTH = 745; // will have to stop being hardcodded 
+
+    /// <summary>
+    /// How big is the editor compared to the playfield. 
+    /// Should always be > 1.
+    /// </summary>
+    public static float WidthRatio
+    {
+        get { return EDITOR_FIELD_WIDTH / DEFAULT_OSU_PLAYFIELD_WIDTH; }
+        private set { }
+    }
 
     public GameObject sliderPrefab;
     public GameObject fruitPrefab;

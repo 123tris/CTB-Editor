@@ -10,6 +10,10 @@ public class Slider : HitObject
     //Previous fruit should have a lower Y and next fruit should have a higher Y
     private List<Fruit> fruits = new List<Fruit>();
     private UILineRenderer lineRenderer;
+    public Slider()
+    {
+        type = (byte)HitObjectType.Slider;
+    }
 
     void Awake()
     {

@@ -10,6 +10,7 @@ public abstract class HitObject : MonoBehaviour
     /// e.g. If the object's position is the same as the grid's position then position is 0
     /// </summary>
     public Vector2Int position;
+    public byte type;
 
     public void SetPosition(Vector3 newPosition)
     {
