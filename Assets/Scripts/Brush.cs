@@ -130,7 +130,7 @@ public class Brush : MonoBehaviour
 
     private void DraggingBehaviour()
     {
-        if (draggingHitObject.GetType() == typeof(Slider))
+        if (draggingHitObject is Slider)
             DragSlider();
         else
             DragFruit();

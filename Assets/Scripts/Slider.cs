@@ -12,7 +12,7 @@ public class Slider : HitObject
     private UILineRenderer lineRenderer;
     public Slider()
     {
-        type = (byte)HitObjectType.Slider;
+        type = HitObjectType.Slider;
     }
 
     void Awake()

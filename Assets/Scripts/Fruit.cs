@@ -13,7 +13,7 @@ public class Fruit : HitObject {
 
     public Fruit()
     {
-        type = (byte)HitObjectType.Fruit;
+        type = HitObjectType.Fruit;
     }
 
     void Start()

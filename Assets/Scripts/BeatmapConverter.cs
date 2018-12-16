@@ -108,10 +108,10 @@ public static class BeatmapConverter
     {
         foreach (HitObject h in HitObjectManager.instance.hitObjects.Values)
         {
-            if ((h.type & (byte)HitObjectType.Fruit) > 0)
-                addFruit((Fruit)h);
-            else if ((h.type & (byte)HitObjectType.Slider) > 0)
-                addSlider((Slider)h);
+            if (h is Fruit)
+                addFruit(h as Fruit);
+            else if (h is Slider)
+                addSlider(h as Slider);
             else
                 Debug.Log($"Unknown fruit type '{h.type}' when converting to .osu file.");
         }
@@ -122,7 +122,7 @@ public static class BeatmapConverter
         lines.Add($@"{(int)(f.position.x / HitObjectManager.WidthRatio)}, 
             {HitObjectManager.DEFAULT_OSU_PLAYFIELD_HEIGHT / 2},
             {f.position.y},
-            {f.type},
+            {(byte)f.type},
             0,
             0:0:0:0:");
     }
