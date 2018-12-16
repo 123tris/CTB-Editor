@@ -6,16 +6,11 @@ public class HitObjectManager
 {
     public static HitObjectManager instance;
 
-    private const float DefaultOsuPlayfieldWidth = 512f;
-    private const int EditorFieldWith = 745; // will have to stop being hardcodded 
+    public const float DefaultOsuPlayfieldWidth = 512f;
+    public const int EditorFieldWith = 745; // will have to stop being hardcodded 
 
-    public const float OBJECT_RADIUS = 44;
-
-    public float Scale
-    {
-        get {  return (1.0f - 0.7f * (TextUI.Instance.CS - 5) / 5f) * EditorFieldWith / DefaultOsuPlayfieldWidth; }
-        private set { }
-    }
+    public GameObject sliderPrefab;
+    public GameObject fruitPrefab;
 
     public HitObjectManager()
     {
@@ -24,7 +19,30 @@ public class HitObjectManager
 
     public Dictionary<int, HitObject> hitObjects = new Dictionary<int, HitObject>(); //Key indicates the y-axis of the hitobject
 
-    public void AddHitObject(HitObject hitObject)
+    public Slider CreateSlider(Vector2 position, Transform parent)
+    {
+        Slider slider = UnityEngine.Object.Instantiate(sliderPrefab, parent).GetComponent<Slider>();
+        slider.SetPosition(position);
+        AddHitObject(slider);
+        return slider;
+    }
+
+    public Fruit CreateSliderFruit(Vector2 position, Transform parent)
+    {
+        Fruit fruit = UnityEngine.Object.Instantiate(fruitPrefab, parent).GetComponent<Fruit>();
+        fruit.SetPosition(position);
+        return fruit;
+    }
+
+    public Fruit CreateFruit(Vector2 position,Transform parent)
+    {
+        Fruit fruit = UnityEngine.Object.Instantiate(fruitPrefab, parent).GetComponent<Fruit>();
+        fruit.SetPosition(position);
+        AddHitObject(fruit);
+        return fruit;
+    }
+
+    private void AddHitObject(HitObject hitObject)
     {
         hitObjects.Add(hitObject.position.y, hitObject);
     }
@@ -48,16 +66,7 @@ public class HitObjectManager
     {
         foreach (HitObject h in hitObjects.Values)
         {
-            UpdateFruitCircleSize(h);
+            h.UpdateCircleSize();
         }
-
-    }
-
-    public void UpdateFruitCircleSize(HitObject h)
-    {
-        float circleSizePX = OBJECT_RADIUS * Scale;
-        RectTransform r = h.GetComponent<RectTransform>();
-        r.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, circleSizePX);
-        r.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, circleSizePX);
     }
 }

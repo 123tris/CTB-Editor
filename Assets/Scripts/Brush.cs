@@ -109,16 +109,22 @@ public class Brush : MonoBehaviour
 
         }
 
-        //Reset dragging if mouse button is released
-        if (Input.GetMouseButtonUp(0))
-            draggingHitObject = null;
-
         if (Input.GetKeyDown(KeyCode.Delete))
         {
             Destroy(selectedHitObject.gameObject);
             selectedHitObject = null;
             draggingHitObject = null;
         }
+
+        //Reset dragging if mouse button is released
+        if (Input.GetMouseButtonUp(0))
+        {
+            selectedHitObject?.UnHighlight();
+            draggingHitObject = null;
+            selectedHitObject = null;
+        }
+
+        
 
         if (draggingHitObject == null) return;
         DraggingBehaviour();
@@ -154,10 +160,7 @@ public class Brush : MonoBehaviour
         {
             if (!TimeStampOccupied())
             {
-                Fruit fruit = Instantiate(fruitPrefab, transform).GetComponent<Fruit>();
-                HitObjectManager.instance.UpdateFruitCircleSize(fruit);
-                fruit.SetPosition(Input.mousePosition);
-                HitObjectManager.instance.AddHitObject(fruit);
+                hitObjectManager.CreateFruit(Input.mousePosition,transform);
             }
         }
     }
@@ -183,9 +186,7 @@ public class Brush : MonoBehaviour
 
     private Slider CreateSlider()
     {
-        Slider slider = Instantiate(sliderPrefab,transform).GetComponent<Slider>();
-        slider.fruitPrefab = fruitPrefab;
-        slider.transform.position = Input.mousePosition;
+        Slider slider = hitObjectManager.CreateSlider(Input.mousePosition,transform);
         slider.AddFruit(Input.mousePosition);
         return slider;
     }

@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Globalization;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,15 +11,14 @@ public class TextUI : Singleton<TextUI>
     [HideInInspector] public float BPM;
     [HideInInspector] public float CS;
 
-    private InputField ARInputField;
-    private InputField BPMInputField;
-    private InputField CSInputField;
+    [SerializeField] private InputField ARInputField;
+    [SerializeField] private InputField BPMInputField;
+    [SerializeField] private InputField CSInputField;
 
     void Start()
     {
-        ARInputField = GameObject.FindGameObjectWithTag("ARField").GetComponent<InputField>();
-        BPMInputField = GameObject.FindGameObjectWithTag("BPMField").GetComponent<InputField>();
-        CSInputField = GameObject.FindGameObjectWithTag("CSField").GetComponent<InputField>();
+        if (!ARInputField || !BPMInputField || !CSInputField) //if one of them is null
+            Debug.LogError("Not all input fields in TextUI is set",gameObject);
 
         BPM = 180;
         AR = 5;
@@ -28,13 +29,13 @@ public class TextUI : Singleton<TextUI>
     {
         float parseResult;
 
-        if (float.TryParse(NormalizeString(BPMInputField.text), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out parseResult))
+        if (float.TryParse(NormalizeString(BPMInputField.text), NumberStyles.Float, CultureInfo.InvariantCulture, out parseResult))
             AR = parseResult;
 
-        if (float.TryParse(NormalizeString(ARInputField.text), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out parseResult))
+        if (float.TryParse(NormalizeString(ARInputField.text), NumberStyles.Float, CultureInfo.InvariantCulture, out parseResult))
             BPM = parseResult;
         
-        if (float.TryParse(NormalizeString(CSInputField.text), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out parseResult))
+        if (float.TryParse(NormalizeString(CSInputField.text), NumberStyles.Float, CultureInfo.InvariantCulture, out parseResult))
         {
             if (parseResult == CS)
                 return;

@@ -22,6 +22,8 @@ public abstract class HitObject : MonoBehaviour
             transform.parent.GetComponent<Slider>().UpdateLines();
     }
 
+    public abstract void UpdateCircleSize();
+
     public abstract void OnHightlight();
 
     public abstract void UnHighlight();

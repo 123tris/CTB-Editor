@@ -21,10 +21,7 @@ public class Slider : HitObject
         //TODO: Set position of slider when the first fruit is placed
 
         //Spawn fruit
-        Fruit fruit = Instantiate(fruitPrefab,transform).GetComponent<Fruit>();
-        HitObjectManager.instance.UpdateFruitCircleSize(fruit);
-
-        fruit.SetPosition(spawnPosition);
+        Fruit fruit = HitObjectManager.instance.CreateSliderFruit(spawnPosition,transform);
 
         //Update slider's fruits
         fruits.Add(fruit);
@@ -42,6 +39,14 @@ public class Slider : HitObject
         }
 
         lineRenderer.SetAllDirty();
+    }
+
+    public override void UpdateCircleSize()
+    {
+        foreach (Fruit fruit in fruits)
+        {
+            fruit.UpdateCircleSize();
+        }
     }
 
     public override void OnHightlight()
