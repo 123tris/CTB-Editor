@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI.Extensions;
 
@@ -26,6 +27,7 @@ public class Slider : HitObject
 
         //Spawn fruit
         Fruit fruit = HitObjectManager.instance.CreateSliderFruit(spawnPosition,transform);
+        Undo.RegisterCreatedObjectUndo(fruit.gameObject,"Create Slider Fruit");
 
         //Update slider's fruits
         fruits.Add(fruit);

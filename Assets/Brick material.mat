@@ -57,8 +57,8 @@ Material:
     m_Floats:
     - _BumpScale: 1
     - _ColumnOffset: 67
-    - _ColumnWidth: 0.28
-    - _Columns: 9.9
+    - _ColumnWidth: 0.25
+    - _Columns: 24
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -70,8 +70,8 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RowOffset: 0.24
-    - _RowWidth: 0.42
-    - _Rows: 6.54
+    - _RowWidth: 0.25
+    - _Rows: 24
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
@@ -81,5 +81,6 @@ Material:
     - _BrickColor: {r: 0.8207547, g: 0.32561797, b: 0.21293166, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _GridColor: {r: 0.16862746, g: 0.16862746, b: 0.16862746, a: 1}
     - _GridColour: {r: 1, g: 1, b: 1, a: 1}
-    - _OutlineColor: {r: 0, g: 0.666667, b: 1, a: 0}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 0}

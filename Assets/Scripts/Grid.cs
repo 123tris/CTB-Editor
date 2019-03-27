@@ -1,27 +1,26 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
 
 public class Grid : Singleton<Grid>
 {
-    public float lineWidth = 1;
-
     public float columns
     {
-        get { return gridRenderer.GridColumns; }
-        set { gridRenderer.GridColumns = (int) value; }
+        get { return gridUI.GetFloat("Columns"); }
+        set { gridUI.SetFloat("Columns", value); }
     }
     public float rows
     {
-        get { return gridRenderer.GridRows; }
-        set { gridRenderer.GridRows = (int)value; }
+        get { return gridUI.GetFloat("Rows"); }
+        set { gridUI.SetFloat("Rows", value); }
     }
 
-    private UIGridRenderer gridRenderer;
+    private Material gridUI;
     private RectTransform rectTransform;
 
     void Start()
     {
-        gridRenderer = GetComponent<UIGridRenderer>();
+        gridUI = GetComponent<Image>().material;
         rectTransform = GetComponent<RectTransform>();
     }
 

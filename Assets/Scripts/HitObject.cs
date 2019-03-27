@@ -18,7 +18,7 @@ public abstract class HitObject : MonoBehaviour
         position = (newPosition - Grid.Instance.transform.position).ToVector2Int();
         position.y += TimeLine.currentTimeStamp;
 
-        //If this is a slider fruit
+        //If this is a slider fruit, update the line connections
         if (transform.parent.GetComponent<Slider>())
             transform.parent.GetComponent<Slider>().UpdateLines();
     }

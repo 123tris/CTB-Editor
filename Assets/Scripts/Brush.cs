@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -171,7 +172,10 @@ public class Brush : MonoBehaviour
             if (createdSlider == null)
                 createdSlider = CreateSlider();
             else
+            {
+                Undo.RecordObject(createdSlider, "Create Slider Fruit");
                 createdSlider.AddFruit(Input.mousePosition);
+            }
         }
 
         if (createdSlider != null && Input.GetMouseButtonDown(1)) //Right click when currently making a slider

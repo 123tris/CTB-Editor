@@ -12,14 +12,10 @@ public class HitObjectManager
     public const int EDITOR_FIELD_WIDTH = 745; // will have to stop being hardcodded 
 
     /// <summary>
-    /// How big is the editor compared to the playfield. 
+    /// How big the editor is compared to the playfield. 
     /// Should always be > 1.
     /// </summary>
-    public static float WidthRatio
-    {
-        get { return EDITOR_FIELD_WIDTH / DEFAULT_OSU_PLAYFIELD_WIDTH; }
-        private set { }
-    }
+    public const float WidthRatio = EDITOR_FIELD_WIDTH / DEFAULT_OSU_PLAYFIELD_WIDTH;
 
     public GameObject sliderPrefab;
     public GameObject fruitPrefab;
@@ -39,13 +35,26 @@ public class HitObjectManager
         return slider;
     }
 
-    public Fruit CreateSliderFruit(Vector2 position, Transform parent)
+    /// <summary>
+    /// Instantiates a fruit but instead of adding it to the managed hitobjects of the hitobjectmanager
+    /// it will let the slider who owns the fruit to manage it instead. And the hitobjectmanager will manage the slider
+    /// </summary>
+    /// <param name="position">The global position of the fruit</param>
+    /// <param name="slider">The slider which owns the fruit</param>
+    /// <returns></returns>
+    public Fruit CreateSliderFruit(Vector2 position, Transform slider)
     {
-        Fruit fruit = UnityEngine.Object.Instantiate(fruitPrefab, parent).GetComponent<Fruit>();
+        Fruit fruit = UnityEngine.Object.Instantiate(fruitPrefab, slider).GetComponent<Fruit>();
         fruit.SetPosition(position);
         return fruit;
     }
 
+    /// <summary>
+    /// Instantiates a fruit and adds it to the managed hitobjects of the hitobjectmanager
+    /// </summary>
+    /// <param name="position"></param>
+    /// <param name="parent"></param>
+    /// <returns></returns>
     public Fruit CreateFruit(Vector2 position,Transform parent)
     {
         Fruit fruit = UnityEngine.Object.Instantiate(fruitPrefab, parent).GetComponent<Fruit>();
@@ -54,6 +63,10 @@ public class HitObjectManager
         return fruit;
     }
 
+    /// <summary>
+    /// Adds a created hitobject to the hitobjectmanager's list of hitobjects that it manages over
+    /// </summary>
+    /// <param name="hitObject"></param>
     private void AddHitObject(HitObject hitObject)
     {
         hitObjects.Add(hitObject.position.y, hitObject);

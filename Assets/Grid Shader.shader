@@ -1,10 +1,10 @@
 ﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-Shader "Unlit/Brick Shader"
+Shader "Unlit/Grid Shader"
 {
 	Properties
 	{
-		_BrickColor("Color", Color) = (1,.1,0,1)
+		_GridColor("Color", Color) = (1,.1,0,1)
 		_Rows("Rows", float) = 3
 		_Columns("Columns", float) = 4
 		_RowOffset("Row offset",float) = 0.2
@@ -43,14 +43,14 @@ Shader "Unlit/Brick Shader"
 
 			//implement properties
 			sampler2D _MainTex;
-			float4 _BrickColor;
+			float4 _GridColor;
 			float4 _OutlineColor;
 			float4 _MainTex_ST;
 			float _RowWidth;
 			float _ColumnWidth;
 			float _Columns;
 			float _RowOffset;
-			int _Rows;
+			float _Rows;
 			
 			v2f vert (appdata v)
 			{
@@ -107,7 +107,7 @@ Shader "Unlit/Brick Shader"
 				/*if (column % 2 > (2-rowWidth)) {
 					return _OutlineColor;
 				}*/
-				return float4(0,0,0,255);
+				return _GridColor;
 			}
 			ENDCG
 		}
