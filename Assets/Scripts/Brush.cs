@@ -23,14 +23,22 @@ public class Brush : MonoBehaviour
     private Grid grid;
     private HitObjectManager hitObjectManager = new HitObjectManager();
     private HitObject selectedHitObject;
-    private HitObject draggingHitObject = null;
-    private Slider createdSlider = null;
+    private HitObject draggingHitObject;
+    private Slider createdSlider;
 
     private Vector3 distanceFromSliderFruit;
+    [SerializeField] private GameObject fruitDisplayPrefab;
+    private GameObject fruitDisplay;
 
     void Start()
     {
         grid = Grid.Instance;
+        if (fruitDisplayPrefab == null)
+            Debug.LogError("Fruit display is not set!",this);
+        else if (fruitDisplayPrefab.GetComponent<Fruit>() == null)
+            Debug.LogError("Fruit display prefab does not contain a fruit script!",fruitDisplayPrefab);
+
+        fruitDisplay = Instantiate(fruitDisplayPrefab,transform);
     }
 
     public void SetBrushState(int index)
@@ -47,7 +55,21 @@ public class Brush : MonoBehaviour
     {
         mousePositionOnGrid = Input.mousePosition - grid.transform.position;
         brushCoords.text = mousePositionOnGrid.ToString("F2");
+
+        //Display fruit over cursor for accurate placement
+        if (state != BrushState.Select && WithinGridRange(Input.mousePosition))
+        {
+            fruitDisplay.transform.position = Input.mousePosition;
+            fruitDisplay.SetActive(true);
+            if (state == BrushState.Slider && createdSlider != null && createdSlider.fruitCount >= 2)
+            {
+                fruitDisplay.transform.position = createdSlider.GetProjectedPosition(Input.mousePosition);
+            }
+        }
+        else fruitDisplay.SetActive(false);
+
         if (!WithinGridRange(Input.mousePosition)) return;
+
         switch (state)
         {
             case BrushState.Select:
@@ -60,15 +82,6 @@ public class Brush : MonoBehaviour
                 OnSliderState();
                 break;
         }
-
-
-        //Display fruit over cursor for accurate placement
-        //if (state != BrushState.Select && WithinGridRange(Input.mousePosition))
-        //{
-        //    fruitDisplay.transform.position = grid.NearestPointOnGrid(mousePositionOnGrid);
-        //    fruitDisplay.SetActive(true);
-        //}
-        //else fruitDisplay.SetActive(false);
     }
 
     private void OnSelectState()
@@ -104,8 +117,6 @@ public class Brush : MonoBehaviour
                     hitObject.OnHightlight();
                 }
             }
-
-
         }
 
         if (Input.GetKeyDown(KeyCode.Delete))
@@ -118,15 +129,49 @@ public class Brush : MonoBehaviour
         //Reset dragging if mouse button is released
         if (Input.GetMouseButtonUp(0))
         {
-            selectedHitObject?.UnHighlight();
+            if (selectedHitObject != null) selectedHitObject.UnHighlight();
             draggingHitObject = null;
             selectedHitObject = null;
         }
 
-        
-
         if (draggingHitObject == null) return;
         DraggingBehaviour();
+    }
+
+    private void OnFruitState()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (!TimeStampOccupied())
+                hitObjectManager.CreateFruit(Input.mousePosition, transform);
+        }
+    }
+
+    private void OnSliderState()
+    {
+        if (Input.GetMouseButtonDown(0) && !TimeStampOccupied())
+        {
+            //If create slider is null then we're creating our first slider
+            if (createdSlider == null)
+                createdSlider = CreateSlider();
+            else
+            {
+                createdSlider.AddFruit(fruitDisplay.transform.position);
+            }
+        }
+
+        if (createdSlider != null)
+        {
+            //Display preview
+            createdSlider.DisplayPreview(fruitDisplay.GetComponent<Fruit>());
+
+            if (Input.GetMouseButtonDown(1)) //Right click when currently making a slider
+            {
+                //Finish slider creation
+                createdSlider.AddFruit(fruitDisplay.transform.position);
+                createdSlider = null;
+            }
+        }
     }
 
     private void DraggingBehaviour()
@@ -149,46 +194,13 @@ public class Brush : MonoBehaviour
 
     private void DragSlider()
     {
-        Slider draggingSlider = (Slider) draggingHitObject;
+        Slider draggingSlider = (Slider)draggingHitObject;
         draggingSlider.MoveSlider(Input.mousePosition + distanceFromSliderFruit);
-    }
-
-    private void OnFruitState()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (!TimeStampOccupied())
-            {
-                hitObjectManager.CreateFruit(Input.mousePosition,transform);
-            }
-        }
-    }
-
-    private void OnSliderState()
-    {
-        if (Input.GetMouseButtonDown(0) && !TimeStampOccupied())
-        {
-            //If create slider is null then we're creating our first slider
-            if (createdSlider == null)
-                createdSlider = CreateSlider();
-            else
-            {
-                Undo.RecordObject(createdSlider, "Create Slider Fruit");
-                createdSlider.AddFruit(Input.mousePosition);
-            }
-        }
-
-        if (createdSlider != null && Input.GetMouseButtonDown(1)) //Right click when currently making a slider
-        {
-            //Finish slider creation
-            createdSlider.AddFruit(Input.mousePosition);
-            createdSlider = null;
-        }
     }
 
     private Slider CreateSlider()
     {
-        Slider slider = hitObjectManager.CreateSlider(Input.mousePosition,transform);
+        Slider slider = hitObjectManager.CreateSlider(Input.mousePosition, transform);
         slider.AddFruit(Input.mousePosition);
         return slider;
     }
@@ -229,5 +241,4 @@ public class Brush : MonoBehaviour
         RectTransform gridRect = grid.GetComponent<RectTransform>();
         return vec.x > gridPos.x && vec.y > gridPos.y && vec.x < gridPos.x + gridRect.sizeDelta.x && vec.y < gridPos.y + gridRect.sizeDelta.y;
     }
-
 }

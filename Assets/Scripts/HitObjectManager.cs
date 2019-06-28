@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class HitObjectManager
@@ -9,7 +9,7 @@ public class HitObjectManager
     public const float DEFAULT_OSU_PLAYFIELD_WIDTH = 512f;
     public const float DEFAULT_OSU_PLAYFIELD_HEIGHT = 384f;
 
-    public const int EDITOR_FIELD_WIDTH = 745; // will have to stop being hardcodded 
+    public const int EDITOR_FIELD_WIDTH = 745; // will have to stop being hard-coded 
 
     /// <summary>
     /// How big the editor is compared to the playfield. 
@@ -25,13 +25,14 @@ public class HitObjectManager
         instance = this;
     }
 
-    public Dictionary<int, HitObject> hitObjects = new Dictionary<int, HitObject>(); //Key indicates the y-axis of the hitobject
+    public Dictionary<int, HitObject> hitObjects = new Dictionary<int, HitObject>(); //Key indicates when the hitobject is played in MS
 
     public Slider CreateSlider(Vector2 position, Transform parent)
     {
-        Slider slider = UnityEngine.Object.Instantiate(sliderPrefab, parent).GetComponent<Slider>();
+        Slider slider = Object.Instantiate(sliderPrefab, parent).GetComponent<Slider>();
         slider.SetPosition(position);
         AddHitObject(slider);
+        Undo.RegisterCreatedObjectUndo(slider.gameObject,"Create Slider");
         return slider;
     }
 
@@ -41,25 +42,21 @@ public class HitObjectManager
     /// </summary>
     /// <param name="position">The global position of the fruit</param>
     /// <param name="slider">The slider which owns the fruit</param>
-    /// <returns></returns>
     public Fruit CreateSliderFruit(Vector2 position, Transform slider)
     {
-        Fruit fruit = UnityEngine.Object.Instantiate(fruitPrefab, slider).GetComponent<Fruit>();
+        Fruit fruit = Object.Instantiate(fruitPrefab, slider).GetComponent<Fruit>();
         fruit.SetPosition(position);
+        Undo.RegisterCreatedObjectUndo(fruit.gameObject,"Create Slider Fruit");
         return fruit;
     }
 
-    /// <summary>
-    /// Instantiates a fruit and adds it to the managed hitobjects of the hitobjectmanager
-    /// </summary>
-    /// <param name="position"></param>
-    /// <param name="parent"></param>
-    /// <returns></returns>
+    /// <summary> Instantiates a fruit and adds it to the managed hitobjects of the hitobjectmanager </summary>
     public Fruit CreateFruit(Vector2 position,Transform parent)
     {
-        Fruit fruit = UnityEngine.Object.Instantiate(fruitPrefab, parent).GetComponent<Fruit>();
+        Fruit fruit = Object.Instantiate(fruitPrefab, parent).GetComponent<Fruit>();
         fruit.SetPosition(position);
         AddHitObject(fruit);
+        RuntimeUndo.Undo.RegisterCreatedObjectUndo(fruit.gameObject);
         return fruit;
     }
 

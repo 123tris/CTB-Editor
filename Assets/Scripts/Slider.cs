@@ -11,6 +11,8 @@ public class Slider : HitObject
     //Previous fruit should have a lower Y and next fruit should have a higher Y
     private List<Fruit> fruits = new List<Fruit>();
     private UILineRenderer lineRenderer;
+    public int fruitCount => fruits.Count;
+
     public Slider()
     {
         type = HitObjectType.Slider;
@@ -27,7 +29,7 @@ public class Slider : HitObject
 
         //Spawn fruit
         Fruit fruit = HitObjectManager.instance.CreateSliderFruit(spawnPosition,transform);
-        Undo.RegisterCreatedObjectUndo(fruit.gameObject,"Create Slider Fruit");
+        Undo.RecordObject(lineRenderer,"Create Slider Fruit");
 
         //Update slider's fruits
         fruits.Add(fruit);
@@ -70,5 +72,29 @@ public class Slider : HitObject
         SetPosition(pPosition);
         foreach (Fruit fruit in fruits)
             fruit.SetPosition(fruit.transform.position);
+    }
+
+    /// <summary> Displays a preview of a slider if `previewFruit` was added </summary>
+    public void DisplayPreview(Fruit previewFruit)
+    {
+        fruits.Add(previewFruit);
+        fruits.Sort((fruit1,fruit2) => fruit1.position.y.CompareTo(fruit2.position.y));
+        UpdateLines();
+        fruits.Remove(previewFruit);
+    }
+
+    public Fruit GetLastFruit()
+    {
+        return fruits[fruits.Count - 1];
+    }
+
+    public Vector2 GetProjectedPosition(Vector2 mousePosition)
+    {
+        Vector2 direction = fruits[0].position - fruits[1].position;
+        direction.x *= -1; //invert x-axis
+        direction.Normalize();
+        Vector2 mouseDirectionToLastFruit = Input.mousePosition - fruits[0].transform.position;
+        Vector3 projectedLine = Vector2.Dot(mouseDirectionToLastFruit, direction) * direction;
+        return fruits[0].transform.position + projectedLine;
     }
 }
