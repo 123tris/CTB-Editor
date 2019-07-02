@@ -1,32 +1,45 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class Grid : Singleton<Grid>
 {
-    public float columns;
-    public float rows;
+    public float columns
+    {
+        get { return gridMaterial.GetFloat ("_Columns"); } //TODO: retrieving from material is slow, value could be cached
+        set { gridMaterial.SetFloat ("_Columns", value); }
+    }
 
-    private Material gridUI;
+    public float rows
+    {
+        get { return gridMaterial.GetFloat ("_Rows"); }
+        set { gridMaterial.SetFloat ("_Rows", value); }
+    }
+
+    private Material gridMaterial;
     private RectTransform rectTransform;
 
     void Start()
     {
-        gridUI = GetComponent<Image>().material;
+        gridMaterial = GetComponent<Image> ().material;
         rectTransform = GetComponent<RectTransform>();
+        gridMaterial.SetVector("_RectSize",rectTransform.sizeDelta);
     }
 
     void Update()
     {
-        CalculateHorizontalLines();
+        rows = CalculateRows();
+
+        gridMaterial.SetFloat("_RowOffset",TimeLine.currentTimeStamp % (GetVisibleTimeRange()/rows));
     }
 
-    private void CalculateHorizontalLines()
+    private float CalculateRows()
     {
-        float lines = GetVisibleTimeRange() / 1000 * (TextUI.Instance.BPM / 60) * BeatsnapDivisor.Instance.division;
-        rows = lines;
+        float visibleTimeRange = GetVisibleTimeRange();
+        return visibleTimeRange / 1000 * (TextUI.Instance.BPM / 60) * BeatsnapDivisor.Instance.division;
     }
 
-    private float GetVisibleTimeRange() => DifficultyCalculator.DifficultyRange(TextUI.Instance.AR, 1800, 1200, 450);
+    private float GetVisibleTimeRange() => Math.Abs(DifficultyCalculator.DifficultyRange(TextUI.Instance.AR, 1800, 1200, 450));
 
     /// <summary>
     /// Returns the global position of the nearest point on the grid

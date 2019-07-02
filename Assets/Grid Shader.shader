@@ -4,6 +4,7 @@ Shader "Unlit/Grid Shader"
 {
 	Properties
 	{
+		_RectSize("Rect size",Vector) = (100,100,0,0)
 		_GridColor("Color", Color) = (1,.1,0,1)
 		_Rows("Rows", float) = 3
 		_Columns("Columns", float) = 4
@@ -46,6 +47,7 @@ Shader "Unlit/Grid Shader"
 			float4 _GridColor;
 			float4 _OutlineColor;
 			float4 _MainTex_ST;
+			float4 _RectSize;
 			float _RowWidth;
 			float _ColumnWidth;
 			float _Columns;
@@ -72,8 +74,8 @@ Shader "Unlit/Grid Shader"
 				float rows = _Rows;
 				float rowStep = (1 / rows);
 				
-				y *= 533;
-				rowStep *= 533;
+				y *= _RectSize.y;
+				rowStep *= _RectSize.y;
 				y += _RowOffset;
 
 				if (y % rowStep < rowWidth/2 || y % rowStep > rowStep - rowWidth/2)
@@ -86,13 +88,13 @@ Shader "Unlit/Grid Shader"
 				float columns = _Columns;
 				float columnStep = (1 / columns);
 
-				x *= 745;
-				columnStep *= 745;
+				x *= _RectSize.x;
+				columnStep *= _RectSize.x;
 
-				if (x >= 745-columnWidth) //Draw a line on the right horizontal edge of the grid
-				{
-					return _OutlineColor;
-				}
+				// if (x >= 745-columnWidth) //Draw a line on the right horizontal edge of the grid
+				// {
+				// 	return _OutlineColor;
+				// }
 
 				if (x % columnStep < columnWidth / 2 || x % columnStep > columnStep - columnWidth / 2)
 				{

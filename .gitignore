@@ -6,6 +6,8 @@ Library/
 
 .vs/
 
+.vscode/
+
 *.csproj
 
 *.sln
