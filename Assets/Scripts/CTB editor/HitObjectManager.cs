@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 public class HitObjectManager
@@ -32,7 +34,9 @@ public class HitObjectManager
         Slider slider = Object.Instantiate(sliderPrefab, parent).GetComponent<Slider>();
         slider.SetPosition(position);
         AddHitObject(slider);
+        #if UNITY_EDITOR
         Undo.RegisterCreatedObjectUndo(slider.gameObject,"Create Slider");
+        #endif
         return slider;
     }
 
@@ -46,7 +50,9 @@ public class HitObjectManager
     {
         Fruit fruit = Object.Instantiate(fruitPrefab, slider).GetComponent<Fruit>();
         fruit.SetPosition(position);
+        #if UNITY_EDITOR
         Undo.RegisterCreatedObjectUndo(fruit.gameObject,"Create Slider Fruit");
+        #endif
         return fruit;
     }
 

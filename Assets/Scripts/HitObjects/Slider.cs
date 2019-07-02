@@ -29,7 +29,9 @@ public class Slider : HitObject
 
         //Spawn fruit
         Fruit fruit = HitObjectManager.instance.CreateSliderFruit(spawnPosition,transform);
+        #if UNITY_EDITOR
         Undo.RecordObject(lineRenderer,"Create Slider Fruit");
+        #endif
 
         //Update slider's fruits
         fruits.Add(fruit);

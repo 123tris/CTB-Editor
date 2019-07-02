@@ -1,7 +1,7 @@
 ﻿using RuntimeUndo;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour {
+public class GameManager : Singleton<GameManager> {
 
     [SerializeField] private GameObject fruitPrefab;
     [SerializeField] private GameObject sliderPrefab;

@@ -113,7 +113,7 @@ public static class BeatmapConverter
             else if (h is Slider)
                 addSlider(h as Slider);
             else
-                Debug.Log($"Unknown fruit type '{h.type}' when converting to .osu file.");
+                Debug.Log($"Unknown fruit type '{h.GetType()}' when converting to .osu file.");
         }
     }
 

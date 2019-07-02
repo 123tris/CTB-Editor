@@ -8,8 +8,8 @@ Material:
   m_PrefabInternal: {fileID: 0}
   m_Name: Brick material
   m_Shader: {fileID: 4800000, guid: 90f7c3606df9fe54fa817c1a394c7d83, type: 3}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 5
+  m_ShaderKeywords: _EMISSION
+  m_LightmapFlags: 1
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: 2000
@@ -57,21 +57,25 @@ Material:
     m_Floats:
     - _BumpScale: 1
     - _ColumnOffset: 67
-    - _ColumnWidth: 0.25
+    - _ColumnWidth: 1
     - _Columns: 24
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _GlossMapScale: 1
     - _Glossiness: 0.5
+    - _GlossyReflections: 1
     - _GridSpacing: 23.6
     - _GridThickness: 22.43
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RowOffset: 0.24
-    - _RowWidth: 0.25
+    - _RowOffset: 0
+    - _RowWidth: 1
     - _Rows: 24
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
@@ -83,4 +87,5 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GridColor: {r: 0.16862746, g: 0.16862746, b: 0.16862746, a: 1}
     - _GridColour: {r: 1, g: 1, b: 1, a: 1}
-    - _OutlineColor: {r: 0, g: 0, b: 0, a: 0}
+    - _GridRect: {r: 100, g: 100, b: 0, a: 0}
+    - _OutlineColor: {r: 1, g: 1, b: 1, a: 0}

@@ -69,26 +69,32 @@ Shader "Unlit/Grid Shader"
 
 				//Draw rows
 				float rowWidth = _RowWidth;
-				float rows = _Rows - 1;
+				float rows = _Rows;
 				float rowStep = (1 / rows);
 				
-				y *= 100;
-				rowStep *= 100;
+				y *= 533;
+				rowStep *= 533;
+				y += _RowOffset;
 
-				if (y % rowStep <= rowWidth/2 || y % rowStep >= rowStep - rowWidth/2)
+				if (y % rowStep < rowWidth/2 || y % rowStep > rowStep - rowWidth/2)
 				{
 					return _OutlineColor;
 				}
 
 				//Draw columns
 				float columnWidth = _ColumnWidth;
-				float columns = _Columns - 1;
+				float columns = _Columns;
 				float columnStep = (1 / columns);
 
-				x *= 100;
-				columnStep *= 100;
+				x *= 745;
+				columnStep *= 745;
 
-				if (x % columnStep <= columnWidth / 2 || x % columnStep >= columnStep - columnWidth / 2)
+				if (x >= 745-columnWidth) //Draw a line on the right horizontal edge of the grid
+				{
+					return _OutlineColor;
+				}
+
+				if (x % columnStep < columnWidth / 2 || x % columnStep > columnStep - columnWidth / 2)
 				{
 					return _OutlineColor;
 				}

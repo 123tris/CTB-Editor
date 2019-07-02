@@ -1,19 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UI.Extensions;
 
 public class Grid : Singleton<Grid>
 {
-    public float columns
-    {
-        get { return gridUI.GetFloat("Columns"); }
-        set { gridUI.SetFloat("Columns", value); }
-    }
-    public float rows
-    {
-        get { return gridUI.GetFloat("Rows"); }
-        set { gridUI.SetFloat("Rows", value); }
-    }
+    public float columns;
+    public float rows;
 
     private Material gridUI;
     private RectTransform rectTransform;
@@ -35,10 +26,7 @@ public class Grid : Singleton<Grid>
         rows = lines;
     }
 
-    private float GetVisibleTimeRange()
-    {
-        return DifficultyRange(TextUI.Instance.AR, 1800, 1200, 450);
-    }
+    private float GetVisibleTimeRange() => DifficultyRange(TextUI.Instance.AR, 1800, 1200, 450);
 
     private float DifficultyRange(float difficulty, float min, float mid, float max)
     {

@@ -5,7 +5,6 @@ public class Fruit : HitObject {
     [SerializeField] private Sprite unhighlightedFruit;
     [SerializeField] private Sprite highlightedFruit;
 
-    public int hitTime;
     public const float OBJECT_RADIUS = 44;
 
     public float Scale =>
