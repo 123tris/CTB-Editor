@@ -26,16 +26,7 @@ public class Grid : Singleton<Grid>
         rows = lines;
     }
 
-    private float GetVisibleTimeRange() => DifficultyRange(TextUI.Instance.AR, 1800, 1200, 450);
-
-    private float DifficultyRange(float difficulty, float min, float mid, float max)
-    {
-        if (difficulty > 5)
-            return mid + (max - mid) * (difficulty - 5) / 5;
-        if (difficulty < 5)
-            return mid - (mid - min) * (5 - difficulty) / 5;
-        return mid;
-    }
+    private float GetVisibleTimeRange() => DifficultyCalculator.DifficultyRange(TextUI.Instance.AR, 1800, 1200, 450);
 
     /// <summary>
     /// Returns the global position of the nearest point on the grid
