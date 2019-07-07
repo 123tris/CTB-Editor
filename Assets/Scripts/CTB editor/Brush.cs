@@ -57,6 +57,7 @@ public class Brush : MonoBehaviour
         {
             fruitDisplay.transform.position = mousePositionOnGrid;
             fruitDisplay.SetActive(true);
+            fruitDisplay.GetComponent<Fruit>().UpdateCircleSize();
             if (state == BrushState.Slider && createdSlider != null && createdSlider.fruitCount >= 2)
             {
                 fruitDisplay.transform.position = createdSlider.GetProjectedPosition(mousePositionOnGrid);
@@ -140,18 +141,7 @@ public class Brush : MonoBehaviour
             draggingHitObject = null;
 
         if (selectedHitObject == null) return;
-        var previousHitObject = hitObjectManager.GetPreviousHitObject(selectedHitObject);
-        var nexHitObject = hitObjectManager.GetNextHitObject(selectedHitObject);
-        
-        string prev = "Prev: ";
-        string next = "Next: ";
-
-        if (previousHitObject != null)
-            prev += $"{previousHitObject.position.x - selectedHitObject.position.x}";
-        if (nexHitObject != null)
-            next += $"{nexHitObject.position.x - selectedHitObject.position.x}";
-
-        nextHitobjectTime.text = prev +", "+next;
+        SelectionBehaviour();
 
         if (draggingHitObject == null) return;
         DraggingBehaviour();
@@ -196,6 +186,22 @@ public class Brush : MonoBehaviour
                 createdSlider = null;
             }
         }
+    }
+
+    private void SelectionBehaviour()
+    {
+        HitObject previousHitObject = hitObjectManager.GetPreviousHitObject(selectedHitObject);
+        HitObject nexHitObject = hitObjectManager.GetNextHitObject(selectedHitObject);
+
+        string prev = "Prev: ";
+        string next = "Next: ";
+
+        if (previousHitObject != null)
+            prev += $"{previousHitObject.position.x - selectedHitObject.position.x}";
+        if (nexHitObject != null)
+            next += $"{nexHitObject.position.x - selectedHitObject.position.x}";
+
+        nextHitobjectTime.text = prev + ", " + next +$"\nPosition x: {selectedHitObject.position.x}\nTime: {selectedHitObject.position.y}ms";
     }
 
     private void DraggingBehaviour()

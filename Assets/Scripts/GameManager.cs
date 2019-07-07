@@ -10,7 +10,7 @@ public class GameManager : Singleton<GameManager> {
 
     void Awake()
     {
-        garbage = Instantiate(new GameObject("Garbage collection"));
+        garbage = new GameObject("Garbage Collection");
     }
 
 	void Start ()

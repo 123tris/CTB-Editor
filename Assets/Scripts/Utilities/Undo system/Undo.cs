@@ -38,6 +38,7 @@ namespace RuntimeUndo
             public RemoveGameObject(GameObject obj,Transform parent)
             {
                 removedObject = obj;
+                this.parent = parent;
             }
 
             public AddGameObject Revert()

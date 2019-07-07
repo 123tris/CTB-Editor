@@ -100,21 +100,7 @@ Shader "Unlit/Grid Shader"
 				{
 					return _OutlineColor;
 				}
-
-				//float offset = _RowOffset;
-				//float rowWidth = _RowWidth;
-				//float columnWidth = _ColumnWidth;
-				//float row = y *_Rows*2;
-				//float column = x* _Columns;
-
-				//row -= rowWidth/2;
-
-				//if (row % 2 > (2-rowWidth)) {
-				//	return _OutlineColor;
-				//}
-				/*if (column % 2 > (2-rowWidth)) {
-					return _OutlineColor;
-				}*/
+				
 				return _GridColor;
 			}
 			ENDCG
