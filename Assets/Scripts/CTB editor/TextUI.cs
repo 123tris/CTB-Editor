@@ -29,10 +29,10 @@ public class TextUI : Singleton<TextUI>
     {
         float parseResult;
 
-        if (float.TryParse(NormalizeString(BPMInputField.text), NumberStyles.Float, CultureInfo.InvariantCulture, out parseResult))
+        if (float.TryParse(NormalizeString(ARInputField.text), NumberStyles.Float, CultureInfo.InvariantCulture, out parseResult))
             AR = parseResult;
 
-        if (float.TryParse(NormalizeString(ARInputField.text), NumberStyles.Float, CultureInfo.InvariantCulture, out parseResult))
+        if (float.TryParse(NormalizeString(BPMInputField.text), NumberStyles.Float, CultureInfo.InvariantCulture, out parseResult))
             BPM = parseResult;
         
         if (float.TryParse(NormalizeString(CSInputField.text), NumberStyles.Float, CultureInfo.InvariantCulture, out parseResult))

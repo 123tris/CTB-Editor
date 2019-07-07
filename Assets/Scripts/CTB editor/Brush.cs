@@ -20,6 +20,7 @@ public class Brush : MonoBehaviour
     public Vector3 mousePositionOnGrid;
 
     [SerializeField] private Text brushCoords;
+    [SerializeField] private Text nextHitobjectTime;
     private Grid grid;
     private HitObjectManager hitObjectManager = new HitObjectManager();
     private HitObject selectedHitObject;
@@ -34,11 +35,11 @@ public class Brush : MonoBehaviour
     {
         grid = Grid.Instance;
         if (fruitDisplayPrefab == null)
-            Debug.LogError("Fruit display is not set!",this);
+            Debug.LogError("Fruit display is not set!", this);
         else if (fruitDisplayPrefab.GetComponent<Fruit>() == null)
-            Debug.LogError("Fruit display prefab does not contain a fruit script!",fruitDisplayPrefab);
+            Debug.LogError("Fruit display prefab does not contain a fruit script!", fruitDisplayPrefab);
 
-        fruitDisplay = Instantiate(fruitDisplayPrefab,transform);
+        fruitDisplay = Instantiate(fruitDisplayPrefab, transform);
     }
 
     public void SetBrushState(int index)
@@ -46,27 +47,29 @@ public class Brush : MonoBehaviour
         state = (BrushState)index;
     }
 
-    public void UpdateLevel()
-    {
-        transform.localPosition = new Vector2(0, -TimeLine.currentTimeStamp);
-    }
-
     void Update()
     {
-        mousePositionOnGrid = Input.mousePosition - grid.transform.position;
-        brushCoords.text = mousePositionOnGrid.ToString("F2");
+        mousePositionOnGrid = grid.NearestPointOnGrid(Input.mousePosition);
+        brushCoords.text = (Input.mousePosition - grid.transform.position).ToString("F2");
 
         //Display fruit over cursor for accurate placement
         if (state != BrushState.Select && WithinGridRange(Input.mousePosition))
         {
-            fruitDisplay.transform.position = Input.mousePosition;
+            fruitDisplay.transform.position = mousePositionOnGrid;
             fruitDisplay.SetActive(true);
             if (state == BrushState.Slider && createdSlider != null && createdSlider.fruitCount >= 2)
             {
-                fruitDisplay.transform.position = createdSlider.GetProjectedPosition(Input.mousePosition);
+                fruitDisplay.transform.position = createdSlider.GetProjectedPosition(mousePositionOnGrid);
             }
         }
         else fruitDisplay.SetActive(false);
+
+        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
+            state = BrushState.Select;
+        if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
+            state = BrushState.Fruit;
+        if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
+            state = BrushState.Slider;
 
         if (!WithinGridRange(Input.mousePosition)) return;
 
@@ -104,18 +107,24 @@ public class Brush : MonoBehaviour
                     {
                         distanceFromSliderFruit = slider.transform.position - Input.mousePosition;
                     }
+
                     draggingHitObject = slider;
                     slider.OnHightlight();
                 }
                 else //Select fruit
                 {
                     //Unhighlight previously selected 
-                    selectedHitObject?.UnHighlight();
+                    if (selectedHitObject != null) selectedHitObject.UnHighlight();
 
                     selectedHitObject = hitObject;
                     draggingHitObject = hitObject;
                     hitObject.OnHightlight();
                 }
+            }
+            else
+            {
+                if (selectedHitObject != null) selectedHitObject.UnHighlight();
+                selectedHitObject = null;
             }
         }
 
@@ -128,11 +137,21 @@ public class Brush : MonoBehaviour
 
         //Reset dragging if mouse button is released
         if (Input.GetMouseButtonUp(0))
-        {
-            if (selectedHitObject != null) selectedHitObject.UnHighlight();
             draggingHitObject = null;
-            selectedHitObject = null;
-        }
+
+        if (selectedHitObject == null) return;
+        var previousHitObject = hitObjectManager.GetPreviousHitObject(selectedHitObject);
+        var nexHitObject = hitObjectManager.GetNextHitObject(selectedHitObject);
+        
+        string prev = "Prev: ";
+        string next = "Next: ";
+
+        if (previousHitObject != null)
+            prev += $"{previousHitObject.position.x - selectedHitObject.position.x}";
+        if (nexHitObject != null)
+            next += $"{nexHitObject.position.x - selectedHitObject.position.x}";
+
+        nextHitobjectTime.text = prev +", "+next;
 
         if (draggingHitObject == null) return;
         DraggingBehaviour();
@@ -140,10 +159,15 @@ public class Brush : MonoBehaviour
 
     private void OnFruitState()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
-            if (!TimeStampOccupied())
-                hitObjectManager.CreateFruit(Input.mousePosition, transform);
+            if (TimeStampOccupied())
+            {
+                HitObject hitObject = hitObjectManager.hitObjects[(int)grid.GetHitTime(mousePositionOnGrid)];
+                hitObject.SetXPosition(mousePositionOnGrid.x);
+            }
+            else
+                hitObjectManager.CreateFruit(mousePositionOnGrid, transform);
         }
     }
 
@@ -184,12 +208,9 @@ public class Brush : MonoBehaviour
 
     private void DragFruit()
     {
-        hitObjectManager.hitObjects[draggingHitObject.position.y] = null;
-
         //Update position of dragging fruit
-        draggingHitObject.SetPosition(Input.mousePosition);
-
-        hitObjectManager.hitObjects[draggingHitObject.position.y] = draggingHitObject;
+        draggingHitObject.SetXPosition(mousePositionOnGrid.x);
+        draggingHitObject.SetPosition(mousePositionOnGrid);
     }
 
     private void DragSlider()
@@ -229,7 +250,7 @@ public class Brush : MonoBehaviour
 
     private bool TimeStampOccupied()
     {
-        return hitObjectManager.ContainsFruit((int)mousePositionOnGrid.y);
+        return hitObjectManager.ContainsFruit((int)grid.GetHitTime(mousePositionOnGrid));
     }
 
     /// <summary>

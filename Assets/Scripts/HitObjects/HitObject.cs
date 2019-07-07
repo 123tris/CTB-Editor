@@ -14,13 +14,30 @@ public abstract class HitObject : MonoBehaviour
 
     public void SetPosition(Vector3 newPosition)
     {
+        int timeStamp = (int) Grid.Instance.GetHitTime(newPosition);
+
+        if (HitObjectManager.instance.ContainsFruit(timeStamp)) return;
+
+        if (HitObjectManager.instance.ContainsFruit(position.y)) //If moving an existing fruit
+        {
+            HitObjectManager.instance.hitObjects.Remove(position.y); //Remove from previous position
+            HitObjectManager.instance.hitObjects[timeStamp] = this;
+        }
+
         transform.position = newPosition.ToInt();
-        position = (newPosition - Grid.Instance.transform.position).ToVector2Int();
-        position.y += TimeLine.currentTimeStamp;
+        position = newPosition.ToVector2Int();
+        position.y = timeStamp;
 
         //If this is a slider fruit, update the line connections
         if (transform.parent.GetComponent<Slider>())
             transform.parent.GetComponent<Slider>().UpdateLines();
+
+    }
+
+    public void SetXPosition(float x)
+    {
+        position.x = (int) x;
+        transform.position = new Vector2(x, transform.position.y);
     }
 
     public abstract void UpdateCircleSize();
@@ -28,4 +45,9 @@ public abstract class HitObject : MonoBehaviour
     public abstract void OnHightlight();
 
     public abstract void UnHighlight();
+
+    private void OnDestroy()
+    {
+        HitObjectManager.instance.hitObjects.Remove(position.y);
+    }
 }

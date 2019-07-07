@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class SongSelect : MonoBehaviour
 {
-
     [SerializeField] private Text selectedSongText;
 
     private Button button;
@@ -20,7 +19,7 @@ public class SongSelect : MonoBehaviour
 
     void SelectSong()
     {
-        string[] path = StandaloneFileBrowser.OpenFilePanel("Select song","","wav",false);
+        string[] path = StandaloneFileBrowser.OpenFilePanel("Select song","","mp3",false);
         player.SetSong(path[0]);
         selectedSongText.text = "Selected song:\t" + Path.GetFileName(path[0]);
     }

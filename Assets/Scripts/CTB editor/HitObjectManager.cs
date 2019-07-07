@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public class HitObjectManager
 {
@@ -27,7 +30,7 @@ public class HitObjectManager
         instance = this;
     }
 
-    public Dictionary<int, HitObject> hitObjects = new Dictionary<int, HitObject>(); //Key indicates when the hitobject is played in MS
+    public SortedDictionary<int, HitObject> hitObjects = new SortedDictionary<int, HitObject>(); //Key indicates when the hitobject is played in MS
 
     public Slider CreateSlider(Vector2 position, Transform parent)
     {
@@ -72,7 +75,7 @@ public class HitObjectManager
     /// <param name="hitObject"></param>
     private void AddHitObject(HitObject hitObject)
     {
-        hitObjects.Add(hitObject.position.y, hitObject);
+        hitObjects[hitObject.position.y] = hitObject;
     }
 
     public void RemoveHitObject(int yAxis)
@@ -87,7 +90,8 @@ public class HitObjectManager
 
     public bool ContainsFruit(int timeStamp)
     {
-        return hitObjects.ContainsKey(timeStamp);
+        bool output = hitObjects.ContainsKey(timeStamp);
+        return output;
     }
 
     public void UpdateAllCircleSize()
@@ -96,5 +100,37 @@ public class HitObjectManager
         {
             h.UpdateCircleSize();
         }
+    }
+
+    public HitObject GetPreviousHitObject(HitObject hitObject)
+    {
+        int previousKey = -1;
+        for (int i = 0; i < hitObjects.Count; i++)
+        {
+            KeyValuePair<int, HitObject> keyValuePair = hitObjects.ElementAt(i);
+
+            if (keyValuePair.Key == hitObject.position.y)
+            {
+                if (i == 0) return null;
+                return hitObjects[previousKey];
+            }
+            previousKey = keyValuePair.Key;
+        }
+        throw new Exception("Couldn't find hitobject inside of hitObjects!");
+    }
+
+    public HitObject GetNextHitObject(HitObject hitObject)
+    {
+        for (int i = 0; i < hitObjects.Count; i++)
+        {
+            KeyValuePair<int, HitObject> keyValuePair = hitObjects.ElementAt(i);
+
+            if (keyValuePair.Key == hitObject.position.y)
+            {
+                if (i == hitObjects.Count - 1) return null;
+                return hitObjects[hitObjects.ElementAt(i+1).Key];
+            }
+        }
+        return null;
     }
 }

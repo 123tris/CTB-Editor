@@ -1,49 +1,42 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.IO;
-using NAudio.Wave;
 using UnityEngine;
 
 public class MusicPlayer : MonoBehaviour
 {
     private AudioSource audioSource;
-    private AudioClip audioClip;
-    private Mp3FileReader mp3Reader;
 
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
+        TimeLine.instance.SetTimeLineLength((int) (audioSource.clip.length*1000));
+        if (!audioSource.isPlaying)
+        {
+            audioSource.Play();
+            audioSource.Pause();
+        }
     }
 
     void LateUpdate()
     {
-        if (TimeLine.instance != null)
-            TimeLine.instance.SetCurrentTimeStamp((int) (audioSource.time * 1000));
+        if (TimeLine.instance == null) return;
+
+        if (Math.Abs(Input.mouseScrollDelta.y) > 0.1f)
+            audioSource.time = Mathf.Clamp(audioSource.time + Input.mouseScrollDelta.y / 100 * TimeLine.instance.scrollSpeed,0,float.MaxValue);
+        TimeLine.instance.SetCurrentTimeStamp((int) (audioSource.time * 1000));
     }
 
     public void SetSong(string filepath)
     {
-        //mp3Reader = new Mp3FileReader(filepath);
-        StartCoroutine(LoadAudioClip(File.ReadAllBytes(filepath),filepath));
+        AudioClip audioClip = MP3Loader.LoadMP3(filepath);
+        audioSource.clip = audioClip;
+        TimeLine.instance.SetTimeLineLength((int) (audioClip.length*1000)); //Multiply with a 1000 to convert from seconds to milliseconds
     }
 
     public void SetPlayback(float playbackMS)
     {
         audioSource.time = playbackMS/1000f;
-    }
-
-    private IEnumerator LoadAudioClip(byte[] rawData,string filepath)
-    {
-        //string tempFile = Application.persistentDataPath + "/bytes.ogg";
-        //File.WriteAllBytes(tempFile, rawData);
-
-        WWW loader = new WWW("file://" + filepath);
-        yield return loader;
-        if (!System.String.IsNullOrEmpty(loader.error))
-            Debug.LogError(loader.error);
-
-        audioClip = loader.GetAudioClip();
-        audioSource.clip = audioClip;
-        TimeLine.instance.SetTimeLineLength((int) (audioClip.length*1000)); //Multiply with a 1000 to convert from seconds to milliseconds
     }
 
     public void PlaySong()
@@ -59,8 +52,8 @@ public class MusicPlayer : MonoBehaviour
 
     public void StopSong()
     {
-        audioSource.Stop();
         SetPlayback(0);
+        audioSource.Pause();
     }
 
     public void ResumeSong()

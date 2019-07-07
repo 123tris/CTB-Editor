@@ -13,6 +13,8 @@ public class TimeLine : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public static int currentTimeStamp => (int) slider.value;
 
     [SerializeField] private Transform level;
+    [SerializeField] public float scrollSpeed = 1;
+
     public static TimeLine instance;
     private static bool hovering;
     private MusicPlayer player;
@@ -20,19 +22,16 @@ public class TimeLine : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     void Awake()
     {
         instance = this;
-    }
-
-    void Start ()
-    {
         player = FindObjectOfType<MusicPlayer>();
         slider = GetComponent<SliderUI>();
         slider.onValueChanged.AddListener(OnSliderChange);
+        level.position = new Vector2(level.position.x, 0);
     }
 
     private void OnSliderChange(float value)
     {
-        level.position = new Vector2(level.position.x, -value);
-        if (hovering && Input.GetMouseButton(0))
+        level.position = new Vector2(level.position.x, -value * (Grid.Instance.height/Grid.Instance.GetVisibleTimeRange()));
+        if (Input.GetMouseButton(0))
             player.SetPlayback(value);
     }
 
