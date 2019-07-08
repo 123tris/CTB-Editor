@@ -104,33 +104,31 @@ public class HitObjectManager
 
     public HitObject GetPreviousHitObject(HitObject hitObject)
     {
-        int previousKey = -1;
-        for (int i = 0; i < hitObjects.Count; i++)
+        int index = 0;
+        foreach (KeyValuePair<int, HitObject> keyValuePair in hitObjects)
         {
-            KeyValuePair<int, HitObject> keyValuePair = hitObjects.ElementAt(i);
-
             if (keyValuePair.Key == hitObject.position.y)
             {
-                if (i == 0) return null;
-                return hitObjects[previousKey];
+                if (index == 0) return null;
+                return hitObjects.ElementAt(index - 1).Value;
             }
-            previousKey = keyValuePair.Key;
+            index++;
         }
         throw new Exception("Couldn't find hitobject inside of hitObjects!");
     }
 
     public HitObject GetNextHitObject(HitObject hitObject)
     {
-        for (int i = 0; i < hitObjects.Count; i++)
+        int index = 0;
+        foreach (KeyValuePair<int, HitObject> keyValuePair in hitObjects)
         {
-            KeyValuePair<int, HitObject> keyValuePair = hitObjects.ElementAt(i);
-
             if (keyValuePair.Key == hitObject.position.y)
             {
-                if (i == hitObjects.Count - 1) return null;
-                return hitObjects[hitObjects.ElementAt(i+1).Key];
+                if (index == hitObjects.Count - 1) return null;
+                return hitObjects.ElementAt(index + 1).Value;
             }
+            index++;
         }
-        return null;
+        throw new Exception("Couldn't find hitobject inside of hitObjects!");
     }
 }

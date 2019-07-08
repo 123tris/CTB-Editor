@@ -23,8 +23,7 @@ public class Brush : MonoBehaviour
     [SerializeField] private Text nextHitobjectTime;
     private Grid grid;
     private HitObjectManager hitObjectManager = new HitObjectManager();
-    private HitObject selectedHitObject;
-    private HitObject draggingHitObject;
+    private Selection selected = new Selection();
     private Slider createdSlider;
 
     private Vector3 distanceFromSliderFruit;
@@ -98,53 +97,23 @@ public class Brush : MonoBehaviour
             if (hitObject != null)
             {
                 //Select slider
-                if (!ClickManager.DoubleClick() && hitObject.transform.parent.GetComponent<Slider>())
-                {
-                    Slider slider = hitObject.transform.parent.GetComponent<Slider>();
-                    selectedHitObject = slider;
-
-                    //When the dragging starts
-                    if (draggingHitObject == null)
-                    {
-                        distanceFromSliderFruit = slider.transform.position - Input.mousePosition;
-                    }
-
-                    draggingHitObject = slider;
-                    slider.OnHightlight();
-                }
+                Slider slider = hitObject.transform.parent.GetComponent<Slider>();
+                if (slider)
+                    selected.SetSelected(slider);
                 else //Select fruit
-                {
-                    //Unhighlight previously selected 
-                    if (selectedHitObject != null) selectedHitObject.UnHighlight();
-
-                    selectedHitObject = hitObject;
-                    draggingHitObject = hitObject;
-                    hitObject.OnHightlight();
-                }
+                    selected.SetSelected(hitObject);
             }
-            else
-            {
-                if (selectedHitObject != null) selectedHitObject.UnHighlight();
-                selectedHitObject = null;
-            }
+            else selected.Clear();
         }
 
         if (Input.GetKeyDown(KeyCode.Delete))
-        {
-            Destroy(selectedHitObject.gameObject);
-            selectedHitObject = null;
-            draggingHitObject = null;
-        }
+            selected.DestroySelected();
 
-        //Reset dragging if mouse button is released
-        if (Input.GetMouseButtonUp(0))
-            draggingHitObject = null;
+        if (selected.selectedHitObjects.Count == 0) return;
 
-        if (selectedHitObject == null) return;
         SelectionBehaviour();
 
-        if (draggingHitObject == null) return;
-        DraggingBehaviour();
+        selected.UpdateDragging();
     }
 
     private void OnFruitState()
@@ -190,39 +159,18 @@ public class Brush : MonoBehaviour
 
     private void SelectionBehaviour()
     {
-        HitObject previousHitObject = hitObjectManager.GetPreviousHitObject(selectedHitObject);
-        HitObject nexHitObject = hitObjectManager.GetNextHitObject(selectedHitObject);
+        HitObject previousHitObject = hitObjectManager.GetPreviousHitObject(selected.last);
+        HitObject nexHitObject = hitObjectManager.GetNextHitObject(selected.last);
 
         string prev = "Prev: ";
         string next = "Next: ";
 
         if (previousHitObject != null)
-            prev += $"{previousHitObject.position.x - selectedHitObject.position.x}";
+            prev += $"{previousHitObject.position.x - selected.last.position.x}";
         if (nexHitObject != null)
-            next += $"{nexHitObject.position.x - selectedHitObject.position.x}";
+            next += $"{nexHitObject.position.x - selected.last.position.x}";
 
-        nextHitobjectTime.text = prev + ", " + next +$"\nPosition x: {selectedHitObject.position.x}\nTime: {selectedHitObject.position.y}ms";
-    }
-
-    private void DraggingBehaviour()
-    {
-        if (draggingHitObject is Slider)
-            DragSlider();
-        else
-            DragFruit();
-    }
-
-    private void DragFruit()
-    {
-        //Update position of dragging fruit
-        draggingHitObject.SetXPosition(mousePositionOnGrid.x);
-        draggingHitObject.SetPosition(mousePositionOnGrid);
-    }
-
-    private void DragSlider()
-    {
-        Slider draggingSlider = (Slider)draggingHitObject;
-        draggingSlider.MoveSlider(Input.mousePosition + distanceFromSliderFruit);
+        nextHitobjectTime.text = prev + ", " + next +$"\nPosition x: {selected.last.position.x}\nTime: {selected.last.position.y}ms";
     }
 
     private Slider CreateSlider()
