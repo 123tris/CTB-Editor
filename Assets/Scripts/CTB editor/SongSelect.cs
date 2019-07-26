@@ -20,6 +20,7 @@ public class SongSelect : MonoBehaviour
     void SelectSong()
     {
         string[] path = StandaloneFileBrowser.OpenFilePanel("Select song","","mp3",false);
+        if (path.Length == 0) return;
         player.SetSong(path[0]);
         selectedSongText.text = "Selected song:\t" + Path.GetFileName(path[0]);
     }
