@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour {
             && !(transform.position.x <= -maxRange && hInput < 0)) //going out of left range
         {
             float movement = hInput * speed;
-            if (Input.GetKeyDown(KeyCode.LeftShift))
+            if (Input.GetKey(KeyCode.LeftShift))
                 movement *= dashSpeedBoost;
             transform.position += new Vector3(movement*Time.deltaTime, 0);
         }
