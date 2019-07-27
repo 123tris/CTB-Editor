@@ -82,7 +82,7 @@ namespace RuntimeUndo
             changes.Push((IMemento<object>) memento.Revert());
         }
 
-        public static void RegisterCreatedObjectUndo(GameObject obj)
+        public static void RegisterCreatedObject(GameObject obj)
         {
             changes.Push(new AddGameObject(obj));
         }

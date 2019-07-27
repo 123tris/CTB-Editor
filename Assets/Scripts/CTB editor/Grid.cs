@@ -28,6 +28,9 @@ public class Grid : Singleton<Grid>
     public float height => rectTransform.sizeDelta.y;
     public float width => rectTransform.sizeDelta.x;
 
+    public Vector2 GetSnappedMousePosition() => NearestPointOnGrid(Input.mousePosition);
+    public Vector2 GetMousePositionOnGrid() => GetSnappedMousePosition() - transform.position.ToVector2();
+
     void Start()
     {
         gridMaterial = GetComponent<Image>().materialForRendering;

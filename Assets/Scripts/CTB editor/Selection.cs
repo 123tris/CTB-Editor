@@ -47,11 +47,11 @@ public class Selection
 
         if (Input.GetMouseButtonDown(0)) //On Start Dragging
         {
-            startDragPos = Grid.Instance.NearestPointOnGrid(Input.mousePosition);
+            startDragPos = Grid.Instance.GetSnappedMousePosition();
             startPositions = selectedHitObjects.Select(item => item.transform.position).ToList();
         }
 
-        dragDelta = Grid.Instance.NearestPointOnGrid(Input.mousePosition) - startDragPos;
+        dragDelta = Grid.Instance.GetSnappedMousePosition() - startDragPos;
 
         for (int i = 0; i < selectedHitObjects.Count; i++)
         {

@@ -48,7 +48,7 @@ public class Brush : MonoBehaviour
 
     void Update()
     {
-        mousePositionOnGrid = grid.NearestPointOnGrid(Input.mousePosition) - grid.transform.position.ToVector2();
+        mousePositionOnGrid = grid.GetMousePositionOnGrid();
         brushCoords.text = (Input.mousePosition - grid.transform.position).ToString("F2");
 
         //Display fruit over cursor for accurate placement
@@ -63,6 +63,9 @@ public class Brush : MonoBehaviour
             }
         }
         else fruitDisplay.SetActive(false);
+
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.C) && selected.selectedHitObjects.Count != 0)
+            CopyManager.Copy(selected.selectedHitObjects);
 
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
             state = BrushState.Select;

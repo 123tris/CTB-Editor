@@ -1,11 +1,12 @@
 ﻿using System.IO;
 using SFB;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SongSelect : MonoBehaviour
 {
-    [SerializeField] private Text selectedSongText;
+    [SerializeField] private TextMeshProUGUI selectedSongText;
 
     private Button button;
     private MusicPlayer player;

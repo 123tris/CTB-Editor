@@ -65,7 +65,7 @@ public class HitObjectManager
         Fruit fruit = Object.Instantiate(fruitPrefab, parent).GetComponent<Fruit>();
         fruit.SetPosition(position);
         AddHitObject(fruit);
-        RuntimeUndo.Undo.RegisterCreatedObjectUndo(fruit.gameObject);
+        RuntimeUndo.Undo.RegisterCreatedObject(fruit.gameObject);
         return fruit;
     }
 

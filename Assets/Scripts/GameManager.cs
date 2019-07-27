@@ -6,10 +6,13 @@ public class GameManager : Singleton<GameManager> {
     [SerializeField] private GameObject fruitPrefab;
     [SerializeField] private GameObject sliderPrefab;
 
+    public Transform level;
     public static GameObject garbage;
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        if (level == null) Debug.LogError("Reference to the level instance is not set in the game manager",this);
         garbage = new GameObject("Garbage Collection");
     }
 
@@ -27,6 +30,8 @@ public class GameManager : Singleton<GameManager> {
                 Undo.PerformUndo();
             else if (Input.GetKeyDown(KeyCode.Y))
                 Undo.PerformRedo();
+            else if (Input.GetKeyDown(KeyCode.V))
+                CopyManager.Paste();
         }
     }
 	
