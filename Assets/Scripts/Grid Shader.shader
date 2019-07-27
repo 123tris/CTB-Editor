@@ -92,13 +92,13 @@ Shader "Unlit/Grid Shader"
 				{	
 					float4 lineColor;
 					int beatsnapDivision = _BeatsnapDivision;
-					int currentLine = ((y / rowStep) % beatsnapDivision) + 1;
+					int currentLine = ((int(y) / rowStep) % beatsnapDivision) + 2;
 					if (beatsnapDivision == 16) 
 					{
 						if (currentLine % 2 == 0) return _SixteenthOutlineColor;
-						if (currentLine % 7 == 0 || currentLine % 3 == 0) return _EighthOutlineColor;
-						if (currentLine % 5 == 0 || currentLine % 13 == 0) return _QuaterOutlineColor;
 						if (currentLine % 9 == 0) return _HalfOutlineColor;
+						if (currentLine % 7 == 0 || currentLine % 3 == 0 || currentLine % 11 == 0) return _EighthOutlineColor;
+						if (currentLine % 5 == 0 || currentLine % 13 == 0) return _QuaterOutlineColor;
 					}
 
 					if (beatsnapDivision == 8) 
