@@ -22,6 +22,12 @@ public class Grid : Singleton<Grid>
         set { gridMaterial.SetFloat("_RowOffset", value); }
     }
 
+    public int beatsnapDivisor
+    {
+        get { return gridMaterial.GetInt("_BeatsnapDivision"); }
+        set { gridMaterial.SetInt("_BeatsnapDivision", value); }
+    }
+
     private Material gridMaterial;
     private RectTransform rectTransform;
 
@@ -45,7 +51,8 @@ public class Grid : Singleton<Grid>
     private float CalculateRows()
     {
         float visibleTimeRange = GetVisibleTimeRange();
-        return visibleTimeRange / 1000 * (TextUI.Instance.BPM / 60) * BeatsnapDivisor.Instance.division;
+        beatsnapDivisor = BeatsnapDivisor.Instance.division;
+        return visibleTimeRange / 1000 * (TextUI.Instance.BPM / 60) * beatsnapDivisor;
     }
 
     public float GetVisibleTimeRange() => DifficultyCalculator.DifficultyRange(TextUI.Instance.AR, 1800, 1200, 450);

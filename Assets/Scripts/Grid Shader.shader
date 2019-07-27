@@ -11,7 +11,12 @@ Shader "Unlit/Grid Shader"
 		_RowOffset("Row offset",float) = 0.2
 		_RowWidth("Row width",float) = 1
 		_ColumnWidth("Column width",float) = 1
-		_OutlineColor("Outline color", Color) = (0,0,0,0)
+		_BeatsnapDivision("Beatsnap divisor",int) = 1
+		_WholeOutlineColor("1/1 Outline color", Color) = (255,255,255,0)
+		_HalfOutlineColor("1/2 Outline color", Color) = (255,0,0,0)
+		_QuaterOutlineColor("1/4 Outline color", Color) = (0,0,255,0)
+		_EighthOutlineColor("1/8 Outline color", Color) = (255,255,0,0)
+		_SixteenthOutlineColor("1/16 Outline color", Color) = (150,150,150,0)
 		_MainTex ("Texture", 2D) = "white" {}
 	}
 	SubShader
@@ -45,7 +50,12 @@ Shader "Unlit/Grid Shader"
 			//implement properties
 			sampler2D _MainTex;
 			float4 _GridColor;
-			float4 _OutlineColor;
+			int _BeatsnapDivision;
+			float4 _WholeOutlineColor;
+			float4 _HalfOutlineColor;
+			float4 _QuaterOutlineColor;
+			float4 _EighthOutlineColor;
+			float4 _SixteenthOutlineColor;
 			float4 _MainTex_ST;
 			float4 _RectSize;
 			float _RowWidth;
@@ -73,14 +83,37 @@ Shader "Unlit/Grid Shader"
 				float rowWidth = _RowWidth;
 				float rows = _Rows;
 				float rowStep = (1 / rows);
-				
+
 				y *= _RectSize.y;
 				rowStep *= _RectSize.y;
 				y += _RowOffset;
 
 				if (y % rowStep < rowWidth/2 || y % rowStep > rowStep - rowWidth/2)
-				{
-					return _OutlineColor;
+				{	
+					float4 lineColor;
+					int beatsnapDivision = _BeatsnapDivision;
+					int currentLine = ((y / rowStep) % beatsnapDivision) + 1;
+					if (beatsnapDivision == 16) 
+					{
+						if (currentLine % 2 == 0) return _SixteenthOutlineColor;
+						if (currentLine % 7 == 0 || currentLine % 3 == 0) return _EighthOutlineColor;
+						if (currentLine % 5 == 0 || currentLine % 13 == 0) return _QuaterOutlineColor;
+						if (currentLine % 9 == 0) return _HalfOutlineColor;
+					}
+
+					if (beatsnapDivision == 8) 
+					{
+						if (currentLine % 2 == 0) return _EighthOutlineColor;
+						if (currentLine % 7 == 0 || currentLine % 3 == 0) return _QuaterOutlineColor;
+						if (currentLine % 5 == 0) return _HalfOutlineColor;
+					}
+					if (beatsnapDivision == 4) 
+					{
+						if (currentLine % 2 == 0) return _QuaterOutlineColor;
+						if (currentLine % 3 == 0) return _HalfOutlineColor;
+					}
+					if (beatsnapDivision == 2 && currentLine % 2 == 0) return _HalfOutlineColor;
+					return _WholeOutlineColor;
 				}
 
 				//Draw columns
@@ -98,7 +131,7 @@ Shader "Unlit/Grid Shader"
 
 				if (x % columnStep < columnWidth / 2 || x % columnStep > columnStep - columnWidth / 2)
 				{
-					return _OutlineColor;
+					return _WholeOutlineColor;
 				}
 				
 				return _GridColor;
