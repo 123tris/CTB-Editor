@@ -17,6 +17,18 @@ public class PlayerController : MonoBehaviour {
             float movement = hInput * speed;
             if (Input.GetKey(KeyCode.LeftShift))
                 movement *= dashSpeedBoost;
+            // Flip section
+            Vector3 scale = transform.localScale;
+            if (hInput > 0)
+            {
+                scale.x = 1; // ( o_o)
+            }
+            else if (hInput < 0)
+            {
+                scale.x = -1; // (o_o )
+            }
+            // Flips
+            transform.localScale = scale;
             transform.position += new Vector3(movement*Time.deltaTime, 0);
         }
     }
