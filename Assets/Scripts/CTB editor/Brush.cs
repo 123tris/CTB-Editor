@@ -89,6 +89,8 @@ public class Brush : MonoBehaviour
 
     private void OnSelectState()
     {
+        selected.UpdateObjects(); //Objects might be removed 
+
         //On left click
         if (Input.GetMouseButtonDown(0))
         {

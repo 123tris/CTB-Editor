@@ -93,5 +93,12 @@ public class Selection
         selectedHitObjects.Clear();
     }
 
-
+    public void UpdateObjects()
+    {
+        for (int i = selectedHitObjects.Count - 1; i >= 0; i--)
+        {
+            if (selectedHitObjects[i] == null)
+                selectedHitObjects.RemoveAt(i);
+        }
+    }
 }
