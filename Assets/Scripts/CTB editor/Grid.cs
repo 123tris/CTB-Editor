@@ -30,7 +30,7 @@ public class Grid : Singleton<Grid>
 
     void Start()
     {
-        gridMaterial = GetComponent<Image>().material;
+        gridMaterial = GetComponent<Image>().materialForRendering;
         rectTransform = GetComponent<RectTransform>();
         gridMaterial.SetVector("_RectSize", rectTransform.sizeDelta);
     }
@@ -66,10 +66,8 @@ public class Grid : Singleton<Grid>
     }
 
     /// <summary>Make sure pos is in Grid space and not global space</summary>
-    public float GetHitTime(Vector2 pos)
-    {
-        return pos.y * (GetVisibleTimeRange() / height) + TimeLine.currentTimeStamp;
-    }
+    public float GetHitTime(float y) => y * (GetVisibleTimeRange() / height) + TimeLine.currentTimeStamp;
+    public float GetHitTime(Vector2 pos) => GetHitTime(pos.y);
 
     public bool WithinGridRange(Vector2 position)
     {

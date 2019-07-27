@@ -8,6 +8,9 @@ public class Selection
 {
     public List<HitObject> selectedHitObjects = new List<HitObject>();
 
+    private Vector3 dragDelta;
+    private Vector2 startDragPos;
+
     public void Add(HitObject hitObject)
     {
         selectedHitObjects.Add(hitObject);
@@ -31,31 +34,44 @@ public class Selection
     public HitObject first => selectedHitObjects.First();
     public HitObject last => selectedHitObjects.Last();
 
+    public bool Contains(HitObject hitObject) => selectedHitObjects.Contains(hitObject);
+
     public HitObject GetFirstByTime() => selectedHitObjects.OrderBy(item => item.position.y).First();
     public HitObject GetLastByTime() => selectedHitObjects.OrderBy(item => item.position.y).Last();
+
+    List<Vector3> startPositions = new List<Vector3>();
 
     public void UpdateDragging()
     {
         if (!Input.GetMouseButton(0)) return;
 
-        foreach (HitObject selectedHitObject in selectedHitObjects)
+        if (Input.GetMouseButtonDown(0)) //On Start Dragging
         {
+            startDragPos = Grid.Instance.NearestPointOnGrid(Input.mousePosition);
+            startPositions = selectedHitObjects.Select(item => item.transform.position).ToList();
+        }
+
+        dragDelta = Grid.Instance.NearestPointOnGrid(Input.mousePosition) - startDragPos;
+
+        for (int i = 0; i < selectedHitObjects.Count; i++)
+        {
+            HitObject selectedHitObject = selectedHitObjects[i];
             if (selectedHitObject is Fruit)
-                DragFruit(selectedHitObject as Fruit);
+                DragFruit(selectedHitObject as Fruit, i);
             else
-                DragSlider(selectedHitObject as Slider);
+                DragSlider(selectedHitObject as Slider, i);
         }
     }
 
-    private void DragFruit(Fruit fruit)
+    private void DragFruit(Fruit fruit, int index)
     {
-        Vector2 mousePositionOnGrid = Grid.Instance.NearestPointOnGrid(Input.mousePosition);
         //Update position of dragging fruit
-        fruit.SetXPosition(mousePositionOnGrid.x);
-        fruit.SetPosition(mousePositionOnGrid);
+        var targetPos = startPositions[index] - Grid.Instance.transform.position + dragDelta;
+        fruit.SetXPosition(targetPos.x);
+        fruit.SetPosition(targetPos);
     }
 
-    private void DragSlider(Slider slider)
+    private void DragSlider(Slider slider, int index)
     {
         //TODO: slider behaviour needs to be properly designed
         //slider.MoveSlider(Input.mousePosition + distanceFromSliderFruit);
@@ -76,4 +92,6 @@ public class Selection
         }
         selectedHitObjects.Clear();
     }
+
+
 }

@@ -21,7 +21,7 @@ public class Brush : MonoBehaviour
 
     [SerializeField] private Text brushCoords;
     [SerializeField] private Text nextHitobjectTime;
-    private Grid grid;
+    private Grid grid => Grid.Instance;
     private HitObjectManager hitObjectManager = new HitObjectManager();
     private Selection selected = new Selection();
     private Slider createdSlider;
@@ -32,13 +32,13 @@ public class Brush : MonoBehaviour
 
     void Start()
     {
-        grid = Grid.Instance;
         if (fruitDisplayPrefab == null)
             Debug.LogError("Fruit display is not set!", this);
         else if (fruitDisplayPrefab.GetComponent<Fruit>() == null)
             Debug.LogError("Fruit display prefab does not contain a fruit script!", fruitDisplayPrefab);
 
         fruitDisplay = Instantiate(fruitDisplayPrefab, transform);
+        fruitDisplay.name = "Fruit preview display";
     }
 
     public void SetBrushState(int index)
@@ -48,13 +48,13 @@ public class Brush : MonoBehaviour
 
     void Update()
     {
-        mousePositionOnGrid = grid.NearestPointOnGrid(Input.mousePosition);
+        mousePositionOnGrid = grid.NearestPointOnGrid(Input.mousePosition) - grid.transform.position.ToVector2();
         brushCoords.text = (Input.mousePosition - grid.transform.position).ToString("F2");
 
         //Display fruit over cursor for accurate placement
         if (state != BrushState.Select && WithinGridRange(Input.mousePosition))
         {
-            fruitDisplay.transform.position = mousePositionOnGrid;
+            fruitDisplay.transform.position = mousePositionOnGrid + grid.transform.position;
             fruitDisplay.SetActive(true);
             fruitDisplay.GetComponent<Fruit>().UpdateCircleSize();
             if (state == BrushState.Slider && createdSlider != null && createdSlider.fruitCount >= 2)
@@ -96,12 +96,25 @@ public class Brush : MonoBehaviour
             Fruit hitObject = DetectHitObject();
             if (hitObject != null)
             {
-                //Select slider
                 Slider slider = hitObject.transform.parent.GetComponent<Slider>();
-                if (slider)
-                    selected.SetSelected(slider);
+                if (slider) //Select slider
+                {
+                    if (Input.GetKey(KeyCode.LeftControl))
+                    {
+                        if (selected.Contains(slider)) selected.Remove(slider);
+                        else selected.Add(slider);
+                    }
+                    else if (!selected.Contains(slider)) selected.SetSelected(slider);
+                }
                 else //Select fruit
-                    selected.SetSelected(hitObject);
+                {
+                    if (Input.GetKey(KeyCode.LeftControl))
+                    {
+                        if (selected.Contains(hitObject)) selected.Remove(hitObject);
+                        else selected.Add(hitObject);
+                    }
+                    else if (!selected.Contains(hitObject)) selected.SetSelected(hitObject);
+                }
             }
             else selected.Clear();
         }
@@ -170,7 +183,7 @@ public class Brush : MonoBehaviour
         if (nexHitObject != null)
             next += $"{nexHitObject.position.x - selected.last.position.x}";
 
-        nextHitobjectTime.text = prev + ", " + next +$"\nPosition x: {selected.last.position.x}\nTime: {selected.last.position.y}ms";
+        nextHitobjectTime.text = prev + ", " + next + $"\nPosition x: {selected.last.position.x}\nTime: {selected.last.position.y}ms";
     }
 
     private Slider CreateSlider()
