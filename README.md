@@ -10,4 +10,4 @@ The editor is at a very early stage of development so it's open for suggestions 
 We have a discord where you can ask anything from features request to pull requests.
 https://discord.gg/TqaTtGZ
 
-![screenshot of the editor](https://puu.sh/D69W3/4fb20d9264.png)
+![screenshot of the editor](https://i.imgur.com/jyq5WM5.png)
