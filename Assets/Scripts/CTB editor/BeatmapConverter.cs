@@ -91,7 +91,7 @@ public static class BeatmapConverter
         ParseHitObjects(beatmap.hitObjects);
         #endregion
 
-        File.WriteAllText(Application.streamingAssetsPath + "/Exported CTB map.osu", string.Join("\n", lines));
+        File.WriteAllText(Application.streamingAssetsPath + "/Exported CTB map.osu", string.Join("\n", lines)); //TODO: use map name
     }
 
     private static void Misc(string str)
