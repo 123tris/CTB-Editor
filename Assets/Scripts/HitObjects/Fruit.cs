@@ -7,8 +7,7 @@ public class Fruit : HitObject {
 
     public const float OBJECT_RADIUS = 44;
 
-    public float Scale =>
-        (1.0f - 0.7f * (TextUI.Instance.CS - 5) / 5f) * HitObjectManager.WidthRatio;
+    public float Scale => (1.0f - 0.7f * (BeatmapSettings.CS - 5) / 5f) * HitObjectManager.WidthRatio;
 
     public Fruit()
     {

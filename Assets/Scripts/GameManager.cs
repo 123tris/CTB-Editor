@@ -32,6 +32,8 @@ public class GameManager : Singleton<GameManager> {
                 Undo.PerformRedo();
             else if (Input.GetKeyDown(KeyCode.V))
                 CopyManager.Paste();
+            else if (Input.GetKeyDown(KeyCode.E))
+                BeatmapConverter.ConvertToOsuFile(BeatmapConverter.CreateBeatmapData());
         }
     }
 	

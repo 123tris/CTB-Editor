@@ -55,10 +55,10 @@ public class Grid : Singleton<Grid>
     {
         float visibleTimeRange = GetVisibleTimeRange();
         beatsnapDivisor = BeatsnapDivisor.Instance.division;
-        return visibleTimeRange / 1000 * (TextUI.Instance.BPM / 60) * beatsnapDivisor;
+        return visibleTimeRange / 1000 * (BeatmapSettings.BPM / 60) * beatsnapDivisor;
     }
 
-    public float GetVisibleTimeRange() => DifficultyCalculator.DifficultyRange(TextUI.Instance.AR, 1800, 1200, 450);
+    public float GetVisibleTimeRange() => DifficultyCalculator.DifficultyRange(BeatmapSettings.AR, 1800, 1200, 450);
 
     /// <summary>
     /// Returns the global position of the nearest point on the grid

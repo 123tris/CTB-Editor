@@ -1,21 +1,32 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public static class BeatmapConverter
 {
-    private const int version = 12;
+    private const int version = 14;
 
-    private static List<string> lines;
+    private static List<string> lines = new List<string>();
 
-    public static void ConvertToOsuFile()
+    public static Beatmap CreateBeatmapData()
     {
-        lines = new List<string>();
+        Beatmap beatmap = new Beatmap();
+        beatmap.hitObjects = HitObjectManager.instance.hitObjects.Values.ToList();
+        beatmap.BPM = BeatmapSettings.BPM;
+        beatmap.AR = BeatmapSettings.AR;
+        beatmap.CS = BeatmapSettings.CS;
+        beatmap.audioFileName = BeatmapSettings.audioFileName;
+        return beatmap;
+    }
+
+    public static void ConvertToOsuFile(Beatmap beatmap)
+    {
         Misc("osu file format v" + version);
 
         #region GENERAL
         Section("General");
-        Pair("AudioFilename", "none.mp3"); // TODO IMPORTANT
+        Pair("AudioFilename", beatmap.audioFileName); // TODO IMPORTANT
         Pair("AudioLeadIn", "0"); // TODO IMPORTANT
         Pair("PreviewTime", "0"); // TODO
         Pair("Countdown", "0"); // TODO
@@ -30,7 +41,7 @@ public static class BeatmapConverter
         Section("Editor");
         Pair("Bookmarks", "0"); // TODO
         Pair("DistanceSpacing", "0"); // TODO
-        Pair("BeatDivisor", "0"); // TODO IMPORTANT
+        Pair("BeatDivisor", BeatsnapDivisor.Instance.division);
         Pair("GridSize", "0"); // TODO
         Pair("TimelineZoom", "1"); // TODO
         #endregion
@@ -49,12 +60,12 @@ public static class BeatmapConverter
         Pair("BeatmapSetID", "0");
         #endregion
 
-        #region TIMINGPOINTS
+        #region DIFFICULTY
         Section("Difficulty");
         Pair("HPDrainRate", "7"); // TODO
         Pair("CircleSize", "5"); // TODO
         Pair("OverallDifficulty", "5"); // TODO
-        Pair("ApproachRate", TextUI.Instance.AR);
+        Pair("ApproachRate", beatmap.AR);
         Pair("SliderMultiplier", "1"); // TODO
         Pair("SliderTickRate", "1"); // TODO
         #endregion
@@ -65,7 +76,7 @@ public static class BeatmapConverter
 
         #region TIMINGPOINTS
         Section("TimingPoints"); // TODO REALLY IMPORTANT, FOR THE MOMENT ONLY 1 POINT AT 0 OFFSET WILL BE PUT
-        TimingPoint(0, 60000f / TextUI.Instance.BPM, 4, 2, 1, 100, 0);
+        TimingPoint(0, 60000f / beatmap.BPM, 4, 2, 1, 100, 0);
         #endregion
 
         #region COLOURS
@@ -77,8 +88,10 @@ public static class BeatmapConverter
 
         #region HITOBJECTS
         Section("HitObjects");
-        parseHitObjects();
+        ParseHitObjects(beatmap.hitObjects);
         #endregion
+
+        File.WriteAllText(Application.streamingAssetsPath + "/Exported CTB map.osu", string.Join("\n", lines));
     }
 
     private static void Misc(string str)
@@ -101,33 +114,32 @@ public static class BeatmapConverter
     {
         byte inherited = (mspb < 0) ? (byte)0 : (byte)1;
 
-        lines.Add($"{offset}, {mspb}, {meter}, {sampleSet}, {sampleIndex}, {volume}, {inherited}, {kiaiMode}");
+        lines.Add($"{offset},{mspb},{meter},{sampleSet},{sampleIndex},{volume},{inherited},{kiaiMode}");
     }
 
-    private static void parseHitObjects()
+    private static void ParseHitObjects(List<HitObject> hitObjects)
     {
-        foreach (HitObject h in HitObjectManager.instance.hitObjects.Values)
+        foreach (HitObject h in hitObjects)
         {
             if (h is Fruit)
-                addFruit(h as Fruit);
+                AddFruit(h as Fruit);
             else if (h is Slider)
-                addSlider(h as Slider);
+                AddSlider(h as Slider);
             else
-                Debug.Log($"Unknown fruit type '{h.GetType()}' when converting to .osu file.");
+                Debug.LogError($"Unknown fruit type '{h.GetType()}' when converting to .osu file.");
         }
     }
 
-    private static void addFruit(Fruit f)
+    private static void AddFruit(Fruit f)
     {
-        lines.Add($@"{(int)(f.position.x / HitObjectManager.WidthRatio)}, 
-            {HitObjectManager.DEFAULT_OSU_PLAYFIELD_HEIGHT / 2},
-            {f.position.y},
-            {(byte)f.type},
-            0,
-            0:0:0:0:");
+        lines.Add(
+            $"{(int) (f.position.x / HitObjectManager.WidthRatio)}," +
+            $"{HitObjectManager.DEFAULT_OSU_PLAYFIELD_HEIGHT / 2}," +
+            $"{f.position.y}," +
+            $"{(byte) f.type},0,0:0:0:0:");
     }
 
-    private static void addSlider(Slider s)
+    private static void AddSlider(Slider s)
     {
 
     }
