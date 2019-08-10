@@ -7,10 +7,15 @@ public static class CopyManager
 
     private static Transform level => GameManager.Instance.level;
 
+    public static void Copy()
+    {
+        Copy(Selection.selectedHitObjects);
+    }
+
     public static void Copy(List<HitObject> hitObjects)
     {
         Clear();
-        hitObjects.Sort((x,y) => x.position.y.CompareTo(y.position.y)); //sort hitobject by timestamp
+        hitObjects.Sort((x,y) => y.position.y.CompareTo(x.position.y)); //sort hitobject by timestamp
 
         foreach (HitObject hitObject in hitObjects)
         {
@@ -24,12 +29,22 @@ public static class CopyManager
     {
         Vector3 referencePoint = Grid.Instance.GetMousePositionOnGrid();
         HitObject firstObject = copy[0];
+
+        Selection.Clear();
+
         for (int i = 0; i < copy.Count; i++)
         {
-            HitObject createdHitObject = Object.Instantiate(copy[i], level);
+            HitObject createdHitObject;
+            if (copy[i] is Fruit)
+                createdHitObject = HitObjectManager.instance.CreateFruit(Vector2.zero, level);
+            else
+                createdHitObject = HitObjectManager.instance.CreateSlider(Vector2.zero, level);
+
+            Selection.Add(createdHitObject);
+
             if (i == 0)
             {
-                createdHitObject.SetPosition(referencePoint);
+                createdHitObject.SetPosition(referencePoint); //Paste object where the mouse is held on the grid
             }
             else
             {

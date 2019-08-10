@@ -25,12 +25,12 @@ public class HitObjectManager
     public GameObject sliderPrefab;
     public GameObject fruitPrefab;
 
+    public SortedDictionary<int, HitObject> hitObjects = new SortedDictionary<int, HitObject>(); //Key indicates when the hitobject is played in MS
+
     public HitObjectManager()
     {
         instance = this;
     }
-
-    public SortedDictionary<int, HitObject> hitObjects = new SortedDictionary<int, HitObject>(); //Key indicates when the hitobject is played in MS
 
     public Slider CreateSlider(Vector2 position, Transform parent)
     {
@@ -73,7 +73,7 @@ public class HitObjectManager
     /// Adds a created hitobject to the hitobjectmanager's list of hitobjects that it manages over
     /// </summary>
     /// <param name="hitObject"></param>
-    private void AddHitObject(HitObject hitObject)
+    public void AddHitObject(HitObject hitObject)
     {
         hitObjects[hitObject.position.y] = hitObject;
     }

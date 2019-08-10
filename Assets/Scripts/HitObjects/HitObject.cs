@@ -17,6 +17,7 @@ public abstract class HitObject : MonoBehaviour
     /// It will return when a fruit already occupies the same y position as the one which was passed </summary>
     public void SetPosition(Vector3 newPosition)
     {
+        float hitTime = Grid.Instance.GetHitTime(newPosition);
         int timeStamp = (int) Grid.Instance.GetHitTime(newPosition);
 
         if (HitObjectManager.instance.ContainsFruit(timeStamp)) return;
@@ -27,7 +28,7 @@ public abstract class HitObject : MonoBehaviour
             HitObjectManager.instance.hitObjects[timeStamp] = this;
         }
 
-        transform.position = newPosition.ToInt() + Grid.Instance.transform.position; //Apply grid's position to set global position
+        transform.position = newPosition + Grid.Instance.transform.position; //Apply grid's position to set global position
         position = newPosition.ToVector2Int();
         position.y = timeStamp;
 
