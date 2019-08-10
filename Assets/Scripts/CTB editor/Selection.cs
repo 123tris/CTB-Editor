@@ -1,29 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
-public class Selection
+public static class Selection
 {
-    public List<HitObject> selectedHitObjects = new List<HitObject>();
+    public static List<HitObject> selectedHitObjects = new List<HitObject>();
 
-    private Vector3 dragDelta;
-    private Vector2 startDragPos;
+    private static Vector3 dragDelta;
+    private static Vector2 startDragPos;
 
-    public void Add(HitObject hitObject)
+    private static List<Vector3> startPositions = new List<Vector3>();
+
+    public static HitObject first => selectedHitObjects.First();
+    public static HitObject last => selectedHitObjects.Last();
+
+    public static void Add(HitObject hitObject)
     {
         selectedHitObjects.Add(hitObject);
         hitObject.OnHightlight();
     }
 
-    public void Remove(HitObject hitObject)
+    public static void Remove(HitObject hitObject)
     {
         selectedHitObjects.Remove(hitObject);
         hitObject.UnHighlight();
     }
 
-    public void Clear()
+    public static void Clear()
     {
         foreach (HitObject selectedHitObject in selectedHitObjects)
             selectedHitObject.UnHighlight();
@@ -31,17 +34,22 @@ public class Selection
         selectedHitObjects.Clear();
     }
 
-    public HitObject first => selectedHitObjects.First();
-    public HitObject last => selectedHitObjects.Last();
+    public static bool Contains(HitObject hitObject)
+    {
+        return selectedHitObjects.Contains(hitObject);
+    }
 
-    public bool Contains(HitObject hitObject) => selectedHitObjects.Contains(hitObject);
+    public static HitObject GetFirstByTime()
+    {
+        return selectedHitObjects.OrderBy(item => item.position.y).First();
+    }
 
-    public HitObject GetFirstByTime() => selectedHitObjects.OrderBy(item => item.position.y).First();
-    public HitObject GetLastByTime() => selectedHitObjects.OrderBy(item => item.position.y).Last();
+    public static HitObject GetLastByTime()
+    {
+        return selectedHitObjects.OrderBy(item => item.position.y).Last();
+    }
 
-    List<Vector3> startPositions = new List<Vector3>();
-
-    public void UpdateDragging()
+    public static void UpdateDragging()
     {
         if (!Input.GetMouseButton(0)) return;
 
@@ -63,42 +71,49 @@ public class Selection
         }
     }
 
-    private void DragFruit(Fruit fruit, int index)
+    private static void DragFruit(Fruit fruit, int index)
     {
         //Update position of dragging fruit
-        var targetPos = startPositions[index] - Grid.Instance.transform.position + dragDelta;
+        Vector3 targetPos = startPositions[index] - Grid.Instance.transform.position + dragDelta;
         fruit.SetXPosition(targetPos.x);
         fruit.SetPosition(targetPos);
     }
 
-    private void DragSlider(Slider slider, int index)
+    private static void DragSlider(Slider slider, int index)
     {
         //TODO: slider behaviour needs to be properly designed
         //slider.MoveSlider(Input.mousePosition + distanceFromSliderFruit);
     }
 
-    public void SetSelected(HitObject hitObject)
+    public static void SetSelected(HitObject hitObject)
     {
         Clear();
         selectedHitObjects.Add(hitObject);
         hitObject.OnHightlight();
     }
 
-    public void DestroySelected()
+    public static void SetSelected(List<HitObject> hitObjects)
+    {
+        Clear();
+        foreach (HitObject hitObject in hitObjects)
+        {
+            selectedHitObjects.Add(hitObject);
+            hitObject.OnHightlight();
+        }
+    }
+
+    public static void DestroySelected()
     {
         foreach (HitObject selectedHitObject in selectedHitObjects)
-        {
-            Object.Destroy(selectedHitObject);
-        }
+            Object.Destroy(selectedHitObject.gameObject);
+
         selectedHitObjects.Clear();
     }
 
-    public void UpdateObjects()
+    public static void UpdateObjects()
     {
         for (int i = selectedHitObjects.Count - 1; i >= 0; i--)
-        {
             if (selectedHitObjects[i] == null)
                 selectedHitObjects.RemoveAt(i);
-        }
     }
 }

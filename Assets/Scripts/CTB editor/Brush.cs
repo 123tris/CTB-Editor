@@ -23,7 +23,6 @@ public class Brush : MonoBehaviour
     [SerializeField] private Text nextHitobjectTime;
     private Grid grid => Grid.Instance;
     private HitObjectManager hitObjectManager = new HitObjectManager();
-    private Selection selected = new Selection();
     private Slider createdSlider;
 
     private Vector3 distanceFromSliderFruit;
@@ -64,9 +63,6 @@ public class Brush : MonoBehaviour
         }
         else fruitDisplay.SetActive(false);
 
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.C) && selected.selectedHitObjects.Count != 0)
-            CopyManager.Copy(selected.selectedHitObjects);
-
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
             state = BrushState.Select;
         if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
@@ -92,7 +88,7 @@ public class Brush : MonoBehaviour
 
     private void OnSelectState()
     {
-        selected.UpdateObjects(); //Objects might be removed 
+        Selection.UpdateObjects(); //Objects might be removed 
 
         //On left click
         if (Input.GetMouseButtonDown(0))
@@ -106,32 +102,32 @@ public class Brush : MonoBehaviour
                 {
                     if (Input.GetKey(KeyCode.LeftControl))
                     {
-                        if (selected.Contains(slider)) selected.Remove(slider);
-                        else selected.Add(slider);
+                        if (Selection.Contains(slider)) Selection.Remove(slider);
+                        else Selection.Add(slider);
                     }
-                    else if (!selected.Contains(slider)) selected.SetSelected(slider);
+                    else if (!Selection.Contains(slider)) Selection.SetSelected(slider);
                 }
                 else //Select fruit
                 {
                     if (Input.GetKey(KeyCode.LeftControl))
                     {
-                        if (selected.Contains(hitObject)) selected.Remove(hitObject);
-                        else selected.Add(hitObject);
+                        if (Selection.Contains(hitObject)) Selection.Remove(hitObject);
+                        else Selection.Add(hitObject);
                     }
-                    else if (!selected.Contains(hitObject)) selected.SetSelected(hitObject);
+                    else if (!Selection.Contains(hitObject)) Selection.SetSelected(hitObject);
                 }
             }
-            else selected.Clear();
+            else Selection.Clear();
         }
 
         if (Input.GetKeyDown(KeyCode.Delete))
-            selected.DestroySelected();
+            Selection.DestroySelected();
 
-        if (selected.selectedHitObjects.Count == 0) return;
+        if (Selection.selectedHitObjects.Count == 0) return;
 
         SelectionBehaviour();
 
-        selected.UpdateDragging();
+        Selection.UpdateDragging();
     }
 
     private void OnFruitState()
@@ -177,18 +173,18 @@ public class Brush : MonoBehaviour
 
     private void SelectionBehaviour()
     {
-        HitObject previousHitObject = hitObjectManager.GetPreviousHitObject(selected.last);
-        HitObject nexHitObject = hitObjectManager.GetNextHitObject(selected.last);
+        HitObject previousHitObject = hitObjectManager.GetPreviousHitObject(Selection.last);
+        HitObject nexHitObject = hitObjectManager.GetNextHitObject(Selection.last);
 
         string prev = "Prev: ";
         string next = "Next: ";
 
         if (previousHitObject != null)
-            prev += $"{previousHitObject.position.x - selected.last.position.x}";
+            prev += $"{previousHitObject.position.x - Selection.last.position.x}";
         if (nexHitObject != null)
-            next += $"{nexHitObject.position.x - selected.last.position.x}";
+            next += $"{nexHitObject.position.x - Selection.last.position.x}";
 
-        nextHitobjectTime.text = prev + ", " + next + $"\nPosition x: {selected.last.position.x}\nTime: {selected.last.position.y}ms";
+        nextHitobjectTime.text = prev + ", " + next + $"\nPosition x: {Selection.last.position.x}\nTime: {Selection.last.position.y}ms";
     }
 
     private Slider CreateSlider()
