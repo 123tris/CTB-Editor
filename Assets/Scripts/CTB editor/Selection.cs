@@ -1,26 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
-public class Selection
+public static class Selection
 {
-    public List<HitObject> selectedHitObjects = new List<HitObject>();
+    public static List<HitObject> selectedHitObjects = new List<HitObject>();
 
-    public void Add(HitObject hitObject)
+    private static Vector3 dragDelta;
+    private static Vector2 startDragPos;
+
+    private static List<Vector3> startPositions = new List<Vector3>();
+
+    public static HitObject first => selectedHitObjects.First();
+    public static HitObject last => selectedHitObjects.Last();
+
+    public static void Add(HitObject hitObject)
     {
         selectedHitObjects.Add(hitObject);
         hitObject.OnHightlight();
     }
 
-    public void Remove(HitObject hitObject)
+    public static void Remove(HitObject hitObject)
     {
         selectedHitObjects.Remove(hitObject);
         hitObject.UnHighlight();
     }
 
-    public void Clear()
+    public static void Clear()
     {
         foreach (HitObject selectedHitObject in selectedHitObjects)
             selectedHitObject.UnHighlight();
@@ -28,52 +34,86 @@ public class Selection
         selectedHitObjects.Clear();
     }
 
-    public HitObject first => selectedHitObjects.First();
-    public HitObject last => selectedHitObjects.Last();
+    public static bool Contains(HitObject hitObject)
+    {
+        return selectedHitObjects.Contains(hitObject);
+    }
 
-    public HitObject GetFirstByTime() => selectedHitObjects.OrderBy(item => item.position.y).First();
-    public HitObject GetLastByTime() => selectedHitObjects.OrderBy(item => item.position.y).Last();
+    public static HitObject GetFirstByTime()
+    {
+        return selectedHitObjects.OrderBy(item => item.position.y).First();
+    }
 
-    public void UpdateDragging()
+    public static HitObject GetLastByTime()
+    {
+        return selectedHitObjects.OrderBy(item => item.position.y).Last();
+    }
+
+    public static void UpdateDragging()
     {
         if (!Input.GetMouseButton(0)) return;
 
-        foreach (HitObject selectedHitObject in selectedHitObjects)
+        if (Input.GetMouseButtonDown(0)) //On Start Dragging
         {
+            startDragPos = Grid.Instance.GetSnappedMousePosition();
+            startPositions = selectedHitObjects.Select(item => item.transform.position).ToList();
+        }
+
+        dragDelta = Grid.Instance.GetSnappedMousePosition() - startDragPos;
+
+        for (int i = 0; i < selectedHitObjects.Count; i++)
+        {
+            HitObject selectedHitObject = selectedHitObjects[i];
             if (selectedHitObject is Fruit)
-                DragFruit(selectedHitObject as Fruit);
+                DragFruit(selectedHitObject as Fruit, i);
             else
-                DragSlider(selectedHitObject as Slider);
+                DragSlider(selectedHitObject as Slider, i);
         }
     }
 
-    private void DragFruit(Fruit fruit)
+    private static void DragFruit(Fruit fruit, int index)
     {
-        Vector2 mousePositionOnGrid = Grid.Instance.NearestPointOnGrid(Input.mousePosition);
         //Update position of dragging fruit
-        fruit.SetXPosition(mousePositionOnGrid.x);
-        fruit.SetPosition(mousePositionOnGrid);
+        Vector3 targetPos = startPositions[index] - Grid.Instance.transform.position + dragDelta;
+        fruit.SetXPosition(targetPos.x);
+        fruit.SetPosition(targetPos);
     }
 
-    private void DragSlider(Slider slider)
+    private static void DragSlider(Slider slider, int index)
     {
         //TODO: slider behaviour needs to be properly designed
         //slider.MoveSlider(Input.mousePosition + distanceFromSliderFruit);
     }
 
-    public void SetSelected(HitObject hitObject)
+    public static void SetSelected(HitObject hitObject)
     {
         Clear();
         selectedHitObjects.Add(hitObject);
         hitObject.OnHightlight();
     }
 
-    public void DestroySelected()
+    public static void SetSelected(List<HitObject> hitObjects)
+    {
+        Clear();
+        foreach (HitObject hitObject in hitObjects)
+        {
+            selectedHitObjects.Add(hitObject);
+            hitObject.OnHightlight();
+        }
+    }
+
+    public static void DestroySelected()
     {
         foreach (HitObject selectedHitObject in selectedHitObjects)
-        {
-            Object.Destroy(selectedHitObject);
-        }
+            Object.Destroy(selectedHitObject.gameObject);
+
         selectedHitObjects.Clear();
+    }
+
+    public static void UpdateObjects()
+    {
+        for (int i = selectedHitObjects.Count - 1; i >= 0; i--)
+            if (selectedHitObjects[i] == null)
+                selectedHitObjects.RemoveAt(i);
     }
 }

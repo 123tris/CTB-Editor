@@ -22,15 +22,24 @@ public class Grid : Singleton<Grid>
         set { gridMaterial.SetFloat("_RowOffset", value); }
     }
 
+    public int beatsnapDivisor
+    {
+        get { return gridMaterial.GetInt("_BeatsnapDivision"); }
+        set { gridMaterial.SetInt("_BeatsnapDivision", value); }
+    }
+
     private Material gridMaterial;
     private RectTransform rectTransform;
 
     public float height => rectTransform.sizeDelta.y;
     public float width => rectTransform.sizeDelta.x;
 
+    public Vector2 GetSnappedMousePosition() => NearestPointOnGrid(Input.mousePosition);
+    public Vector2 GetMousePositionOnGrid() => GetSnappedMousePosition() - transform.position.ToVector2();
+
     void Start()
     {
-        gridMaterial = GetComponent<Image>().material;
+        gridMaterial = GetComponent<Image>().materialForRendering;
         rectTransform = GetComponent<RectTransform>();
         gridMaterial.SetVector("_RectSize", rectTransform.sizeDelta);
     }
@@ -45,10 +54,11 @@ public class Grid : Singleton<Grid>
     private float CalculateRows()
     {
         float visibleTimeRange = GetVisibleTimeRange();
-        return visibleTimeRange / 1000 * (TextUI.Instance.BPM / 60) * BeatsnapDivisor.Instance.division;
+        beatsnapDivisor = BeatsnapDivisor.Instance.division;
+        return visibleTimeRange / 1000 * (BeatmapSettings.BPM / 60) * beatsnapDivisor;
     }
 
-    public float GetVisibleTimeRange() => DifficultyCalculator.DifficultyRange(TextUI.Instance.AR, 1800, 1200, 450);
+    public float GetVisibleTimeRange() => DifficultyCalculator.DifficultyRange(BeatmapSettings.AR, 1800, 1200, 450);
 
     /// <summary>
     /// Returns the global position of the nearest point on the grid
@@ -66,10 +76,8 @@ public class Grid : Singleton<Grid>
     }
 
     /// <summary>Make sure pos is in Grid space and not global space</summary>
-    public float GetHitTime(Vector2 pos)
-    {
-        return pos.y * (GetVisibleTimeRange() / height) + TimeLine.currentTimeStamp;
-    }
+    private float GetHitTime(int y) => y * (GetVisibleTimeRange() / height) + TimeLine.currentTimeStamp;
+    public float GetHitTime(Vector2 pos) => GetHitTime((int)pos.y);
 
     public bool WithinGridRange(Vector2 position)
     {

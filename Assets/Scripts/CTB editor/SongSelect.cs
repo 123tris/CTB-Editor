@@ -1,14 +1,17 @@
 ﻿using System.IO;
 using SFB;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SongSelect : MonoBehaviour
 {
-    [SerializeField] private Text selectedSongText;
+    [SerializeField] private TextMeshProUGUI selectedSongText;
 
     private Button button;
     private MusicPlayer player;
+
+    public static string audioFileName;
 
     void Start ()
     {
@@ -20,7 +23,9 @@ public class SongSelect : MonoBehaviour
     void SelectSong()
     {
         string[] path = StandaloneFileBrowser.OpenFilePanel("Select song","","mp3",false);
+        if (path.Length == 0) return;
         player.SetSong(path[0]);
-        selectedSongText.text = "Selected song:\t" + Path.GetFileName(path[0]);
+        audioFileName = Path.GetFileName(path[0]);
+        selectedSongText.text = "Selected song:\t" + audioFileName;
     }
 }

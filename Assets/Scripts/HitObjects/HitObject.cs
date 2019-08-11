@@ -12,8 +12,12 @@ public abstract class HitObject : MonoBehaviour
     public Vector2Int position;
     public HitObjectType type;
 
+    /// <summary> SetPosition requires a local position from the grid's perspective
+    /// <para>It will then reinterpret how the y position translates to the timestamp of the hitobject</para>
+    /// It will return when a fruit already occupies the same y position as the one which was passed </summary>
     public void SetPosition(Vector3 newPosition)
     {
+        float hitTime = Grid.Instance.GetHitTime(newPosition);
         int timeStamp = (int) Grid.Instance.GetHitTime(newPosition);
 
         if (HitObjectManager.instance.ContainsFruit(timeStamp)) return;
@@ -24,7 +28,7 @@ public abstract class HitObject : MonoBehaviour
             HitObjectManager.instance.hitObjects[timeStamp] = this;
         }
 
-        transform.position = newPosition.ToInt();
+        transform.position = newPosition + Grid.Instance.transform.position; //Apply grid's position to set global position
         position = newPosition.ToVector2Int();
         position.y = timeStamp;
 
@@ -37,7 +41,7 @@ public abstract class HitObject : MonoBehaviour
     public void SetXPosition(float x)
     {
         position.x = (int) x;
-        transform.position = new Vector2(x, transform.position.y);
+        transform.position = new Vector2(x + Grid.Instance.transform.position.x, transform.position.y);
     }
 
     public abstract void UpdateCircleSize();

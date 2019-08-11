@@ -21,9 +21,8 @@ public class Brush : MonoBehaviour
 
     [SerializeField] private Text brushCoords;
     [SerializeField] private Text nextHitobjectTime;
-    private Grid grid;
+    private Grid grid => Grid.Instance;
     private HitObjectManager hitObjectManager = new HitObjectManager();
-    private Selection selected = new Selection();
     private Slider createdSlider;
 
     private Vector3 distanceFromSliderFruit;
@@ -32,13 +31,13 @@ public class Brush : MonoBehaviour
 
     void Start()
     {
-        grid = Grid.Instance;
         if (fruitDisplayPrefab == null)
             Debug.LogError("Fruit display is not set!", this);
         else if (fruitDisplayPrefab.GetComponent<Fruit>() == null)
             Debug.LogError("Fruit display prefab does not contain a fruit script!", fruitDisplayPrefab);
 
         fruitDisplay = Instantiate(fruitDisplayPrefab, transform);
+        fruitDisplay.name = "Fruit preview display";
     }
 
     public void SetBrushState(int index)
@@ -48,13 +47,13 @@ public class Brush : MonoBehaviour
 
     void Update()
     {
-        mousePositionOnGrid = grid.NearestPointOnGrid(Input.mousePosition);
+        mousePositionOnGrid = grid.GetMousePositionOnGrid();
         brushCoords.text = (Input.mousePosition - grid.transform.position).ToString("F2");
 
         //Display fruit over cursor for accurate placement
         if (state != BrushState.Select && WithinGridRange(Input.mousePosition))
         {
-            fruitDisplay.transform.position = mousePositionOnGrid;
+            fruitDisplay.transform.position = mousePositionOnGrid + grid.transform.position;
             fruitDisplay.SetActive(true);
             fruitDisplay.GetComponent<Fruit>().UpdateCircleSize();
             if (state == BrushState.Slider && createdSlider != null && createdSlider.fruitCount >= 2)
@@ -89,6 +88,8 @@ public class Brush : MonoBehaviour
 
     private void OnSelectState()
     {
+        Selection.UpdateObjects(); //Objects might be removed 
+
         //On left click
         if (Input.GetMouseButtonDown(0))
         {
@@ -96,24 +97,37 @@ public class Brush : MonoBehaviour
             Fruit hitObject = DetectHitObject();
             if (hitObject != null)
             {
-                //Select slider
                 Slider slider = hitObject.transform.parent.GetComponent<Slider>();
-                if (slider)
-                    selected.SetSelected(slider);
+                if (slider) //Select slider
+                {
+                    if (Input.GetKey(KeyCode.LeftControl))
+                    {
+                        if (Selection.Contains(slider)) Selection.Remove(slider);
+                        else Selection.Add(slider);
+                    }
+                    else if (!Selection.Contains(slider)) Selection.SetSelected(slider);
+                }
                 else //Select fruit
-                    selected.SetSelected(hitObject);
+                {
+                    if (Input.GetKey(KeyCode.LeftControl))
+                    {
+                        if (Selection.Contains(hitObject)) Selection.Remove(hitObject);
+                        else Selection.Add(hitObject);
+                    }
+                    else if (!Selection.Contains(hitObject)) Selection.SetSelected(hitObject);
+                }
             }
-            else selected.Clear();
+            else Selection.Clear();
         }
 
         if (Input.GetKeyDown(KeyCode.Delete))
-            selected.DestroySelected();
+            Selection.DestroySelected();
 
-        if (selected.selectedHitObjects.Count == 0) return;
+        if (Selection.selectedHitObjects.Count == 0) return;
 
         SelectionBehaviour();
 
-        selected.UpdateDragging();
+        Selection.UpdateDragging();
     }
 
     private void OnFruitState()
@@ -159,18 +173,18 @@ public class Brush : MonoBehaviour
 
     private void SelectionBehaviour()
     {
-        HitObject previousHitObject = hitObjectManager.GetPreviousHitObject(selected.last);
-        HitObject nexHitObject = hitObjectManager.GetNextHitObject(selected.last);
+        HitObject previousHitObject = hitObjectManager.GetPreviousHitObject(Selection.last);
+        HitObject nexHitObject = hitObjectManager.GetNextHitObject(Selection.last);
 
         string prev = "Prev: ";
         string next = "Next: ";
 
         if (previousHitObject != null)
-            prev += $"{previousHitObject.position.x - selected.last.position.x}";
+            prev += $"{previousHitObject.position.x - Selection.last.position.x}";
         if (nexHitObject != null)
-            next += $"{nexHitObject.position.x - selected.last.position.x}";
+            next += $"{nexHitObject.position.x - Selection.last.position.x}";
 
-        nextHitobjectTime.text = prev + ", " + next +$"\nPosition x: {selected.last.position.x}\nTime: {selected.last.position.y}ms";
+        nextHitobjectTime.text = prev + ", " + next + $"\nPosition x: {Selection.last.position.x}\nTime: {Selection.last.position.y}ms";
     }
 
     private Slider CreateSlider()
