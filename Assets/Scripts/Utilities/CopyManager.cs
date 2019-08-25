@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public static class CopyManager
@@ -15,11 +16,11 @@ public static class CopyManager
     public static void Copy(List<HitObject> hitObjects)
     {
         Clear();
-        hitObjects.Sort((x,y) => y.position.y.CompareTo(x.position.y)); //sort hitobject by timestamp
+        hitObjects = hitObjects.OrderBy(hitObject => hitObject.position.y).ToList(); //sort hitobject by timestamp
 
         foreach (HitObject hitObject in hitObjects)
         {
-            HitObject copiedHitObject = Object.Instantiate(hitObject,GameManager.garbage.transform);
+            HitObject copiedHitObject = Object.Instantiate(hitObject, GameManager.garbage.transform);
             copiedHitObject.gameObject.SetActive(false);
             copy.Add(copiedHitObject);
         }
@@ -28,30 +29,28 @@ public static class CopyManager
     public static void Paste()
     {
         Vector3 referencePoint = Grid.Instance.GetMousePositionOnGrid();
-        HitObject firstObject = copy[0];
-
         Selection.Clear();
 
         for (int i = 0; i < copy.Count; i++)
         {
-            HitObject createdHitObject;
-            if (copy[i] is Fruit)
-                createdHitObject = HitObjectManager.instance.CreateFruit(Vector2.zero, level);
-            else
-                createdHitObject = HitObjectManager.instance.CreateSlider(Vector2.zero, level);
-
+            HitObject createdHitObject = Object.Instantiate(GameManager.Instance.fruitPrefab, level).GetComponent<HitObject>();
             Selection.Add(createdHitObject);
 
             if (i == 0)
             {
-                createdHitObject.SetPosition(referencePoint); //Paste object where the mouse is held on the grid
+                createdHitObject.Init(referencePoint); //Paste object where the mouse is held on the grid
             }
             else
             {
-                Vector3 targetPos = referencePoint + (firstObject.transform.position - copy[i].transform.position);
-                createdHitObject.SetPosition(targetPos);
+                Vector3 targetPos = referencePoint + (copy[i].transform.position - copy[0].transform.position);
+                createdHitObject.Init(targetPos);
             }
+
+            createdHitObject.gameObject.SetActive(true);
         }
+
+        List<GameObject> selectedGameObject = Selection.selectedHitObjects.Select(i => i.gameObject).ToList();
+        RuntimeUndo.Undo.RegisterCreatedObjects(selectedGameObject);
     }
 
     public static void Clear()
