@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 222316493699431180}
   - component: {fileID: 114089201530046806}
   - component: {fileID: 114618198366920500}
+  - component: {fileID: 114694566953699186}
   m_Layer: 5
   m_Name: Fruit
   m_TagString: HitObject
@@ -67,11 +68,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feea8d87ca81b7840b9cc2fa398288ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  position: {x: 0, y: 0}
+  position: {x: 0, y: -1}
   type: 1
   unhighlightedFruit: {fileID: 21300000, guid: 143c32a6c3b0da54da3085fe6448f621, type: 3}
   highlightedFruit: {fileID: 21300000, guid: 30a5cd4d1ea4d9a409d48ffa51922776, type: 3}
-  hitTime: 0
+--- !u!114 &114694566953699186
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1606524455772826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db125c7de00668f4e98849d0aaf366d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 1, g: 0.9504018, b: 0, a: 0.5}
+  m_EffectDistance: {x: 2, y: 2}
+  m_UseGraphicAlpha: 1
 --- !u!222 &222316493699431180
 CanvasRenderer:
   m_ObjectHideFlags: 1
@@ -93,6 +107,6 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 314, y: 489}
+  m_AnchoredPosition: {x: 1, y: -6}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
