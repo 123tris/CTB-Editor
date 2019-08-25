@@ -4,8 +4,11 @@ using UnityEngine;
 
 
 [RequireComponent(typeof(SpriteRenderer))]
-public class PlayerController : MonoBehaviour
+public class Catcher : MonoBehaviour
 {
+    public const float CATCHER_SIZE = 106.75f;
+    public const double BASE_SPEED = 1.0; /*/ 512;//*/
+
     [SerializeField] private float maxRange = 5;
     public float dashSpeedBoost = 2;
     public float speed = 5;
@@ -42,5 +45,10 @@ public class PlayerController : MonoBehaviour
     {
         hInput = Input.GetAxisRaw("Horizontal");
         dashInput = Input.GetKey(KeyCode.LeftShift) || Input.GetMouseButton(0);
+    }
+
+    public static double GetCatcherSize()
+    {
+        return CATCHER_SIZE / HitObjectManager.DEFAULT_OSU_PLAYFIELD_WIDTH * (1.0f - 0.7f * (BeatmapSettings.CS - 5) / 5);
     }
 }
