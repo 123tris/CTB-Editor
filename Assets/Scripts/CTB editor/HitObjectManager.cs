@@ -7,10 +7,8 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-public class HitObjectManager
+public static class HitObjectManager
 {
-    public static HitObjectManager instance;
-    
     public const float DEFAULT_OSU_PLAYFIELD_WIDTH = 512f;
     public const float DEFAULT_OSU_PLAYFIELD_HEIGHT = 384f;
 
@@ -22,21 +20,15 @@ public class HitObjectManager
     /// </summary>
     public const float WidthRatio = EDITOR_FIELD_WIDTH / DEFAULT_OSU_PLAYFIELD_WIDTH;
 
-    public GameObject sliderPrefab;
-    public GameObject fruitPrefab;
+    public static GameObject sliderPrefab;
+    public static GameObject fruitPrefab;
 
-    public SortedDictionary<int, HitObject> hitObjects = new SortedDictionary<int, HitObject>(); //Key indicates when the hitobject is played in MS
+    private static SortedDictionary<int, HitObject> hitObjects = new SortedDictionary<int, HitObject>(); //Key indicates when the hitobject is played in MS
 
-    public HitObjectManager()
-    {
-        instance = this;
-    }
-
-    public Slider CreateSlider(Vector2 position, Transform parent)
+    public static Slider CreateSlider(Vector2 position, Transform parent)
     {
         Slider slider = Object.Instantiate(sliderPrefab, parent).GetComponent<Slider>();
-        slider.SetPosition(position);
-        AddHitObject(slider);
+        slider.Init(position);
         #if UNITY_EDITOR
         Undo.RegisterCreatedObjectUndo(slider.gameObject,"Create Slider");
         #endif
@@ -49,7 +41,7 @@ public class HitObjectManager
     /// </summary>
     /// <param name="position">The global position of the fruit</param>
     /// <param name="slider">The slider which owns the fruit</param>
-    public Fruit CreateSliderFruit(Vector2 position, Transform slider)
+    public static Fruit CreateSliderFruit(Vector2 position, Transform slider)
     {
         Fruit fruit = Object.Instantiate(fruitPrefab, slider).GetComponent<Fruit>();
         fruit.SetPosition(position);
@@ -60,11 +52,10 @@ public class HitObjectManager
     }
 
     /// <summary> Instantiates a fruit and adds it to the managed hitobjects of the hitobjectmanager </summary>
-    public Fruit CreateFruit(Vector2 position,Transform parent)
+    public static Fruit CreateFruit(Vector2 position,Transform parent)
     {
         Fruit fruit = Object.Instantiate(fruitPrefab, parent).GetComponent<Fruit>();
-        fruit.SetPosition(position);
-        AddHitObject(fruit);
+        fruit.Init(position);
         RuntimeUndo.Undo.RegisterCreatedObject(fruit.gameObject);
         return fruit;
     }
@@ -73,28 +64,34 @@ public class HitObjectManager
     /// Adds a created hitobject to the hitobjectmanager's list of hitobjects that it manages over
     /// </summary>
     /// <param name="hitObject"></param>
-    public void AddHitObject(HitObject hitObject)
+    public static void AddHitObject(HitObject hitObject)
     {
         hitObjects[hitObject.position.y] = hitObject;
     }
 
-    public void RemoveHitObject(int yAxis)
+    public static void EditHitObjectTimeStamp(HitObject hitObject,int timeStamp)
+    {
+        hitObjects.Remove(hitObject.position.y);
+        hitObjects[timeStamp] = hitObject;
+    }
+
+    public static void RemoveHitObject(int yAxis)
     {
         hitObjects.Remove(yAxis);
     }
 
-    public HitObject GetHitObjectByYAxis(int yAxis)
+    public static HitObject GetHitObjectByTime(int timeStamp)
     {
-        return hitObjects[yAxis];
+        return hitObjects[timeStamp];
     }
 
-    public bool ContainsFruit(int timeStamp)
+    public static bool ContainsFruit(int timeStamp)
     {
         bool output = hitObjects.ContainsKey(timeStamp);
         return output;
     }
 
-    public void UpdateAllCircleSize()
+    public static void UpdateAllCircleSize()
     {
         foreach (HitObject h in hitObjects.Values)
         {
@@ -102,7 +99,7 @@ public class HitObjectManager
         }
     }
 
-    public HitObject GetPreviousHitObject(HitObject hitObject)
+    public static HitObject GetPreviousHitObject(HitObject hitObject)
     {
         int index = 0;
         foreach (KeyValuePair<int, HitObject> keyValuePair in hitObjects)
@@ -117,18 +114,23 @@ public class HitObjectManager
         throw new Exception("Couldn't find hitobject inside of hitObjects!");
     }
 
-    public HitObject GetNextHitObject(HitObject hitObject)
+    public static HitObject GetNextHitObject(HitObject hitObject)
     {
-        int index = 0;
+        return GetNextHitObject(hitObject.position.y);
+    }
+
+    private static HitObject GetNextHitObject(int timestamp)
+    {
         foreach (KeyValuePair<int, HitObject> keyValuePair in hitObjects)
         {
-            if (keyValuePair.Key == hitObject.position.y)
-            {
-                if (index == hitObjects.Count - 1) return null;
-                return hitObjects.ElementAt(index + 1).Value;
-            }
-            index++;
+            if (keyValuePair.Key > timestamp)
+                return keyValuePair.Value;
         }
-        throw new Exception("Couldn't find hitobject inside of hitObjects!");
+        return null;
+    }
+
+    public static List<HitObject> GetHitObjects()
+    {
+        return hitObjects.Values.ToList();
     }
 }

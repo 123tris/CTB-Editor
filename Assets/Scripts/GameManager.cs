@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class GameManager : Singleton<GameManager> {
 
-    [SerializeField] private GameObject fruitPrefab;
-    [SerializeField] private GameObject sliderPrefab;
+    public GameObject fruitPrefab;
+    public GameObject sliderPrefab;
 
     public Transform level;
     public static GameObject garbage;
@@ -18,8 +18,8 @@ public class GameManager : Singleton<GameManager> {
 
 	void Start ()
 	{
-	    HitObjectManager.instance.fruitPrefab = fruitPrefab;
-	    HitObjectManager.instance.sliderPrefab = sliderPrefab;
+	    HitObjectManager.fruitPrefab = fruitPrefab;
+	    HitObjectManager.sliderPrefab = sliderPrefab;
 	}
 
     void Update()

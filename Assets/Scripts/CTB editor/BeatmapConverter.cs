@@ -12,7 +12,7 @@ public static class BeatmapConverter
     public static Beatmap CreateBeatmapData()
     {
         Beatmap beatmap = new Beatmap();
-        beatmap.hitObjects = HitObjectManager.instance.hitObjects.Values.ToList();
+        beatmap.hitObjects = HitObjectManager.GetHitObjects();
         beatmap.BPM = BeatmapSettings.BPM;
         beatmap.AR = BeatmapSettings.AR;
         beatmap.CS = BeatmapSettings.CS;
