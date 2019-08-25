@@ -18,8 +18,9 @@ public class Slider : HitObject
         type = HitObjectType.Slider;
     }
 
-    void Awake()
+    protected override void Start()
     {
+        base.Start();
         lineRenderer = GetComponent<UILineRenderer>();
     }
 
@@ -28,7 +29,7 @@ public class Slider : HitObject
         //TODO: Set position of slider when the first fruit is placed
 
         //Spawn fruit
-        Fruit fruit = HitObjectManager.instance.CreateSliderFruit(spawnPosition,transform);
+        Fruit fruit = HitObjectManager.CreateSliderFruit(spawnPosition,transform);
         #if UNITY_EDITOR
         Undo.RecordObject(lineRenderer,"Create Slider Fruit");
         #endif
@@ -49,6 +50,11 @@ public class Slider : HitObject
         }
 
         lineRenderer.SetAllDirty();
+    }
+
+    protected override void UpdateHyperDashState()
+    {
+        //TODO: implement hyper dash state for sliders
     }
 
     public override void UpdateCircleSize()

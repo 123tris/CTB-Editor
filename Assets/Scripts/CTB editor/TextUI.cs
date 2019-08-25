@@ -37,7 +37,7 @@ public class TextUI : MonoBehaviour
                 return;
 
             BeatmapSettings.CS = parseResult;
-            HitObjectManager.instance.UpdateAllCircleSize();
+            HitObjectManager.UpdateAllCircleSize();
         }
     }
 

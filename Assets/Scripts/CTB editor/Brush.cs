@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
@@ -22,12 +23,11 @@ public class Brush : MonoBehaviour
     [SerializeField] private Text brushCoords;
     [SerializeField] private Text nextHitobjectTime;
     private Grid grid => Grid.Instance;
-    private HitObjectManager hitObjectManager = new HitObjectManager();
     private Slider createdSlider;
 
     private Vector3 distanceFromSliderFruit;
     [SerializeField] private GameObject fruitDisplayPrefab;
-    private GameObject fruitDisplay;
+    private Fruit fruitDisplay;
 
     void Start()
     {
@@ -36,7 +36,7 @@ public class Brush : MonoBehaviour
         else if (fruitDisplayPrefab.GetComponent<Fruit>() == null)
             Debug.LogError("Fruit display prefab does not contain a fruit script!", fruitDisplayPrefab);
 
-        fruitDisplay = Instantiate(fruitDisplayPrefab, transform);
+        fruitDisplay = Instantiate(fruitDisplayPrefab, transform).GetComponent<Fruit>();
         fruitDisplay.name = "Fruit preview display";
     }
 
@@ -54,14 +54,16 @@ public class Brush : MonoBehaviour
         if (state != BrushState.Select && WithinGridRange(Input.mousePosition))
         {
             fruitDisplay.transform.position = mousePositionOnGrid + grid.transform.position;
-            fruitDisplay.SetActive(true);
-            fruitDisplay.GetComponent<Fruit>().UpdateCircleSize();
+            fruitDisplay.gameObject.SetActive(true);
+            fruitDisplay.UpdateCircleSize();
+            fruitDisplay.position.x = (int) mousePositionOnGrid.x;
+            fruitDisplay.position.y = (int) grid.GetHitTime(mousePositionOnGrid);
             if (state == BrushState.Slider && createdSlider != null && createdSlider.fruitCount >= 2)
             {
                 fruitDisplay.transform.position = createdSlider.GetProjectedPosition(mousePositionOnGrid);
             }
         }
-        else fruitDisplay.SetActive(false);
+        else fruitDisplay.gameObject.SetActive(false);
 
         if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
             state = BrushState.Select;
@@ -88,8 +90,6 @@ public class Brush : MonoBehaviour
 
     private void OnSelectState()
     {
-        Selection.UpdateObjects(); //Objects might be removed 
-
         //On left click
         if (Input.GetMouseButtonDown(0))
         {
@@ -97,6 +97,7 @@ public class Brush : MonoBehaviour
             Fruit hitObject = DetectHitObject();
             if (hitObject != null)
             {
+                Debug.Assert(hitObject.initialized,"Selected uninitialized hitobject",hitObject);
                 Slider slider = hitObject.transform.parent.GetComponent<Slider>();
                 if (slider) //Select slider
                 {
@@ -136,11 +137,11 @@ public class Brush : MonoBehaviour
         {
             if (TimeStampOccupied())
             {
-                HitObject hitObject = hitObjectManager.hitObjects[(int)grid.GetHitTime(mousePositionOnGrid)];
+                HitObject hitObject = HitObjectManager.GetHitObjectByTime((int)grid.GetHitTime(mousePositionOnGrid));
                 hitObject.SetXPosition(mousePositionOnGrid.x);
             }
             else
-                hitObjectManager.CreateFruit(mousePositionOnGrid, transform);
+                HitObjectManager.CreateFruit(mousePositionOnGrid, transform);
         }
     }
 
@@ -173,8 +174,8 @@ public class Brush : MonoBehaviour
 
     private void SelectionBehaviour()
     {
-        HitObject previousHitObject = hitObjectManager.GetPreviousHitObject(Selection.last);
-        HitObject nexHitObject = hitObjectManager.GetNextHitObject(Selection.last);
+        HitObject previousHitObject = HitObjectManager.GetPreviousHitObject(Selection.last);
+        HitObject nexHitObject = HitObjectManager.GetNextHitObject(Selection.last);
 
         string prev = "Prev: ";
         string next = "Next: ";
@@ -189,7 +190,7 @@ public class Brush : MonoBehaviour
 
     private Slider CreateSlider()
     {
-        Slider slider = hitObjectManager.CreateSlider(Input.mousePosition, transform);
+        Slider slider = HitObjectManager.CreateSlider(Input.mousePosition, transform);
         slider.AddFruit(Input.mousePosition);
         return slider;
     }
@@ -218,7 +219,7 @@ public class Brush : MonoBehaviour
 
     private bool TimeStampOccupied()
     {
-        return hitObjectManager.ContainsFruit((int)grid.GetHitTime(mousePositionOnGrid));
+        return HitObjectManager.ContainsFruit((int)grid.GetHitTime(mousePositionOnGrid));
     }
 
     /// <summary>
