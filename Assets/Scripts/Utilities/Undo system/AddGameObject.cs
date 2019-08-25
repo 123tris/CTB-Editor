@@ -13,8 +13,7 @@ namespace RuntimeUndo
 
         public RemoveGameObject Revert()
         {
-            GameObject copy = Object.Instantiate(addedObject,GameManager.garbage.transform);
-            RemoveGameObject removedObject = new RemoveGameObject(copy,addedObject.transform.parent);
+            RemoveGameObject removedObject = new RemoveGameObject(addedObject,addedObject.transform.parent);
             Object.Destroy(addedObject);
             return removedObject;
         }

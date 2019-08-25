@@ -105,15 +105,9 @@ public static class Selection
     public static void DestroySelected()
     {
         foreach (HitObject selectedHitObject in selectedHitObjects)
+        {
+            RuntimeUndo.Undo.DestroyObject(selectedHitObject.gameObject);
             Object.Destroy(selectedHitObject.gameObject);
-
-        selectedHitObjects.Clear();
-    }
-
-    public static void UpdateObjects()
-    {
-        for (int i = selectedHitObjects.Count - 1; i >= 0; i--)
-            if (selectedHitObjects[i] == null)
-                selectedHitObjects.RemoveAt(i);
+        }
     }
 }
