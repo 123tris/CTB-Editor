@@ -67,7 +67,17 @@ public class Grid : Singleton<Grid>
     /// <returns></returns>
     public Vector2 NearestPointOnGrid(Vector2 point)
     {
+        //Apply local grid position
         point -= new Vector2(transform.position.x, transform.position.y);
+
+        //Snap X position
+        if (columns > 0)
+        {
+            float columnDistance = width / columns;
+            point.x = Mathf.Round(point.x / columnDistance) * columnDistance;
+        }
+
+        //Snap Y position
         float rowDistance = height / rows;
         float nearestRow = Mathf.Round((point.y + rowOffset % rowDistance) / rowDistance);
         point.y = nearestRow * rowDistance - rowOffset % rowDistance;

@@ -11,6 +11,7 @@ Shader "Unlit/Grid Shader"
 		_RowOffset("Row offset",float) = 0.2
 		_RowWidth("Row width",float) = 1
 		_ColumnWidth("Column width",float) = 1
+		_ColumnColor("Column Color", Color) = (0, 0, 0, 1)
 		_BeatsnapDivision("Beatsnap divisor",int) = 1
 		_WholeOutlineColor("1/1 Outline color", Color) = (255,255,255,0)
 		_HalfOutlineColor("1/2 Outline color", Color) = (255,0,0,0)
@@ -61,6 +62,7 @@ Shader "Unlit/Grid Shader"
 			float _RowWidth;
 			float _ColumnWidth;
 			float _Columns;
+			float4 _ColumnColor;
 			float _RowOffset;
 			float _Rows;
 			
@@ -131,7 +133,7 @@ Shader "Unlit/Grid Shader"
 
 				if (x % columnStep < columnWidth / 2 || x % columnStep > columnStep - columnWidth / 2)
 				{
-					return _WholeOutlineColor;
+					return _ColumnColor;
 				}
 				
 				return _GridColor;
