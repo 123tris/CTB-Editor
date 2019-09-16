@@ -126,11 +126,6 @@ Shader "Unlit/Grid Shader"
 				x *= _RectSize.x;
 				columnStep *= _RectSize.x;
 
-				// if (x >= 745-columnWidth) //Draw a line on the right horizontal edge of the grid
-				// {
-				// 	return _OutlineColor;
-				// }
-
 				if (x % columnStep < columnWidth / 2 || x % columnStep > columnStep - columnWidth / 2)
 				{
 					return _ColumnColor;

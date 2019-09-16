@@ -59,7 +59,7 @@ Material:
     - _BumpScale: 1
     - _ColumnOffset: 67
     - _ColumnWidth: 1
-    - _Columns: 12.001
+    - _Columns: 16.001
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -86,6 +86,7 @@ Material:
     - _BaseColour: {r: 1, g: 0, b: 0, a: 0}
     - _BrickColor: {r: 0.8207547, g: 0.32561797, b: 0.21293166, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColumnColor: {r: 0, g: 0, b: 0, a: 1}
     - _EighthOutlineColor: {r: 255, g: 255, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GridColor: {r: 0.16862746, g: 0.16862746, b: 0.16862746, a: 1}
@@ -94,6 +95,6 @@ Material:
     - _HalfOutlineColor: {r: 255, g: 0, b: 0, a: 0}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 0}
     - _QuaterOutlineColor: {r: 0, g: 0, b: 255, a: 0}
-    - _RectSize: {r: 745, g: 533, b: 0, a: 0}
+    - _RectSize: {r: 1280, g: 900, b: 0, a: 0}
     - _SixteenthOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 0}
     - _WholeOutlineColor: {r: 1, g: 1, b: 1, a: 0}

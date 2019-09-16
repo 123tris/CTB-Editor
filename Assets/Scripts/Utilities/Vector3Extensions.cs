@@ -85,4 +85,9 @@ public static class Vector3Extensions
         output.y = (int) Mathf.Round(vector.y);
         return output;
     }
+
+    public static System.Numerics.Vector2 ToNumerical(this Vector2Int vector)
+    {
+        return new System.Numerics.Vector2(vector.x, vector.y);
+    }
 }

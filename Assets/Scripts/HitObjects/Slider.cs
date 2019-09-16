@@ -96,6 +96,7 @@ public class Slider : HitObject
         return fruits[fruits.Count - 1];
     }
 
+    //TODO: needs rework (position x is scaled by grid width ratio)
     public Vector2 GetProjectedPosition(Vector2 mousePosition)
     {
         Vector2 direction = fruits[0].position - fruits[1].position;

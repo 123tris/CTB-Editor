@@ -68,7 +68,7 @@ public abstract class HitObject : MonoBehaviour
 
     public void SetXPosition(float x)
     {
-        position.x = (int) x;
+        position.x = Mathf.RoundToInt(x/Grid.WidthRatio);
         transform.position = new Vector2(x + Grid.Instance.transform.position.x, transform.position.y);
     }
 

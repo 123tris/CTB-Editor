@@ -6,7 +6,7 @@ using UnityEngine.UI.Extensions;
 public class Fruit : HitObject {
     public const float OBJECT_RADIUS = 44;
 
-    public float Scale => (1.0f - 0.7f * (BeatmapSettings.CS - 5) / 5f) * HitObjectManager.WidthRatio;
+    public float Scale => (1.0f - 0.7f * (BeatmapSettings.CS - 5) / 5f) * Grid.WidthRatio;
 
     private NicerOutline outline;
 
@@ -55,7 +55,7 @@ public class Fruit : HitObject {
             //Check if next fruit is catchable
             double halfCatcherWidth = Catcher.GetCatcherSize() / 2;
             double timeToNext = nextHitObject.position.y - position.y - 1000f / 60f / 4; // 1/4th of a frame of grace time, taken from osu
-            double distanceToNext = Math.Abs(nextHitObject.position.x - position.x) - halfCatcherWidth;
+            double distanceToNext = Math.Abs(nextHitObject.position.x - position.x) - halfCatcherWidth * 512;
             float distanceToHyper = (float)(timeToNext * Catcher.BASE_SPEED - distanceToNext);
 
             if (distanceToHyper < 0)

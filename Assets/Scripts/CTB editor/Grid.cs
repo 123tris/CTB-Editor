@@ -4,6 +4,17 @@ using UnityEngine.UI;
 
 public class Grid : Singleton<Grid>
 {
+    public const int DEFAULT_OSU_PLAYFIELD_WIDTH = 512;
+    public const int DEFAULT_OSU_PLAYFIELD_HEIGHT = 384;
+
+    public const int EDITOR_FIELD_WIDTH = 1280; // will have to stop being hard-coded 
+
+    /// <summary>
+    /// How big the editor is compared to the playfield. 
+    /// Should always be > 1.
+    /// </summary>
+    public const float WidthRatio = EDITOR_FIELD_WIDTH / (float) DEFAULT_OSU_PLAYFIELD_WIDTH;
+
     public float columns
     {
         get { return gridMaterial.GetFloat("_Columns"); } //TODO: retrieving from material is slow, value could be cached
@@ -71,11 +82,12 @@ public class Grid : Singleton<Grid>
         point -= new Vector2(transform.position.x, transform.position.y);
 
         //Snap X position
-        if (columns > 0)
-        {
-            float columnDistance = width / columns;
-            point.x = Mathf.Round(point.x / columnDistance) * columnDistance;
-        }
+        float columnDistance;
+        if (Mathf.RoundToInt(columns) > 0)
+            columnDistance = width / columns;
+        else
+            columnDistance = width / 512; //Osu's playfield width is 512 so any x position of a fruit needs to be a fraction of that
+        point.x = Mathf.Round(point.x / columnDistance) * columnDistance;
 
         //Snap Y position
         float rowDistance = height / rows;

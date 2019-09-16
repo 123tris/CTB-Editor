@@ -1,97 +1,125 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using OsuParsers.Beatmaps;
+using OsuParsers.Beatmaps.Objects;
+using OsuParsers.Enums;
 using UnityEngine;
+using PHitObject = OsuParsers.Beatmaps.Objects.HitObject;
 
 public static class BeatmapConverter
 {
-    private const int version = 14;
+    private const int version = 12;
 
     private static List<string> lines = new List<string>();
+
+    private static Beatmap importedBeatmap;
 
     public static Beatmap CreateBeatmapData()
     {
         Beatmap beatmap = new Beatmap();
-        beatmap.hitObjects = HitObjectManager.GetHitObjects();
-        beatmap.BPM = BeatmapSettings.BPM;
-        beatmap.AR = BeatmapSettings.AR;
-        beatmap.CS = BeatmapSettings.CS;
-        beatmap.audioFileName = BeatmapSettings.audioFileName;
+
+        beatmap.GeneralSection.AudioFilename = BeatmapSettings.audioFileName;
+        beatmap.GeneralSection.Mode = Ruleset.Fruits;
+
+        beatmap.DifficultySection.ApproachRate = BeatmapSettings.AR;
+        beatmap.DifficultySection.CircleSize = BeatmapSettings.CS;
+
+        TimingPoint timingPoint = new TimingPoint();
+        timingPoint.BeatLength = Mathf.RoundToInt(60000f / BeatmapSettings.BPM);
+        beatmap.TimingPoints.Add(timingPoint);
+
+        List<PHitObject> pHitObjects = new List<PHitObject>();
+        foreach (HitObject hitObject in HitObjectManager.GetHitObjects())
+        {
+            PHitObject addHitObject = new PHitObject();
+            addHitObject.Position = hitObject.position.ToNumerical();
+            pHitObjects.Add(addHitObject);
+        }
+        beatmap.HitObjects = pHitObjects;
+
         return beatmap;
     }
 
     public static void ConvertToOsuFile(Beatmap beatmap)
     {
-        Misc("osu file format v" + version);
+        beatmap.EditorSection.BeatDivisor = BeatsnapDivisor.Instance.division;
+        beatmap.MetadataSection.Creator = "CTB Editor";
 
-        #region GENERAL
-        Section("General");
-        Pair("AudioFilename", beatmap.audioFileName); // TODO IMPORTANT
-        Pair("AudioLeadIn", "0"); // TODO IMPORTANT
-        Pair("PreviewTime", "0"); // TODO
-        Pair("Countdown", "0"); // TODO
-        Pair("SampleSet", "Soft"); // TODO
-        Pair("StackLeniency", "0"); // TODO
-        Pair("Mode", "2");
-        Pair("LetterboxInBreaks", "0"); // TODO
-        Pair("WidescreenStoryboard", "0"); // TODO
+        beatmap.Write(Application.streamingAssetsPath + "/Exported CTB map.osu");
+
+        #region Old Parsing
+        //Misc("osu file format v" + version);
+        //
+        //#region GENERAL
+        //Section("General");
+        //Pair("AudioFilename", beatmap.audioFileName); // TODO IMPORTANT
+        //Pair("AudioLeadIn", "0"); // TODO IMPORTANT
+        //Pair("PreviewTime", "0"); // TODO
+        //Pair("Countdown", "0"); // TODO
+        //Pair("SampleSet", "Soft"); // TODO
+        //Pair("StackLeniency", "0"); // TODO
+        //Pair("Mode", "2");
+        //Pair("LetterboxInBreaks", "0"); // TODO
+        //Pair("WidescreenStoryboard", "0"); // TODO
+        //#endregion
+        //
+        //#region EDITOR
+        //Section("Editor");
+        //Pair("Bookmarks", "0"); // TODO
+        //Pair("DistanceSpacing", "0"); // TODO
+        //Pair("BeatDivisor", BeatsnapDivisor.Instance.division);
+        //Pair("GridSize", "0"); // TODO
+        //Pair("TimelineZoom", "1"); // TODO
+        //#endregion
+        //
+        //#region METADATA
+        //Section("Metadata");
+        //Pair("Title", "Never gonna give you up"); // TODO IMPORTANT
+        //Pair("TitleUnicode", "0"); // TODO IMPORTANT
+        //Pair("Artist", "Rick Astley"); // TODO IMPORTANT
+        //Pair("ArtistUnicode", "0"); // TODO IMPORTANT
+        //Pair("Creator", "CTB EDITOR"); // TODO IMPORTANT
+        //Pair("Version", "Diff name"); // TODO IMPORTANT
+        //Pair("Source", ""); // TODO
+        //Pair("Tags", ""); // TODO
+        //Pair("BeatmapID", "0");
+        //Pair("BeatmapSetID", "0");
+        //#endregion
+        //
+        //#region DIFFICULTY
+        //Section("Difficulty");
+        //Pair("HPDrainRate", "7"); // TODO
+        //Pair("CircleSize", "5"); // TODO
+        //Pair("OverallDifficulty", "5"); // TODO
+        //Pair("ApproachRate", beatmap.AR);
+        //Pair("SliderMultiplier", "1"); // TODO
+        //Pair("SliderTickRate", "1"); // TODO
+        //#endregion
+        //
+        //#region EVENTS
+        //Section("Events"); // TODO
+        //#endregion
+        //
+        //#region TIMINGPOINTS
+        //Section("TimingPoints"); // TODO REALLY IMPORTANT, FOR THE MOMENT ONLY 1 POINT AT 0 OFFSET WILL BE PUT
+        //TimingPoint(0, 60000f / beatmap.BPM, 4, 2, 1, 100, 0);
+        //#endregion
+        //
+        //#region COLOURS
+        //Section("Colours");
+        //Misc("Combo1: 255, 0, 0");
+        //Misc("Combo2: 0, 255, 0");
+        //Misc("Combo3: 0, 0, 255");
+        //#endregion
+        //
+        //#region HITOBJECTS
+        //Section("HitObjects");
+        //ParseHitObjects(beatmap.hitObjects);
+        //#endregion
+        //
+        //File.WriteAllText(Application.streamingAssetsPath + "/Exported CTB map.osu", string.Join("\n", lines)); //TODO: use map name
         #endregion
-
-        #region EDITOR
-        Section("Editor");
-        Pair("Bookmarks", "0"); // TODO
-        Pair("DistanceSpacing", "0"); // TODO
-        Pair("BeatDivisor", BeatsnapDivisor.Instance.division);
-        Pair("GridSize", "0"); // TODO
-        Pair("TimelineZoom", "1"); // TODO
-        #endregion
-
-        #region METADATA
-        Section("Metadata");
-        Pair("Title", "Never gonna give you up"); // TODO IMPORTANT
-        Pair("TitleUnicode", "0"); // TODO IMPORTANT
-        Pair("Artist", "Rick Astley"); // TODO IMPORTANT
-        Pair("ArtistUnicode", "0"); // TODO IMPORTANT
-        Pair("Creator", "CTB EDITOR"); // TODO IMPORTANT
-        Pair("Version", "Diff name"); // TODO IMPORTANT
-        Pair("Source", ""); // TODO
-        Pair("Tags", ""); // TODO
-        Pair("BeatmapID", "0");
-        Pair("BeatmapSetID", "0");
-        #endregion
-
-        #region DIFFICULTY
-        Section("Difficulty");
-        Pair("HPDrainRate", "7"); // TODO
-        Pair("CircleSize", "5"); // TODO
-        Pair("OverallDifficulty", "5"); // TODO
-        Pair("ApproachRate", beatmap.AR);
-        Pair("SliderMultiplier", "1"); // TODO
-        Pair("SliderTickRate", "1"); // TODO
-        #endregion
-
-        #region EVENTS
-        Section("Events"); // TODO
-        #endregion
-
-        #region TIMINGPOINTS
-        Section("TimingPoints"); // TODO REALLY IMPORTANT, FOR THE MOMENT ONLY 1 POINT AT 0 OFFSET WILL BE PUT
-        TimingPoint(0, 60000f / beatmap.BPM, 4, 2, 1, 100, 0);
-        #endregion
-
-        #region COLOURS
-        Section("Colours");
-        Misc("Combo1: 255, 0, 0");
-        Misc("Combo2: 0, 255, 0");
-        Misc("Combo3: 0, 0, 255");
-        #endregion
-
-        #region HITOBJECTS
-        Section("HitObjects");
-        ParseHitObjects(beatmap.hitObjects);
-        #endregion
-
-        File.WriteAllText(Application.streamingAssetsPath + "/Exported CTB map.osu", string.Join("\n", lines)); //TODO: use map name
     }
 
     private static void Misc(string str)
@@ -133,8 +161,8 @@ public static class BeatmapConverter
     private static void AddFruit(Fruit f)
     {
         lines.Add(
-            $"{(int) (f.position.x / HitObjectManager.WidthRatio)}," +
-            $"{HitObjectManager.DEFAULT_OSU_PLAYFIELD_HEIGHT / 2}," +
+            $"{f.position.x}," +
+            $"{Grid.DEFAULT_OSU_PLAYFIELD_HEIGHT / 2}," +
             $"{f.position.y}," +
             $"{(byte) f.type},0,0:0:0:0:");
     }

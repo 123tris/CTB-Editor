@@ -49,6 +49,6 @@ public class Catcher : MonoBehaviour
 
     public static double GetCatcherSize()
     {
-        return CATCHER_SIZE / HitObjectManager.DEFAULT_OSU_PLAYFIELD_WIDTH * (1.0f - 0.7f * (BeatmapSettings.CS - 5) / 5);
+        return CATCHER_SIZE / Grid.DEFAULT_OSU_PLAYFIELD_WIDTH * (1.0f - 0.7f * (BeatmapSettings.CS - 5) / 5);
     }
 }

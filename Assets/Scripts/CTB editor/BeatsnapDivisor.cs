@@ -1,11 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class BeatsnapDivisor : Singleton<BeatsnapDivisor>
 {
-    [SerializeField] private Text displayDivision;
+    [SerializeField] private TextMeshProUGUI displayDivision;
 
     [HideInInspector] public int division;
     private UnityEngine.UI.Slider slider;

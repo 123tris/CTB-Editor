@@ -9,17 +9,6 @@ using Object = UnityEngine.Object;
 
 public static class HitObjectManager
 {
-    public const float DEFAULT_OSU_PLAYFIELD_WIDTH = 512f;
-    public const float DEFAULT_OSU_PLAYFIELD_HEIGHT = 384f;
-
-    public const int EDITOR_FIELD_WIDTH = 745; // will have to stop being hard-coded 
-
-    /// <summary>
-    /// How big the editor is compared to the playfield. 
-    /// Should always be > 1.
-    /// </summary>
-    public const float WidthRatio = EDITOR_FIELD_WIDTH / DEFAULT_OSU_PLAYFIELD_WIDTH;
-
     public static GameObject sliderPrefab;
     public static GameObject fruitPrefab;
 

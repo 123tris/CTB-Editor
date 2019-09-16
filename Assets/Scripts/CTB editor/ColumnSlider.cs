@@ -9,12 +9,11 @@ public class ColumnSlider : MonoBehaviour
     private void Start()
     {
         slider = GetComponent<UnityEngine.UI.Slider>();
-        slider.onValueChanged.AddListener(OnValueChanged);
     }
 
-    void OnValueChanged(float value)
+    void Update()
     {
-        Grid.Instance.columns = value + 0.001f;
-        columnText.text = value.ToString();
+        Grid.Instance.columns = slider.value + 0.001f;
+        columnText.text = slider.value.ToString();
     }
 }

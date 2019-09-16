@@ -14,6 +14,10 @@ public class Brush : MonoBehaviour
     public BrushState state = BrushState.Fruit;
     public Vector3 mousePositionOnGrid;
 
+    [SerializeField] private Button selectButton;
+    [SerializeField] private Button fruitButton;
+    [SerializeField] private Button sliderButton;
+
     [SerializeField] private Text brushCoords;
     [SerializeField] private Text nextHitobjectTime;
     private Grid grid => Grid.Instance;
@@ -50,12 +54,14 @@ public class Brush : MonoBehaviour
             fruitDisplay.transform.position = mousePositionOnGrid + grid.transform.position;
             fruitDisplay.gameObject.SetActive(true);
             fruitDisplay.UpdateCircleSize();
-            fruitDisplay.position.x = (int) mousePositionOnGrid.x;
+            fruitDisplay.position.x = Mathf.RoundToInt(mousePositionOnGrid.x / Grid.WidthRatio);
             fruitDisplay.position.y = (int) grid.GetHitTime(mousePositionOnGrid);
+
             if (state == BrushState.Slider && createdSlider != null && createdSlider.fruitCount >= 2)
             {
                 fruitDisplay.transform.position = createdSlider.GetProjectedPosition(mousePositionOnGrid);
             }
+            brushCoords.text = fruitDisplay.position.ToString();
         }
         else fruitDisplay.gameObject.SetActive(false);
 

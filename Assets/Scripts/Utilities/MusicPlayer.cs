@@ -16,6 +16,8 @@ public class MusicPlayer : MonoBehaviour
             audioSource.Play();
             audioSource.Pause();
         }
+
+        BeatmapSettings.audioFileName = audioSource.clip.name + ".mp3";
     }
 
     void LateUpdate()
