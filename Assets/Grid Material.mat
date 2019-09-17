@@ -59,7 +59,7 @@ Material:
     - _BumpScale: 1
     - _ColumnOffset: 67
     - _ColumnWidth: 1
-    - _Columns: 16.001
+    - _Columns: 0.001
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0

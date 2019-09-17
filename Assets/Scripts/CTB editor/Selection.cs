@@ -9,7 +9,7 @@ public static class Selection
     private static Vector3 dragDelta;
     private static Vector2 startDragPos;
 
-    private static List<Vector3> startPositions = new List<Vector3>();
+    private static List<Vector2> startPositions = new List<Vector2>();
 
     public static HitObject first => selectedHitObjects.First();
     public static HitObject last => selectedHitObjects.Last();
@@ -56,7 +56,7 @@ public static class Selection
         if (Input.GetMouseButtonDown(0)) //On Start Dragging
         {
             startDragPos = Grid.Instance.GetSnappedMousePosition();
-            startPositions = selectedHitObjects.Select(item => item.transform.position).ToList();
+            startPositions = selectedHitObjects.Select(item => Grid.Instance.NearestPointOnGrid(item.transform.position)).ToList(); //use grid to resnap when dragging
         }
 
         dragDelta = Grid.Instance.GetSnappedMousePosition() - startDragPos;
@@ -74,7 +74,7 @@ public static class Selection
     private static void DragFruit(Fruit fruit, int index)
     {
         //Update position of dragging fruit
-        Vector3 targetPos = startPositions[index] - Grid.Instance.transform.position + dragDelta;
+        Vector3 targetPos = startPositions[index].ToVector3() - Grid.Instance.transform.position + dragDelta;
         fruit.SetXPosition(targetPos.x);
         fruit.SetPosition(targetPos);
     }
