@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using RuntimeUndo;
 using UnityEngine;
 
 public static class Selection
@@ -55,6 +56,11 @@ public static class Selection
 
         if (Input.GetMouseButtonDown(0)) //On Start Dragging
         {
+            foreach (HitObject selectedHitObject in selectedHitObjects)
+            {
+                if (selectedHitObject is Fruit)
+                    Undo.RecordFruit(selectedHitObject as Fruit);
+            }
             startDragPos = Grid.Instance.GetSnappedMousePosition();
             startPositions = selectedHitObjects.Select(item => Grid.Instance.NearestPointOnGrid(item.transform.position)).ToList(); //use grid to resnap when dragging
         }
@@ -64,10 +70,18 @@ public static class Selection
         for (int i = 0; i < selectedHitObjects.Count; i++)
         {
             HitObject selectedHitObject = selectedHitObjects[i];
-            if (selectedHitObject is Fruit)
-                DragFruit(selectedHitObject as Fruit, i);
-            else
-                DragSlider(selectedHitObject as Slider, i);
+            Vector3 targetPos = startPositions[i].ToVector3() - Grid.Instance.transform.position + dragDelta;
+        
+            if (targetPos.ToVector2() == startPositions[i]) return;
+        
+            selectedHitObject.SetXPosition(targetPos.x);
+            selectedHitObject.SetPosition(targetPos);
+
+
+            //if (selectedHitObject is Fruit)
+            //    DragFruit(selectedHitObject as Fruit, i);
+            //else
+            //    DragSlider(selectedHitObject as Slider, i);
         }
     }
 
@@ -75,6 +89,9 @@ public static class Selection
     {
         //Update position of dragging fruit
         Vector3 targetPos = startPositions[index].ToVector3() - Grid.Instance.transform.position + dragDelta;
+        
+        if (targetPos.ToVector2() == startPositions[index]) return;
+        
         fruit.SetXPosition(targetPos.x);
         fruit.SetPosition(targetPos);
     }
@@ -83,6 +100,14 @@ public static class Selection
     {
         //TODO: slider behaviour needs to be properly designed
         //slider.MoveSlider(Input.mousePosition + distanceFromSliderFruit);
+
+        //Update position of dragging fruit
+        Vector3 targetPos = startPositions[index].ToVector3() - Grid.Instance.transform.position + dragDelta;
+        
+        if (targetPos.ToVector2() == startPositions[index]) return;
+        
+        slider.SetXPosition(targetPos.x);
+        slider.SetPosition(targetPos);
     }
 
     public static void SetSelected(HitObject hitObject)

@@ -20,26 +20,9 @@ public static class HitObjectManager
     {
         Slider slider = Object.Instantiate(sliderPrefab, parent).GetComponent<Slider>();
         slider.Init(position);
-        #if UNITY_EDITOR
-        Undo.RegisterCreatedObjectUndo(slider.gameObject,"Create Slider");
-        #endif
+        slider.AddFruit(position);
+        RuntimeUndo.Undo.RegisterCreatedObject(slider.gameObject);
         return slider;
-    }
-
-    /// <summary>
-    /// Instantiates a fruit but instead of adding it to the managed hitobjects of the hitobjectmanager
-    /// it will let the slider who owns the fruit to manage it instead. And the hitobjectmanager will manage the slider
-    /// </summary>
-    /// <param name="position">The global position of the fruit</param>
-    /// <param name="slider">The slider which owns the fruit</param>
-    public static Fruit CreateSliderFruit(Vector2 position, Transform slider)
-    {
-        Fruit fruit = Object.Instantiate(fruitPrefab, slider).GetComponent<Fruit>();
-        fruit.SetPosition(position);
-        #if UNITY_EDITOR
-        Undo.RegisterCreatedObjectUndo(fruit.gameObject,"Create Slider Fruit");
-        #endif
-        return fruit;
     }
 
     /// <summary> Instantiates a fruit and adds it to the managed hitobjects of the hitobjectmanager </summary>
@@ -83,7 +66,8 @@ public static class HitObjectManager
 
     public static void RemoveHitObject(int yAxis)
     {
-        hitObjects.Remove(yAxis);
+        if (hitObjects.ContainsKey(yAxis))
+            hitObjects.Remove(yAxis);
     }
 
     public static HitObject GetHitObjectByTime(int timeStamp)
@@ -138,5 +122,13 @@ public static class HitObjectManager
     public static List<HitObject> GetHitObjects()
     {
         return hitObjects.Values.ToList();
+    }
+
+    public static void Reset()
+    {
+        foreach (KeyValuePair<int, HitObject> hitObject in hitObjects)
+        {
+            Object.Destroy(hitObject.Value.gameObject);
+        }
     }
 }

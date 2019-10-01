@@ -6,7 +6,7 @@ using UnityEngine.UI.Extensions;
 
 public class Slider : HitObject
 {
-    [HideInInspector] public GameObject fruitPrefab; //When brush creates a slider it is required to set the fruitprefab
+    private GameObject fruitPrefab => GameManager.Instance.fruitPrefab;
 
     //Previous fruit should have a lower Y and next fruit should have a higher Y
     private List<Fruit> fruits = new List<Fruit>();
@@ -18,9 +18,8 @@ public class Slider : HitObject
         type = HitObjectType.Slider;
     }
 
-    protected override void Start()
+    void Awake()
     {
-        base.Start();
         lineRenderer = GetComponent<UILineRenderer>();
     }
 
@@ -29,10 +28,8 @@ public class Slider : HitObject
         //TODO: Set position of slider when the first fruit is placed
 
         //Spawn fruit
-        Fruit fruit = HitObjectManager.CreateSliderFruit(spawnPosition,transform);
-        #if UNITY_EDITOR
-        Undo.RecordObject(lineRenderer,"Create Slider Fruit");
-        #endif
+        Fruit fruit = Instantiate(fruitPrefab, transform).GetComponent<Fruit>();
+        fruit.SetPosition(spawnPosition);
 
         //Update slider's fruits
         fruits.Add(fruit);
@@ -50,11 +47,6 @@ public class Slider : HitObject
         }
 
         lineRenderer.SetAllDirty();
-    }
-
-    protected override void UpdateHyperDashState()
-    {
-        //TODO: implement hyper dash state for sliders
     }
 
     public override void UpdateCircleSize()
@@ -106,4 +98,8 @@ public class Slider : HitObject
         Vector3 projectedLine = Vector2.Dot(mouseDirectionToLastFruit, direction) * direction;
         return fruits[0].transform.position + projectedLine;
     }
+
+    public int GetFruitIndex(Fruit fruit) => fruits.IndexOf(fruit);
+
+    public HitObject GetFruitByIndex(int fruitIndex) => fruits[fruitIndex];
 }

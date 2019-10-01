@@ -24,6 +24,7 @@ public class SongSelect : MonoBehaviour
         if (path.Length == 0) return;
         player.SetSong(path[0]);
         BeatmapSettings.audioFileName = Path.GetFileName(path[0]);
-        selectedSongText.text = "Selected song:\t" + BeatmapSettings.audioFileName;
+        if (selectedSongText != null)
+            selectedSongText.text = "Selected song:\t" + BeatmapSettings.audioFileName;
     }
 }

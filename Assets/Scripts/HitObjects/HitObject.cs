@@ -28,11 +28,6 @@ public abstract class HitObject : MonoBehaviour
         UpdateCircleSize();
     }
 
-    protected virtual void Update()
-    {
-        UpdateHyperDashState();
-    }
-
     ///Initialize hitobject, this will add it to the manager and set the position. HitObject.Initialized will turn true
     public void Init(Vector3 pPosition)
     {
@@ -46,6 +41,8 @@ public abstract class HitObject : MonoBehaviour
     /// It will return when a fruit already occupies the same y position as the one which was passed </summary>
     public void SetPosition(Vector3 newPosition)
     {
+        SetXPosition(newPosition.x);
+
         float hitTime = Grid.Instance.GetHitTime(newPosition);
         int timeStamp = (int) Grid.Instance.GetHitTime(newPosition);
 
@@ -57,7 +54,6 @@ public abstract class HitObject : MonoBehaviour
         }
 
         transform.position = newPosition + Grid.Instance.transform.position; //Apply grid's position to set global position
-        SetXPosition(newPosition.x);
         position.y = timeStamp;
 
         //If this is a slider fruit, update the line connections
@@ -71,8 +67,6 @@ public abstract class HitObject : MonoBehaviour
         position.x = Mathf.RoundToInt(x/Grid.WidthRatio);
         transform.position = new Vector2(x + Grid.Instance.transform.position.x, transform.position.y);
     }
-
-    protected abstract void UpdateHyperDashState();
 
     public abstract void UpdateCircleSize();
 

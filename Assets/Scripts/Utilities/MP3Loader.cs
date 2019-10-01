@@ -14,7 +14,7 @@ public static class MP3Loader
             (int)(mpegFile.Length / sizeof(float) / mpegFile.Channels),
             mpegFile.Channels,
             mpegFile.SampleRate,
-            true,
+            false,
             data => { int actualReadCount = mpegFile.ReadSamples(data, 0, data.Length); },
             position => { mpegFile = new MpegFile(filePath); });
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using RuntimeUndo;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -47,7 +48,8 @@ public class Brush : MonoBehaviour
     void Update()
     {
         mousePositionOnGrid = grid.GetMousePositionOnGrid();
-        brushCoords.text = (Input.mousePosition - grid.transform.position).ToVector2().ToString("F2");
+
+        brushCoords.text = new Vector2(mousePositionOnGrid.x/Grid.WidthRatio,mousePositionOnGrid.y).ToString("F2");
 
         //Display fruit over cursor for accurate placement
         if (state != BrushState.Select && WithinGridRange(Input.mousePosition))
@@ -98,7 +100,6 @@ public class Brush : MonoBehaviour
             Fruit hitObject = DetectHitObject();
             if (hitObject != null)
             {
-                Debug.Assert(hitObject.initialized,"Selected uninitialized hitobject",hitObject);
                 Slider slider = hitObject.transform.parent.GetComponent<Slider>();
                 if (slider) //Select slider
                 {
@@ -111,6 +112,7 @@ public class Brush : MonoBehaviour
                 }
                 else //Select fruit
                 {
+                    Debug.Assert(hitObject.initialized,"Selected uninitialized hitobject",hitObject);
                     if (Input.GetKey(KeyCode.LeftControl))
                     {
                         if (Selection.Contains(hitObject)) Selection.Remove(hitObject);
@@ -139,6 +141,7 @@ public class Brush : MonoBehaviour
             if (TimeStampOccupied())
             {
                 HitObject hitObject = HitObjectManager.GetHitObjectByTime((int)grid.GetHitTime(mousePositionOnGrid));
+                Undo.RecordFruit(hitObject as Fruit);
                 hitObject.SetXPosition(mousePositionOnGrid.x);
             }
             else
@@ -152,10 +155,11 @@ public class Brush : MonoBehaviour
         {
             //If create slider is null then we're creating our first slider
             if (createdSlider == null)
-                createdSlider = CreateSlider();
+                createdSlider = HitObjectManager.CreateSlider(mousePositionOnGrid, transform);
             else
             {
-                createdSlider.AddFruit(fruitDisplay.transform.position);
+                createdSlider.AddFruit(mousePositionOnGrid);
+                createdSlider = null;
             }
         }
 
@@ -167,7 +171,7 @@ public class Brush : MonoBehaviour
             if (Input.GetMouseButtonDown(1)) //Right click when currently making a slider
             {
                 //Finish slider creation
-                createdSlider.AddFruit(fruitDisplay.transform.position);
+                createdSlider.AddFruit(mousePositionOnGrid);
                 createdSlider = null;
             }
         }
@@ -187,13 +191,6 @@ public class Brush : MonoBehaviour
             next += $"{nexHitObject.position.x - Selection.last.position.x}";
 
         nextHitobjectTime.text = prev + ", " + next + $"\nPosition x: {Selection.last.position.x}\nTime: {Selection.last.position.y}ms";
-    }
-
-    private Slider CreateSlider()
-    {
-        Slider slider = HitObjectManager.CreateSlider(Input.mousePosition, transform);
-        slider.AddFruit(Input.mousePosition);
-        return slider;
     }
 
     private Fruit DetectHitObject()

@@ -7,6 +7,8 @@ public class MusicPlayer : MonoBehaviour
 {
     private AudioSource audioSource;
 
+    public float audioSourceTime;
+
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -27,12 +29,16 @@ public class MusicPlayer : MonoBehaviour
         if (Math.Abs(Input.mouseScrollDelta.y) > 0.1f)
             audioSource.time = Mathf.Clamp(audioSource.time + Input.mouseScrollDelta.y / 100 * TimeLine.instance.scrollSpeed,0,float.MaxValue);
         TimeLine.instance.SetCurrentTimeStamp((int) (audioSource.time * 1000));
+
+        audioSourceTime = audioSource.time;
     }
 
     public void SetSong(string filepath)
     {
         AudioClip audioClip = MP3Loader.LoadMP3(filepath);
         audioSource.clip = audioClip;
+        audioSource.Play();
+        audioSource.Pause();
         TimeLine.instance.SetTimeLineLength((int) (audioClip.length*1000)); //Multiply with a 1000 to convert from seconds to milliseconds
     }
 

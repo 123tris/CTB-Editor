@@ -8,6 +8,9 @@ public class Fruit : HitObject {
 
     public float Scale => (1.0f - 0.7f * (BeatmapSettings.CS - 5) / 5f) * Grid.WidthRatio;
 
+    public bool isSliderFruit => slider;
+    public Slider slider => transform.parent.GetComponent<Slider>();
+
     private NicerOutline outline;
 
     private Image image;
@@ -23,9 +26,9 @@ public class Fruit : HitObject {
         image = GetComponent<Image>();
     }
 
-    protected override void Update()
+    void Update()
     {
-        base.Update();
+        UpdateHyperDashState();
         image.color = hyperDash ? Color.red.OverrideAlpha(0.5f) : Color.white;
     }
 
@@ -47,9 +50,16 @@ public class Fruit : HitObject {
         GetComponent<NicerOutline>().enabled = false;
     }
 
-    protected override void UpdateHyperDashState()
+    void UpdateHyperDashState()
     {
-        var nextHitObject = HitObjectManager.GetNextHitObject(this);
+        HitObject nextHitObject = HitObjectManager.GetNextHitObject(this);
+        if (isSliderFruit)
+        {
+            int fruitIndex = slider.GetFruitIndex(this);
+            if (fruitIndex < slider.fruitCount - 1)
+                nextHitObject = slider.GetFruitByIndex(++fruitIndex);
+        }
+
         if (nextHitObject != null)
         {
             //Check if next fruit is catchable

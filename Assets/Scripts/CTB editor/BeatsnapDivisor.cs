@@ -18,4 +18,10 @@ public class BeatsnapDivisor : Singleton<BeatsnapDivisor>
 	    division = (int) Mathf.Pow(2,slider.value);
 	    displayDivision.text = "1/" + division;
 	}
+
+    public void SetDivision(int div)
+    {
+        slider.value = div;
+        division = div;
+    }
 }
