@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -18,8 +19,8 @@ public class Brush : MonoBehaviour
     [SerializeField] private Button fruitButton;
     [SerializeField] private Button sliderButton;
 
-    [SerializeField] private Text brushCoords;
-    [SerializeField] private Text nextHitobjectTime;
+    [SerializeField] private TextMeshProUGUI brushCoords;
+    [SerializeField] private TextMeshProUGUI nextHitobjectTime;
     private Grid grid => Grid.Instance;
     private Slider createdSlider;
 
@@ -46,7 +47,7 @@ public class Brush : MonoBehaviour
     void Update()
     {
         mousePositionOnGrid = grid.GetMousePositionOnGrid();
-        brushCoords.text = (Input.mousePosition - grid.transform.position).ToString("F2");
+        brushCoords.text = (Input.mousePosition - grid.transform.position).ToVector2().ToString("F2");
 
         //Display fruit over cursor for accurate placement
         if (state != BrushState.Select && WithinGridRange(Input.mousePosition))

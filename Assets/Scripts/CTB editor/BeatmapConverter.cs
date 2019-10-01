@@ -3,7 +3,10 @@ using System.IO;
 using System.Linq;
 using OsuParsers.Beatmaps;
 using OsuParsers.Beatmaps.Objects;
+using OsuParsers.Beatmaps.Objects.Catch;
+using OsuParsers.Decoders;
 using OsuParsers.Enums;
+using OsuParsers.Enums.Beatmaps;
 using UnityEngine;
 using PHitObject = OsuParsers.Beatmaps.Objects.HitObject;
 
@@ -13,11 +16,14 @@ public static class BeatmapConverter
 
     private static List<string> lines = new List<string>();
 
-    private static Beatmap importedBeatmap;
+    public static Beatmap importedBeatmap = null;
 
     public static Beatmap CreateBeatmapData()
     {
-        Beatmap beatmap = new Beatmap();
+        //if (importedBeatmap != null)
+        //    return importedBeatmap;
+
+        Beatmap beatmap = BeatmapDecoder.Decode(Application.streamingAssetsPath+"/template.osu");
 
         beatmap.GeneralSection.AudioFilename = BeatmapSettings.audioFileName;
         beatmap.GeneralSection.Mode = Ruleset.Fruits;
@@ -26,14 +32,27 @@ public static class BeatmapConverter
         beatmap.DifficultySection.CircleSize = BeatmapSettings.CS;
 
         TimingPoint timingPoint = new TimingPoint();
-        timingPoint.BeatLength = Mathf.RoundToInt(60000f / BeatmapSettings.BPM);
+        timingPoint.BeatLength = 60000f / BeatmapSettings.BPM;
         beatmap.TimingPoints.Add(timingPoint);
 
         List<PHitObject> pHitObjects = new List<PHitObject>();
         foreach (HitObject hitObject in HitObjectManager.GetHitObjects())
         {
-            PHitObject addHitObject = new PHitObject();
-            addHitObject.Position = hitObject.position.ToNumerical();
+            PHitObject addHitObject;
+            var position = (Vector2Int.right * hitObject.position).ToNumerical();
+            var hitTime = hitObject.position.y;
+
+            if (hitObject is Fruit)
+            {
+                //Add fruit
+                addHitObject = new CatchFruit(position, hitTime, hitTime, HitSoundType.None, null, false, 0);
+            }
+            else
+            {
+                //Add Slider TODO: Slider logic
+                addHitObject = null;
+            }
+
             pHitObjects.Add(addHitObject);
         }
         beatmap.HitObjects = pHitObjects;
@@ -41,134 +60,34 @@ public static class BeatmapConverter
         return beatmap;
     }
 
-    public static void ConvertToOsuFile(Beatmap beatmap)
+    public static void ImportBeatmap(string path)
     {
-        beatmap.EditorSection.BeatDivisor = BeatsnapDivisor.Instance.division;
-        beatmap.MetadataSection.Creator = "CTB Editor";
-
-        beatmap.Write(Application.streamingAssetsPath + "/Exported CTB map.osu");
-
-        #region Old Parsing
-        //Misc("osu file format v" + version);
-        //
-        //#region GENERAL
-        //Section("General");
-        //Pair("AudioFilename", beatmap.audioFileName); // TODO IMPORTANT
-        //Pair("AudioLeadIn", "0"); // TODO IMPORTANT
-        //Pair("PreviewTime", "0"); // TODO
-        //Pair("Countdown", "0"); // TODO
-        //Pair("SampleSet", "Soft"); // TODO
-        //Pair("StackLeniency", "0"); // TODO
-        //Pair("Mode", "2");
-        //Pair("LetterboxInBreaks", "0"); // TODO
-        //Pair("WidescreenStoryboard", "0"); // TODO
-        //#endregion
-        //
-        //#region EDITOR
-        //Section("Editor");
-        //Pair("Bookmarks", "0"); // TODO
-        //Pair("DistanceSpacing", "0"); // TODO
-        //Pair("BeatDivisor", BeatsnapDivisor.Instance.division);
-        //Pair("GridSize", "0"); // TODO
-        //Pair("TimelineZoom", "1"); // TODO
-        //#endregion
-        //
-        //#region METADATA
-        //Section("Metadata");
-        //Pair("Title", "Never gonna give you up"); // TODO IMPORTANT
-        //Pair("TitleUnicode", "0"); // TODO IMPORTANT
-        //Pair("Artist", "Rick Astley"); // TODO IMPORTANT
-        //Pair("ArtistUnicode", "0"); // TODO IMPORTANT
-        //Pair("Creator", "CTB EDITOR"); // TODO IMPORTANT
-        //Pair("Version", "Diff name"); // TODO IMPORTANT
-        //Pair("Source", ""); // TODO
-        //Pair("Tags", ""); // TODO
-        //Pair("BeatmapID", "0");
-        //Pair("BeatmapSetID", "0");
-        //#endregion
-        //
-        //#region DIFFICULTY
-        //Section("Difficulty");
-        //Pair("HPDrainRate", "7"); // TODO
-        //Pair("CircleSize", "5"); // TODO
-        //Pair("OverallDifficulty", "5"); // TODO
-        //Pair("ApproachRate", beatmap.AR);
-        //Pair("SliderMultiplier", "1"); // TODO
-        //Pair("SliderTickRate", "1"); // TODO
-        //#endregion
-        //
-        //#region EVENTS
-        //Section("Events"); // TODO
-        //#endregion
-        //
-        //#region TIMINGPOINTS
-        //Section("TimingPoints"); // TODO REALLY IMPORTANT, FOR THE MOMENT ONLY 1 POINT AT 0 OFFSET WILL BE PUT
-        //TimingPoint(0, 60000f / beatmap.BPM, 4, 2, 1, 100, 0);
-        //#endregion
-        //
-        //#region COLOURS
-        //Section("Colours");
-        //Misc("Combo1: 255, 0, 0");
-        //Misc("Combo2: 0, 255, 0");
-        //Misc("Combo3: 0, 0, 255");
-        //#endregion
-        //
-        //#region HITOBJECTS
-        //Section("HitObjects");
-        //ParseHitObjects(beatmap.hitObjects);
-        //#endregion
-        //
-        //File.WriteAllText(Application.streamingAssetsPath + "/Exported CTB map.osu", string.Join("\n", lines)); //TODO: use map name
-        #endregion
+        importedBeatmap = BeatmapDecoder.Decode(path);
+        LoadImportedBeatmap();
     }
 
-    private static void Misc(string str)
+    private static void LoadImportedBeatmap()
     {
-        lines.Add(str);
-    }
+        HitObjectManager.Reset();
+        BeatmapSettings.audioFileName = importedBeatmap.GeneralSection.AudioFilename;
 
-    private static void Section(string str)
-    {
-        lines.Add("");
-        lines.Add($"[{str}]");
-    }
+        //BeatsnapDivisor.Instance.SetDivision(importedBeatmap.EditorSection.BeatDivisor);
 
-    private static void Pair(string parameter, object value)
-    {
-        lines.Add($"{parameter}: {value}");
-    }
+        BeatmapSettings.AR = importedBeatmap.DifficultySection.ApproachRate;
+        BeatmapSettings.CS = importedBeatmap.DifficultySection.CircleSize;
+        BeatmapSettings.BPM = (float)(60000f / importedBeatmap.TimingPoints.First().BeatLength);
 
-    private static void TimingPoint(int offset, double mspb, int meter, int sampleSet, int sampleIndex, int volume, byte kiaiMode)
-    {
-        byte inherited = (mspb < 0) ? (byte)0 : (byte)1;
-
-        lines.Add($"{offset},{mspb},{meter},{sampleSet},{sampleIndex},{volume},{inherited},{kiaiMode}");
-    }
-
-    private static void ParseHitObjects(List<HitObject> hitObjects)
-    {
-        foreach (HitObject h in hitObjects)
+        foreach (PHitObject hitobject in importedBeatmap.HitObjects)
         {
-            if (h is Fruit)
-                AddFruit(h as Fruit);
-            else if (h is Slider)
-                AddSlider(h as Slider);
-            else
-                Debug.LogError($"Unknown fruit type '{h.GetType()}' when converting to .osu file.");
+            if (hitobject is Circle)
+                HitObjectManager.CreateFruitByData(new Vector2(hitobject.Position.X,hitobject.StartTime));
         }
     }
 
-    private static void AddFruit(Fruit f)
+    public static void WriteOsuFile(string path)
     {
-        lines.Add(
-            $"{f.position.x}," +
-            $"{Grid.DEFAULT_OSU_PLAYFIELD_HEIGHT / 2}," +
-            $"{f.position.y}," +
-            $"{(byte) f.type},0,0:0:0:0:");
-    }
-
-    private static void AddSlider(Slider s)
-    {
-
+        Beatmap beatmap = CreateBeatmapData();
+        beatmap.EditorSection.BeatDivisor = BeatsnapDivisor.Instance.division;
+        beatmap.Write(Application.streamingAssetsPath + "/Exported CTB map.osu");
     }
 }

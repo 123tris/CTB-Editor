@@ -19,37 +19,47 @@ GridSize: 0
 TimelineZoom: 1
 
 [Metadata]
-Title: Never gonna give you up
-TitleUnicode: 0
-Artist: Rick Astley
-ArtistUnicode: 0
-Creator: CTB EDITOR
-Version: Diff name
-Source: 
-Tags: 
-BeatmapID: 0
-BeatmapSetID: 0
+Title:Never gonna give you up
+TitleUnicode:0
+Artist:Rick Astley
+ArtistUnicode:0
+Creator:CTB EDITOR
+Version:Diff name
+Source:
+Tags:
+BeatmapID:0
+BeatmapSetID:0
 
 [Difficulty]
-HPDrainRate: 7
-CircleSize: 5
-OverallDifficulty: 5
-ApproachRate: 9
-SliderMultiplier: 1
-SliderTickRate: 1
+HPDrainRate:7
+CircleSize:4
+OverallDifficulty:5
+ApproachRate:9
+SliderMultiplier:1
+SliderTickRate:1
 
 [Events]
+//Background and Video events
+0,0,"",0,0
+//Break Periods
+//Storyboard Layer 0 (Background)
+//Storyboard Layer 1 (Fail)
+//Storyboard Layer 2 (Pass)
+//Storyboard Layer 3 (Foreground)
+//Storyboard Layer 4 (Overlay)
+//Storyboard Sound Samples
 
 [TimingPoints]
 0,333.333333333333,4,2,1,100,1,0
+0,333,0,0,0,0,0,0
+
 
 [Colours]
-Combo1: 255, 0, 0
-Combo2: 0, 255, 0
-Combo3: 0, 0, 255
+Combo1 : 255,0,0
+Combo2 : 0,255,0
+Combo3 : 0,0,255
 
 [HitObjects]
-416,192,250,1,0,0:0:0:0:
-256,192,333,1,0,0:0:0:0:
-128,192,416,1,0,0:0:0:0:
-416,192,500,1,0,0:0:0:0:
+303,333,0,0,0,
+143,416,0,0,0,
+246,500,0,0,0,

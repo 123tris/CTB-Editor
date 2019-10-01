@@ -12,6 +12,8 @@ public static class HitObjectManager
     public static GameObject sliderPrefab;
     public static GameObject fruitPrefab;
 
+    private static Grid grid => Grid.Instance;
+
     private static SortedDictionary<int, HitObject> hitObjects = new SortedDictionary<int, HitObject>(); //Key indicates when the hitobject is played in MS
 
     public static Slider CreateSlider(Vector2 position, Transform parent)
@@ -47,6 +49,21 @@ public static class HitObjectManager
         fruit.Init(position);
         RuntimeUndo.Undo.RegisterCreatedObject(fruit.gameObject);
         return fruit;
+    }
+
+    public static void CreateFruitByData(Vector2 position)
+    {
+        Fruit fruit = Object.Instantiate(fruitPrefab, GameManager.Instance.level).GetComponent<Fruit>();
+        fruit.position = position.ToVector2Int();
+
+        float xPos = position.x * Grid.WidthRatio + grid.transform.position.x;
+        float yPos = grid.GetYPosition(position.y);
+        fruit.transform.position = new Vector3(xPos,yPos);
+
+        AddHitObject(fruit);
+        fruit.initialized = true;
+
+        RuntimeUndo.Undo.RegisterCreatedObject(fruit.gameObject);
     }
 
     /// <summary>

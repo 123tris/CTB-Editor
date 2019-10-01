@@ -92,6 +92,11 @@ public static class Vector3Extensions
         return new System.Numerics.Vector2(vector.x, vector.y);
     }
 
+    public static Vector2Int ToVector2Int(this Vector2 vector)
+    {
+        return new Vector2Int(Mathf.RoundToInt(vector.x),Mathf.RoundToInt(vector.y));
+    }
+
     public static Vector3 ToVector3(this Vector2 vector)
     {
         return new Vector3(vector.x,vector.y);

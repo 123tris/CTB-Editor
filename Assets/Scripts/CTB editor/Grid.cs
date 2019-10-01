@@ -98,8 +98,14 @@ public class Grid : Singleton<Grid>
     }
 
     /// <summary>Make sure pos is in Grid space and not global space</summary>
-    private float GetHitTime(int y) => y * (GetVisibleTimeRange() / height) + TimeLine.currentTimeStamp;
+    private float GetHitTime(int y) => y * GetVisibleTimeRange() / height + TimeLine.currentTimeStamp;
+
     public float GetHitTime(Vector2 pos) => GetHitTime((int)pos.y);
+
+    public float GetYPosition(float y)
+    {
+        return (y - TimeLine.currentTimeStamp) / (GetVisibleTimeRange() / height);
+    }
 
     public bool WithinGridRange(Vector2 position)
     {

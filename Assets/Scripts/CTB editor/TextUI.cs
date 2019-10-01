@@ -14,31 +14,40 @@ public class TextUI : MonoBehaviour
     void Start()
     {
         if (!ARInputField || !BPMInputField || !CSInputField) //if one of them is null
-            Debug.LogError("Not all input fields in TextUI is set",gameObject);
+            Debug.LogError("Not all input fields in TextUI is set", gameObject);
 
         BeatmapSettings.BPM = 180;
         BeatmapSettings.AR = 5;
         BeatmapSettings.CS = 5;
+
+        ARInputField.onEndEdit.AddListener(input => UpdateValue(ref BeatmapSettings.AR, input));
+        BPMInputField.onEndEdit.AddListener(input => UpdateValue(ref BeatmapSettings.AR, input));
+        CSInputField.onEndEdit.AddListener(input =>
+        {
+            UpdateValue(ref BeatmapSettings.AR, input);
+            HitObjectManager.UpdateAllCircleSize();
+        });
+    }
+
+    private void LoadSettings()
+    {
+        ARInputField.text = BeatmapSettings.AR.ToString();
+        CSInputField.text = BeatmapSettings.CS.ToString();
+        BPMInputField.text = BeatmapSettings.BPM.ToString();
+    }
+
+    void UpdateValue(ref float value, string text)
+    {
+        float parseResult;
+        if (float.TryParse(NormalizeString(text), NumberStyles.Float, CultureInfo.InvariantCulture, out parseResult))
+        {
+            value = parseResult;
+        }
     }
 
     void Update()
     {
-        float parseResult;
-
-        if (float.TryParse(NormalizeString(ARInputField.text), NumberStyles.Float, CultureInfo.InvariantCulture, out parseResult))
-            BeatmapSettings.AR = parseResult;
-
-        if (float.TryParse(NormalizeString(BPMInputField.text), NumberStyles.Float, CultureInfo.InvariantCulture, out parseResult))
-            BeatmapSettings.BPM = parseResult;
-        
-        if (float.TryParse(NormalizeString(CSInputField.text), NumberStyles.Float, CultureInfo.InvariantCulture, out parseResult))
-        {
-            if (parseResult == BeatmapSettings.CS)
-                return;
-
-            BeatmapSettings.CS = parseResult;
-            HitObjectManager.UpdateAllCircleSize();
-        }
+        LoadSettings();
     }
 
     private static string NormalizeString(string str)

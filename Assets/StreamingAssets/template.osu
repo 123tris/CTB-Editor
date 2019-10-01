@@ -1,0 +1,55 @@
+osu file format v12
+
+[General]
+AudioFilename: 96Neko_-_Tapioca_Sennou_Song_-memoReal_ver.mp3
+AudioLeadIn: 0
+PreviewTime: 0
+Countdown: 0
+SampleSet: Soft
+StackLeniency: 0
+Mode: 2
+LetterboxInBreaks: 0
+WidescreenStoryboard: 0
+
+[Editor]
+Bookmarks: 0
+DistanceSpacing: 0
+BeatDivisor: 4
+GridSize: 0
+TimelineZoom: 1
+
+[Metadata]
+Title: Never gonna give you up
+TitleUnicode: 0
+Artist: Rick Astley
+ArtistUnicode: 0
+Creator: CTB EDITOR
+Version: Diff name
+Source: 
+Tags: 
+BeatmapID: 0
+BeatmapSetID: 0
+
+[Difficulty]
+HPDrainRate: 7
+CircleSize: 5
+OverallDifficulty: 5
+ApproachRate: 9
+SliderMultiplier: 1
+SliderTickRate: 1
+
+[Events]
+
+[TimingPoints]
+0,333.333333333333,4,2,1,100,1,0
+
+[Colours]
+Combo1: 255, 0, 0
+Combo2: 0, 255, 0
+Combo3: 0, 0, 255
+
+[HitObjects]
+416,192,250,1,0,0:0:0:0:
+256,192,333,1,0,0:0:0:0:
+128,192,416,1,0,0:0:0:0:
+416,192,500,1,0,0:0:0:0:

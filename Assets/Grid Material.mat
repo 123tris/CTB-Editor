@@ -74,7 +74,7 @@ Material:
     - _Parallax: 0.02
     - _RowOffset: 0
     - _RowWidth: 1
-    - _Rows: 7.2
+    - _Rows: 4.8
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
