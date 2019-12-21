@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace RuntimeUndo
 {
@@ -24,8 +26,13 @@ namespace RuntimeUndo
             {
                 GameObject addedObject = Object.Instantiate(removedObject, parent);
                 HitObject hitobject = addedObject.GetComponent<HitObject>();
-                if (hitobject != null)
-                    hitobject.Init(hitobject.transform.position - Grid.Instance.transform.position); //TODO: Clean up dirty code
+
+                if (hitobject is Fruit)
+                {
+                    hitobject.SetPosition(hitobject.transform.position - Grid.Instance.transform.position);
+                    HitObjectManager.AddFruit((Fruit) hitobject);
+                }
+                else throw new NotImplementedException();
                 addedObjects.Add(addedObject);
             }
             return new AddGameObjects(addedObjects);

@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OsuParsers.Beatmaps;
 using OsuParsers.Beatmaps.Objects;
@@ -9,6 +9,7 @@ using OsuParsers.Enums;
 using OsuParsers.Enums.Beatmaps;
 using UnityEngine;
 using PHitObject = OsuParsers.Beatmaps.Objects.HitObject;
+using PSlider = OsuParsers.Beatmaps.Objects.Slider;
 
 public static class BeatmapConverter
 {
@@ -23,7 +24,7 @@ public static class BeatmapConverter
         //if (importedBeatmap != null)
         //    return importedBeatmap;
 
-        Beatmap beatmap = BeatmapDecoder.Decode(Application.streamingAssetsPath+"/template.osu");
+        Beatmap beatmap = BeatmapDecoder.Decode(Application.streamingAssetsPath + "/template.osu");
 
         beatmap.GeneralSection.AudioFilename = BeatmapSettings.audioFileName;
         beatmap.GeneralSection.Mode = Ruleset.Fruits;
@@ -36,25 +37,44 @@ public static class BeatmapConverter
         beatmap.TimingPoints.Add(timingPoint);
 
         List<PHitObject> pHitObjects = new List<PHitObject>();
-        foreach (HitObject hitObject in HitObjectManager.GetHitObjects())
+
+        List<Fruit> fruitsAndSliderFruits = HitObjectManager.GetFruits();
+        List<Fruit> fruits = fruitsAndSliderFruits.Where(i => !i.isSliderFruit).ToList();
+
+        foreach (Fruit fruit in fruits)
         {
-            PHitObject addHitObject;
-            var position = (Vector2Int.right * hitObject.position).ToNumerical();
-            var hitTime = hitObject.position.y;
+            var position = (Vector2Int.right * fruit.position).ToNumerical();
+            int hitTime = fruit.position.y;
 
-            if (hitObject is Fruit)
-            {
-                //Add fruit
-                addHitObject = new CatchFruit(position, hitTime, hitTime, HitSoundType.None, null, false, 0);
-            }
-            else
-            {
-                //Add Slider TODO: Slider logic
-                addHitObject = null;
-            }
+            HitSoundType hitSoundType = HitSoundType.None;
+            Extras extras = new Extras();
 
-            pHitObjects.Add(addHitObject);
+            CatchFruit addFruit = new CatchFruit(position, hitTime, hitTime, hitSoundType, extras, false, 0);
+            pHitObjects.Add(addFruit);
         }
+
+        foreach (Slider slider in HitObjectManager.GetSliders())
+        {
+            var position = (Vector2Int.right * slider.GetFruitByIndex(0).position).ToNumerical();
+            int startTime = slider.startTime;
+            int endTime = slider.endTime;
+            var sliderPoints = slider.GetSliderPoints();
+            //TEST
+            sliderPoints[1] = new System.Numerics.Vector2(sliderPoints[1].X,0);
+
+            var pixelLength = Math.Abs(sliderPoints[1].X - sliderPoints[0].X);
+            var hitsoundType = new List<HitSoundType>();
+            var edgeAdditions = new List<Tuple<SampleSet, SampleSet>>();
+            Extras extras = new Extras();
+
+            sliderPoints.Remove(sliderPoints[0]);
+            PSlider pSlider = new PSlider(position, startTime, endTime, HitSoundType.None, CurveType.Linear,
+                sliderPoints, 0, pixelLength, hitsoundType, edgeAdditions, extras, true, 0);
+
+            pHitObjects.Add(pSlider);
+        }
+
+
         beatmap.HitObjects = pHitObjects;
 
         return beatmap;
@@ -80,7 +100,13 @@ public static class BeatmapConverter
         foreach (PHitObject hitobject in importedBeatmap.HitObjects)
         {
             if (hitobject is Circle)
-                HitObjectManager.CreateFruitByData(new Vector2(hitobject.Position.X,hitobject.StartTime));
+                HitObjectManager.CreateFruitByData(new Vector2(hitobject.Position.X, hitobject.StartTime));
+            else if (hitobject is PSlider)
+            {
+                PSlider slider = (PSlider)hitobject;
+                if (slider.CurveType != CurveType.Linear) return;
+                HitObjectManager.CreateSliderByData(slider.Position.X, slider.StartTime, slider.SliderPoints, slider.Repeats);
+            }
         }
     }
 
@@ -89,5 +115,6 @@ public static class BeatmapConverter
         Beatmap beatmap = CreateBeatmapData();
         beatmap.EditorSection.BeatDivisor = BeatsnapDivisor.Instance.division;
         beatmap.Write(Application.streamingAssetsPath + "/Exported CTB map.osu");
+        beatmap.Write(path);
     }
 }

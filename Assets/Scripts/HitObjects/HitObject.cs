@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public abstract class HitObject : MonoBehaviour
+public abstract class HitObject : MonoBehaviour, IComparable
 {
     /// <summary>
     /// The local position from the grid's perspective.
@@ -20,47 +20,38 @@ public abstract class HitObject : MonoBehaviour
     /// </summary>
     public HitObject hyperDashTarget;
 
-    [NonSerialized] public bool initialized = false;
-
     protected virtual void Start()
     {
         UnHighlight();
         UpdateCircleSize();
     }
 
-    ///Initialize hitobject, this will add it to the manager and set the position. HitObject.Initialized will turn true
-    public void Init(Vector3 pPosition)
-    {
-        SetPosition(pPosition);
-        HitObjectManager.AddHitObject(this);
-        initialized = true;
-    }
-
     /// <summary> SetPosition requires a local position from the grid's perspective
     /// <para>It will then reinterpret how the y position translates to the timestamp of the hitobject</para>
     /// It will return when a fruit already occupies the same y position as the one which was passed </summary>
-    public void SetPosition(Vector3 newPosition)
-    {
-        SetXPosition(newPosition.x);
+    public abstract void SetPosition(Vector3 newPosition);
+    //public void SetPosition(Vector3 newPosition)
+    //{
+    //    SetXPosition(newPosition.x);
 
-        float hitTime = Grid.Instance.GetHitTime(newPosition);
-        int timeStamp = (int) Grid.Instance.GetHitTime(newPosition);
+    //    float hitTime = Grid.Instance.GetHitTime(newPosition);
+    //    int timeStamp = (int) Grid.Instance.GetHitTime(newPosition);
 
-        if (HitObjectManager.ContainsFruit(timeStamp)) return;
+    //    if (HitObjectManager.ContainsFruit(timeStamp)) return;
 
-        if (HitObjectManager.ContainsFruit(position.y)) //If moving an existing fruit
-        {
-            HitObjectManager.EditHitObjectTimeStamp(this,timeStamp);
-        }
+    //    if (HitObjectManager.ContainsFruit(position.y)) //If moving an existing fruit
+    //    {
+    //        HitObjectManager.EditFruitTimeStamp(this,timeStamp);
+    //    }
 
-        transform.position = newPosition + Grid.Instance.transform.position; //Apply grid's position to set global position
-        position.y = timeStamp;
+    //    transform.position = newPosition + Grid.Instance.transform.position; //Apply grid's position to set global position
+    //    position.y = timeStamp;
 
-        //If this is a slider fruit, update the line connections
-        if (transform.parent.GetComponent<Slider>())
-            transform.parent.GetComponent<Slider>().UpdateLines();
+    //    //If this is a slider fruit, update the line connections
+    //    if (transform.parent.GetComponent<Slider>())
+    //        transform.parent.GetComponent<Slider>().UpdateLines();
 
-    }
+    //}
 
     public void SetXPosition(float x)
     {
@@ -77,10 +68,22 @@ public abstract class HitObject : MonoBehaviour
     private void OnDestroy()
     {
         if (!transform || !transform.parent || !GameManager.garbage) return;
-        if (transform.parent != GameManager.garbage.transform && transform.parent.GetComponent<Slider>() == null)
+        if (transform.parent != GameManager.garbage.transform)
         {
-            HitObjectManager.RemoveHitObject(position.y);
+            if (this is Fruit)
+                HitObjectManager.RemoveHitObject((Fruit)this);
             Selection.Remove(this);
         }
+    }
+
+    public int CompareTo(object obj)
+    {
+        if (obj == null) return 1;
+
+        HitObject otherHitObject = obj as HitObject;
+        if (otherHitObject == null)
+            throw new ArgumentException("Object is not a hitobject");
+
+        return position.y.CompareTo(otherHitObject.position.y);
     }
 }

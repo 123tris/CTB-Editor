@@ -37,6 +37,9 @@ public class Brush : MonoBehaviour
             Debug.LogError("Fruit display prefab does not contain a fruit script!", fruitDisplayPrefab);
 
         fruitDisplay = Instantiate(fruitDisplayPrefab, transform).GetComponent<Fruit>();
+        Image fruitImage = fruitDisplay.GetComponent<Image>();
+        fruitImage.raycastTarget = false;
+        fruitImage.color.OverrideAlpha(0.5f);
         fruitDisplay.name = "Fruit preview display";
     }
 
@@ -60,10 +63,6 @@ public class Brush : MonoBehaviour
             fruitDisplay.position.x = Mathf.RoundToInt(mousePositionOnGrid.x / Grid.WidthRatio);
             fruitDisplay.position.y = (int) grid.GetHitTime(mousePositionOnGrid);
 
-            if (state == BrushState.Slider && createdSlider != null && createdSlider.fruitCount >= 2)
-            {
-                fruitDisplay.transform.position = createdSlider.GetProjectedPosition(mousePositionOnGrid);
-            }
             brushCoords.text = fruitDisplay.position.ToString();
         }
         else fruitDisplay.gameObject.SetActive(false);
@@ -76,6 +75,18 @@ public class Brush : MonoBehaviour
             state = BrushState.Slider;
 
         if (!WithinGridRange(Input.mousePosition)) return;
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            Fruit detectedHitobject = DetectHitObject();
+            if (detectedHitobject != null)
+            {
+                if (detectedHitobject.isSliderFruit)
+                    Destroy(detectedHitobject.slider.gameObject);
+                else
+                    Destroy(detectedHitobject.gameObject);
+            }
+        }
 
         switch (state)
         {
@@ -93,7 +104,6 @@ public class Brush : MonoBehaviour
 
     private void OnSelectState()
     {
-        //On left click
         if (Input.GetMouseButtonDown(0))
         {
             //Higlighting of hitobjects
@@ -112,10 +122,10 @@ public class Brush : MonoBehaviour
                 }
                 else //Select fruit
                 {
-                    Debug.Assert(hitObject.initialized,"Selected uninitialized hitobject",hitObject);
+                    //Debug.Assert(hitObject.initialized,"Selected uninitialized hitobject",hitObject);
                     if (Input.GetKey(KeyCode.LeftControl))
                     {
-                        if (Selection.Contains(hitObject)) Selection.Remove(hitObject);
+                        if (Selection.Contains(hitObject)) Selection.Remove(slider);
                         else Selection.Add(hitObject);
                     }
                     else if (!Selection.Contains(hitObject)) Selection.SetSelected(hitObject);
@@ -141,11 +151,13 @@ public class Brush : MonoBehaviour
             if (TimeStampOccupied())
             {
                 HitObject hitObject = HitObjectManager.GetHitObjectByTime((int)grid.GetHitTime(mousePositionOnGrid));
-                Undo.RecordFruit(hitObject as Fruit);
-                hitObject.SetXPosition(mousePositionOnGrid.x);
+                if (hitObject is Fruit)
+                {
+                    Undo.RecordFruit(hitObject as Fruit);
+                    hitObject.SetXPosition(mousePositionOnGrid.x);
+                }
             }
-            else
-                HitObjectManager.CreateFruit(mousePositionOnGrid, transform);
+            else HitObjectManager.CreateFruit(mousePositionOnGrid, transform);
         }
     }
 
@@ -155,7 +167,9 @@ public class Brush : MonoBehaviour
         {
             //If create slider is null then we're creating our first slider
             if (createdSlider == null)
+            {
                 createdSlider = HitObjectManager.CreateSlider(mousePositionOnGrid, transform);
+            }
             else
             {
                 createdSlider.AddFruit(mousePositionOnGrid);
@@ -179,8 +193,8 @@ public class Brush : MonoBehaviour
 
     private void SelectionBehaviour()
     {
-        HitObject previousHitObject = HitObjectManager.GetPreviousHitObject(Selection.last);
-        HitObject nexHitObject = HitObjectManager.GetNextHitObject(Selection.last);
+        HitObject previousHitObject = HitObjectManager.GetPreviousFruit(Selection.GetFirstFruit());
+        HitObject nexHitObject = HitObjectManager.GetNextFruit(Selection.GetLastFruit());
 
         string prev = "Prev: ";
         string next = "Next: ";
@@ -188,7 +202,7 @@ public class Brush : MonoBehaviour
         if (previousHitObject != null)
             prev += $"{previousHitObject.position.x - Selection.last.position.x}";
         if (nexHitObject != null)
-            next += $"{nexHitObject.position.x - Selection.last.position.x}";
+            next += $"{nexHitObject.position.x - Selection.GetLastFruit().position.x}";
 
         nextHitobjectTime.text = prev + ", " + next + $"\nPosition x: {Selection.last.position.x}\nTime: {Selection.last.position.y}ms";
     }

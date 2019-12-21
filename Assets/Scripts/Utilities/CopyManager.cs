@@ -33,17 +33,17 @@ public static class CopyManager
 
         for (int i = 0; i < copy.Count; i++)
         {
-            HitObject createdHitObject = Object.Instantiate(GameManager.Instance.fruitPrefab, level).GetComponent<HitObject>();
+            HitObject createdHitObject = HitObjectManager.CreateFruit(Vector2.zero,level);
             Selection.Add(createdHitObject);
 
             if (i == 0)
             {
-                createdHitObject.Init(referencePoint); //Paste object where the mouse is held on the grid
+                createdHitObject.SetPosition(referencePoint); //Paste object where the mouse is held on the grid
             }
             else
             {
                 Vector3 targetPos = referencePoint + (copy[i].transform.position - copy[0].transform.position);
-                createdHitObject.Init(targetPos);
+                createdHitObject.SetPosition(targetPos);
             }
 
             createdHitObject.gameObject.SetActive(true);

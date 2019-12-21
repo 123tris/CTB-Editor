@@ -23,10 +23,10 @@ public class ExportButton : MonoBehaviour
 
     private void Export()
     {
-        string[] path = StandaloneFileBrowser.OpenFolderPanel("Select beatmap",GetPath(),false);
+        string path = StandaloneFileBrowser.SaveFilePanel("Export beatmap",GetPath(),"Exported CTB map","osu");
 
-        if (path.Length == 0) return;
+        if (path == "") return;
 
-        BeatmapConverter.WriteOsuFile(path.First());
+        BeatmapConverter.WriteOsuFile(path);
     }
 }

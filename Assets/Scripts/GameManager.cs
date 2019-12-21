@@ -5,6 +5,7 @@ public class GameManager : Singleton<GameManager> {
 
     public GameObject fruitPrefab;
     public GameObject sliderPrefab;
+    public GameObject handlePrefab;
 
     public Transform level;
     public static GameObject garbage;

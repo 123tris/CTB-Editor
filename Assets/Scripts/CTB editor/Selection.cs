@@ -2,6 +2,7 @@
 using System.Linq;
 using RuntimeUndo;
 using UnityEngine;
+// ReSharper disable PossibleNullReferenceException
 
 public static class Selection
 {
@@ -39,15 +40,18 @@ public static class Selection
     {
         return selectedHitObjects.Contains(hitObject);
     }
-
-    public static HitObject GetFirstByTime()
+    
+    public static Fruit GetFirstFruit()
     {
-        return selectedHitObjects.OrderBy(item => item.position.y).First();
+        if (first is Fruit) return (Fruit) first;
+        return ((Slider) first).fruits.First();
     }
 
-    public static HitObject GetLastByTime()
+    public static Fruit GetLastFruit()
     {
-        return selectedHitObjects.OrderBy(item => item.position.y).Last();
+        if (last is Fruit) return (Fruit) last;
+        Slider slider = last as Slider;
+        return slider.fruits.Last();
     }
 
     public static void UpdateDragging()
@@ -74,14 +78,17 @@ public static class Selection
         
             if (targetPos.ToVector2() == startPositions[i]) return;
         
-            selectedHitObject.SetXPosition(targetPos.x);
             selectedHitObject.SetPosition(targetPos);
-
-
-            //if (selectedHitObject is Fruit)
-            //    DragFruit(selectedHitObject as Fruit, i);
+            //if (selectedHitObject as Slider)
+            //{
+            //    ((Slider)selectedHitObject).MoveSlider(targetPos);
+            //}
             //else
-            //    DragSlider(selectedHitObject as Slider, i);
+            //{
+            //    selectedHitObject.SetXPosition(targetPos.x);
+            //    selectedHitObject.SetPosition(targetPos);
+            //}
+
         }
     }
 
@@ -135,4 +142,5 @@ public static class Selection
             Object.Destroy(selectedHitObject.gameObject);
         }
     }
+
 }

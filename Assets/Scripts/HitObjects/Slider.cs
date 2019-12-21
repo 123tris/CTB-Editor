@@ -1,15 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI.Extensions;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 public class Slider : HitObject
 {
     private GameObject fruitPrefab => GameManager.Instance.fruitPrefab;
+    private GameObject handlePrefab => GameManager.Instance.handlePrefab;
+
+    public int startTime => fruits[0].position.y;
+    public int endTime => fruits[fruits.Count-1].position.y;
 
     //Previous fruit should have a lower Y and next fruit should have a higher Y
-    private List<Fruit> fruits = new List<Fruit>();
+    public List<Fruit> fruits { get; private set; } = new List<Fruit>();
+    private List<Transform> handles = new List<Transform>();
     private UILineRenderer lineRenderer;
     public int fruitCount => fruits.Count;
 
@@ -28,13 +36,19 @@ public class Slider : HitObject
         //TODO: Set position of slider when the first fruit is placed
 
         //Spawn fruit
-        Fruit fruit = Instantiate(fruitPrefab, transform).GetComponent<Fruit>();
-        fruit.SetPosition(spawnPosition);
+        Fruit fruit = HitObjectManager.CreateFruit(spawnPosition, transform);
 
         //Update slider's fruits
         fruits.Add(fruit);
         fruits.Sort((fruit1,fruit2) => fruit1.position.y.CompareTo(fruit2.position.y));
 
+        UpdateLines();
+    }
+
+    public void AddHandle(Vector3 mousePositionOnGrid)
+    {
+        Transform handle = Instantiate(handlePrefab,transform).transform;
+        handles.Add(handle);
         UpdateLines();
     }
 
@@ -47,6 +61,22 @@ public class Slider : HitObject
         }
 
         lineRenderer.SetAllDirty();
+    }
+
+    /// <summary> SetPosition requires a local position from the grid's perspective
+    /// <para> If the position is already occupied it will throw an error</para></summary>
+    public override void SetPosition(Vector3 newPosition)
+    {
+        int timeStamp = (int)Grid.Instance.GetHitTime(newPosition);
+        position.y = timeStamp;
+        SetXPosition(newPosition.x);
+
+       transform.position = newPosition + Grid.Instance.transform.position; //Apply grid's position to set global position
+
+       foreach (Fruit fruit in fruits)
+       {
+           fruit.SetPosition(fruit.transform.localPosition + newPosition);
+       }
     }
 
     public override void UpdateCircleSize()
@@ -67,11 +97,12 @@ public class Slider : HitObject
         fruits.ForEach(f => f.UnHighlight());
     }
 
-    public void MoveSlider(Vector2 pPosition)
+    public void MoveSlider(Vector2 targetPos)
     {
-        SetPosition(pPosition);
+        transform.position = targetPos + Grid.Instance.transform.position.ToVector2();
+
         foreach (Fruit fruit in fruits)
-            fruit.SetPosition(fruit.transform.position);
+            fruit.SetPosition(fruit.transform.position - Grid.Instance.transform.position);
     }
 
     /// <summary> Displays a preview of a slider if `previewFruit` was added </summary>
@@ -83,10 +114,9 @@ public class Slider : HitObject
         fruits.Remove(previewFruit);
     }
 
-    public Fruit GetLastFruit()
-    {
-        return fruits[fruits.Count - 1];
-    }
+    public List<Fruit> GetFruits() => fruits;
+
+    public Fruit GetLastFruit() => fruits[fruits.Count - 1];
 
     //TODO: needs rework (position x is scaled by grid width ratio)
     public Vector2 GetProjectedPosition(Vector2 mousePosition)
@@ -102,4 +132,15 @@ public class Slider : HitObject
     public int GetFruitIndex(Fruit fruit) => fruits.IndexOf(fruit);
 
     public HitObject GetFruitByIndex(int fruitIndex) => fruits[fruitIndex];
+
+    public List<System.Numerics.Vector2> GetSliderPoints()
+    {
+        List<System.Numerics.Vector2> points = new List<System.Numerics.Vector2>();
+        foreach (Fruit fruit in fruits)
+        {
+            points.Add(fruit.position.ToNumerical());
+        }
+        return points;
+    }
+
 }

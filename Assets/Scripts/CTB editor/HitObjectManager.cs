@@ -14,22 +14,15 @@ public static class HitObjectManager
 
     private static Grid grid => Grid.Instance;
 
-    private static SortedDictionary<int, HitObject> hitObjects = new SortedDictionary<int, HitObject>(); //Key indicates when the hitobject is played in MS
-
-    public static Slider CreateSlider(Vector2 position, Transform parent)
-    {
-        Slider slider = Object.Instantiate(sliderPrefab, parent).GetComponent<Slider>();
-        slider.Init(position);
-        slider.AddFruit(position);
-        RuntimeUndo.Undo.RegisterCreatedObject(slider.gameObject);
-        return slider;
-    }
+    private static List<Fruit> fruits = new List<Fruit>();
+    private static List<Slider> sliders = new List<Slider>();
 
     /// <summary> Instantiates a fruit and adds it to the managed hitobjects of the hitobjectmanager </summary>
     public static Fruit CreateFruit(Vector2 position,Transform parent)
     {
         Fruit fruit = Object.Instantiate(fruitPrefab, parent).GetComponent<Fruit>();
-        fruit.Init(position);
+        fruit.SetPosition(position);
+        AddFruit(fruit);
         RuntimeUndo.Undo.RegisterCreatedObject(fruit.gameObject);
         return fruit;
     }
@@ -43,92 +36,123 @@ public static class HitObjectManager
         float yPos = grid.GetYPosition(position.y);
         fruit.transform.position = new Vector3(xPos,yPos);
 
-        AddHitObject(fruit);
-        fruit.initialized = true;
-
+        AddFruit(fruit);
         RuntimeUndo.Undo.RegisterCreatedObject(fruit.gameObject);
+    }
+
+    public static Slider CreateSlider(Vector2 position, Transform parent)
+    {
+        Slider slider = Object.Instantiate(sliderPrefab, parent).GetComponent<Slider>();
+        slider.SetPosition(position);
+        slider.AddFruit(position);
+        AddSlider(slider);
+
+        Debug.Log(slider.fruits.First().transform.localPosition);
+        RuntimeUndo.Undo.RegisterCreatedObject(slider.gameObject);
+        return slider;
+    }
+
+    public static void CreateSliderByData(float positionX, int startTime, List<System.Numerics.Vector2> sliderPoints, int repeats)
+    {
+        throw new NotImplementedException();
     }
 
     /// <summary>
     /// Adds a created hitobject to the hitobjectmanager's list of hitobjects that it manages over
+    /// Use HitObjectManager.CreateFruit whenever possible
     /// </summary>
-    /// <param name="hitObject"></param>
-    public static void AddHitObject(HitObject hitObject)
+    /// <param name="fruit"></param>
+    public static void AddFruit(Fruit fruit)
     {
-        hitObjects[hitObject.position.y] = hitObject;
+        fruits.Add(fruit);
+        fruits.Sort();
     }
 
-    public static void EditHitObjectTimeStamp(HitObject hitObject,int timeStamp)
+    public static void AddSlider(Slider slider)
     {
-        hitObjects.Remove(hitObject.position.y);
-        hitObjects[timeStamp] = hitObject;
+        sliders.Add(slider);
+        sliders.Sort();
     }
 
-    public static void RemoveHitObject(int yAxis)
+    public static void EditFruitTimeStamp(Fruit fruit,int timeStamp)
     {
-        if (hitObjects.ContainsKey(yAxis))
-            hitObjects.Remove(yAxis);
+        fruit.position.y = timeStamp;
+        fruits.Sort();
     }
 
     public static HitObject GetHitObjectByTime(int timeStamp)
     {
-        return hitObjects[timeStamp];
+        var fruitsAtTimeStamp = fruits.Where(fruit => fruit.position.y == timeStamp).ToList();
+        if (fruitsAtTimeStamp.Count == 0)
+            return null;
+        else
+            return fruitsAtTimeStamp.First();
     }
 
     public static bool ContainsFruit(int timeStamp)
     {
-        bool output = hitObjects.ContainsKey(timeStamp);
-        return output;
+        return fruits.Any(fruit => fruit.position.y == timeStamp);
     }
 
     public static void UpdateAllCircleSize()
     {
-        foreach (HitObject h in hitObjects.Values)
+        foreach (Fruit h in fruits)
         {
             h.UpdateCircleSize();
         }
     }
 
-    public static HitObject GetPreviousHitObject(HitObject hitObject)
+    public static Fruit GetPreviousFruit(Fruit fruit)
     {
-        int index = 0;
-        foreach (KeyValuePair<int, HitObject> keyValuePair in hitObjects)
-        {
-            if (keyValuePair.Key == hitObject.position.y)
-            {
-                if (index == 0) return null;
-                return hitObjects.ElementAt(index - 1).Value;
-            }
-            index++;
-        }
-        throw new Exception("Couldn't find hitobject inside of hitObjects!");
+        if (fruits.IndexOf(fruit) == 0)
+            return null;
+
+        return fruits[fruits.IndexOf(fruit) - 1];
     }
 
-    public static HitObject GetNextHitObject(HitObject hitObject)
+    public static HitObject GetPreviousFruitByTimeStamp(int timestamp)
     {
-        return GetNextHitObject(hitObject.position.y);
-    }
-
-    private static HitObject GetNextHitObject(int timestamp)
-    {
-        foreach (KeyValuePair<int, HitObject> keyValuePair in hitObjects)
+        foreach (Fruit fruit in fruits)
         {
-            if (keyValuePair.Key > timestamp)
-                return keyValuePair.Value;
+            if (timestamp > fruit.position.y)
+                return fruit;
         }
         return null;
     }
 
-    public static List<HitObject> GetHitObjects()
+    public static HitObject GetNextFruit(Fruit fruit)
     {
-        return hitObjects.Values.ToList();
+        if (fruits.IndexOf(fruit) == fruits.Count-1)
+            return null;
+
+        return fruits[fruits.IndexOf(fruit) + 1];
     }
+
+    public static HitObject GetNextFruitByTimeStamp(int timestamp)
+    {
+        foreach (Fruit fruit in fruits)
+        {
+            if (timestamp < fruit.position.y)
+                return fruit;
+        }
+        return null;
+    }
+
+    public static List<Fruit> GetFruits() => fruits;
+
+    public static List<Slider> GetSliders() => sliders;
 
     public static void Reset()
     {
-        foreach (KeyValuePair<int, HitObject> hitObject in hitObjects)
-        {
-            Object.Destroy(hitObject.Value.gameObject);
-        }
+        sliders.ForEach(Object.Destroy);
+        fruits.ForEach(Object.Destroy);
+    }
+
+    public static void RemoveHitObject(HitObject hitObject)
+    {
+        if (hitObject is Fruit)
+            fruits.Remove((Fruit) hitObject);
+        else
+            sliders.Remove((Slider) hitObject);
     }
 }
