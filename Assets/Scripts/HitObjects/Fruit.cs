@@ -41,7 +41,8 @@ public class Fruit : HitObject
         int timeStamp = (int)Grid.Instance.GetHitTime(newPosition);
         var occupiedTimeStamp = HitObjectManager.GetHitObjectByTime(timeStamp);
 
-        Debug.Assert(occupiedTimeStamp == null || occupiedTimeStamp == this, "You're trying to place a fruit where one already exists!\nTimestamp\t"+timeStamp);
+        //TODO: For now placing a fruit on the same beatmap is allowed for simplicity sake. This can possibly be improved on in the future
+        //Debug.Assert(occupiedTimeStamp == null || occupiedTimeStamp == this, "You're trying to place a fruit where one already exists!\nTimestamp\t"+timeStamp);
         
         HitObjectManager.EditFruitTimeStamp(this,timeStamp); //Essentially setting the y position
         SetXPosition(newPosition.x);

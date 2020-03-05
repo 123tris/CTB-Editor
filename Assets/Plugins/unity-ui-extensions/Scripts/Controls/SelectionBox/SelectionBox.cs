@@ -145,7 +145,7 @@ namespace UnityEngine.UI.Extensions
 		}
 		
 		
-		void BeginSelection(){
+		public void BeginSelection(){
 			// Click somewhere in the Game View.
 			if (!Input.GetMouseButtonDown(0))
 				return;
@@ -154,7 +154,7 @@ namespace UnityEngine.UI.Extensions
 			boxRect.gameObject.SetActive(true);
 			
 			// Get the initial click position of the mouse. 
-			origin = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+			origin = Input.mousePosition;
 			
 			//If the initial click point is not inside the selection mask, we abort the selection
 			if (!PointIsValidAgainstSelectionMask(origin)) {
@@ -412,7 +412,7 @@ namespace UnityEngine.UI.Extensions
 			return selectedList.ToArray();
 		}
 		
-		void EndSelection(){
+		public void EndSelection(){
 			//Get out if we haven't finished selecting, or if the selection has been aborted (boxRect disabled)
 			if (!Input.GetMouseButtonUp(0) || !boxRect.gameObject.activeSelf)
 				return;
@@ -425,7 +425,7 @@ namespace UnityEngine.UI.Extensions
 			onSelectionChange.Invoke(GetAllSelected());
 		}
 		
-		void Start(){
+		void Awake(){
 			ValidateCanvas();
 			CreateBoxRect();
 			ResetBoxRect();

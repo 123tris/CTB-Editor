@@ -10,6 +10,7 @@ using OsuParsers.Enums.Beatmaps;
 using UnityEngine;
 using PHitObject = OsuParsers.Beatmaps.Objects.HitObject;
 using PSlider = OsuParsers.Beatmaps.Objects.Slider;
+using NVector2 = System.Numerics.Vector2;
 
 public static class BeatmapConverter
 {
@@ -21,16 +22,21 @@ public static class BeatmapConverter
 
     public static Beatmap CreateBeatmapData()
     {
-        //if (importedBeatmap != null)
-        //    return importedBeatmap;
-
         Beatmap beatmap = BeatmapDecoder.Decode(Application.streamingAssetsPath + "/template.osu");
 
-        beatmap.GeneralSection.AudioFilename = BeatmapSettings.audioFileName;
+        //General
+        beatmap.GeneralSection.AudioFilename = BeatmapSettings.audioFileName + ".mp3";
         beatmap.GeneralSection.Mode = Ruleset.Fruits;
 
+        //Meta data
+        beatmap.MetadataSection.Artist = "Rick Astley";
+        beatmap.MetadataSection.Title = BeatmapSettings.audioFileName;
+
+
+        //Difficulty
         beatmap.DifficultySection.ApproachRate = BeatmapSettings.AR;
         beatmap.DifficultySection.CircleSize = BeatmapSettings.CS;
+        beatmap.DifficultySection.HPDrainRate = BeatmapSettings.HP;
 
         TimingPoint timingPoint = new TimingPoint();
         timingPoint.BeatLength = 60000f / BeatmapSettings.BPM;
@@ -38,8 +44,9 @@ public static class BeatmapConverter
 
         List<PHitObject> pHitObjects = new List<PHitObject>();
 
-        List<Fruit> fruitsAndSliderFruits = HitObjectManager.GetFruits();
-        List<Fruit> fruits = fruitsAndSliderFruits.Where(i => !i.isSliderFruit).ToList();
+        List<Fruit> fruits = HitObjectManager.GetNonSliderFruits();
+
+        //Load fruit data
 
         foreach (Fruit fruit in fruits)
         {
@@ -49,27 +56,40 @@ public static class BeatmapConverter
             HitSoundType hitSoundType = HitSoundType.None;
             Extras extras = new Extras();
 
-            CatchFruit addFruit = new CatchFruit(position, hitTime, hitTime, hitSoundType, extras, false, 0);
+            CatchFruit addFruit = new CatchFruit(position, hitTime, hitTime, hitSoundType, extras, true, 0);
             pHitObjects.Add(addFruit);
         }
 
+        //Load slider data
+
         foreach (Slider slider in HitObjectManager.GetSliders())
         {
-            var position = (Vector2Int.right * slider.GetFruitByIndex(0).position).ToNumerical();
             int startTime = slider.startTime;
             int endTime = slider.endTime;
-            var sliderPoints = slider.GetSliderPoints();
-            //TEST
-            sliderPoints[1] = new System.Numerics.Vector2(sliderPoints[1].X,0);
 
-            var pixelLength = Math.Abs(sliderPoints[1].X - sliderPoints[0].X);
+            float xDelta = Mathf.Abs(slider.fruits[1].position.x - slider.fruits[0].position.x);
+
+            float sliderMultiplier = (float) beatmap.DifficultySection.SliderMultiplier;
+            float xTime = xDelta * sliderMultiplier / 100 * BeatmapSettings.BPS;
+            float timeDifference = slider.fruits[1].position.y - slider.fruits[0].position.y;
+
+            //Change sv
+            TimingPoint sliderTimingPoint = new TimingPoint();
+            sliderTimingPoint.Offset = startTime;
+            sliderTimingPoint.Inherited = true;
+            sliderTimingPoint.BeatLength = timeDifference/xTime;
+            beatmap.TimingPoints.Add(sliderTimingPoint);
+
             var hitsoundType = new List<HitSoundType>();
             var edgeAdditions = new List<Tuple<SampleSet, SampleSet>>();
             Extras extras = new Extras();
 
-            sliderPoints.Remove(sliderPoints[0]);
+            NVector2 position = new NVector2(startTime,0);
+            var sliderPoints = slider.GetSliderPoints();
+            sliderPoints.RemoveAt(0);
+
             PSlider pSlider = new PSlider(position, startTime, endTime, HitSoundType.None, CurveType.Linear,
-                sliderPoints, 0, pixelLength, hitsoundType, edgeAdditions, extras, true, 0);
+                sliderPoints, 0, xDelta, hitsoundType, edgeAdditions, extras, true, 0);
 
             pHitObjects.Add(pSlider);
         }
@@ -80,10 +100,11 @@ public static class BeatmapConverter
         return beatmap;
     }
 
-    public static void ImportBeatmap(string path)
+    public static Beatmap ImportBeatmap(string path)
     {
         importedBeatmap = BeatmapDecoder.Decode(path);
         LoadImportedBeatmap();
+        return importedBeatmap;
     }
 
     private static void LoadImportedBeatmap()
@@ -91,6 +112,7 @@ public static class BeatmapConverter
         HitObjectManager.Reset();
         BeatmapSettings.audioFileName = importedBeatmap.GeneralSection.AudioFilename;
 
+        //TODO: import beat divisor
         //BeatsnapDivisor.Instance.SetDivision(importedBeatmap.EditorSection.BeatDivisor);
 
         BeatmapSettings.AR = importedBeatmap.DifficultySection.ApproachRate;
@@ -105,7 +127,7 @@ public static class BeatmapConverter
             {
                 PSlider slider = (PSlider)hitobject;
                 if (slider.CurveType != CurveType.Linear) return;
-                HitObjectManager.CreateSliderByData(slider.Position.X, slider.StartTime, slider.SliderPoints, slider.Repeats);
+                //HitObjectManager.CreateSliderByData(slider.Position.X, slider.StartTime, slider.SliderPoints, slider.Repeats);
             }
         }
     }

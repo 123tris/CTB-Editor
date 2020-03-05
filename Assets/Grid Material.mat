@@ -4,8 +4,9 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: Grid Material
   m_Shader: {fileID: 4800000, guid: 90f7c3606df9fe54fa817c1a394c7d83, type: 3}
   m_ShaderKeywords: _EMISSION
@@ -68,13 +69,14 @@ Material:
     - _GlossyReflections: 1
     - _GridSpacing: 23.6
     - _GridThickness: 22.43
+    - _HitIndicatorWidth: 10
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RowOffset: 0
+    - _RowOffset: -90
     - _RowWidth: 1
-    - _Rows: 14.4
+    - _Rows: 7.2
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -92,9 +94,10 @@ Material:
     - _GridColor: {r: 0.16862746, g: 0.16862746, b: 0.16862746, a: 1}
     - _GridColour: {r: 1, g: 1, b: 1, a: 1}
     - _GridRect: {r: 100, g: 100, b: 0, a: 0}
-    - _HalfOutlineColor: {r: 255, g: 0, b: 0, a: 0}
+    - _HalfOutlineColor: {r: 255, g: 0, b: 0, a: 1}
+    - _HitIndicatorColor: {r: 0, g: 340.44495, b: 301.03296, a: 0.9372549}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 0}
     - _QuaterOutlineColor: {r: 0, g: 0, b: 255, a: 0}
     - _RectSize: {r: 1280, g: 900, b: 0, a: 0}
     - _SixteenthOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 0}
-    - _WholeOutlineColor: {r: 1, g: 1, b: 1, a: 0}
+    - _WholeOutlineColor: {r: 1, g: 1, b: 1, a: 1}

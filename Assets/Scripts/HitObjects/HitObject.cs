@@ -55,8 +55,14 @@ public abstract class HitObject : MonoBehaviour, IComparable
 
     public void SetXPosition(float x)
     {
-        position.x = Mathf.RoundToInt(x/Grid.WidthRatio);
+        position.x = Mathf.RoundToInt(x / Grid.WidthRatio);
         transform.position = new Vector2(x + Grid.Instance.transform.position.x, transform.position.y);
+
+        if (this is Fruit && ((Fruit) this).isSliderFruit)
+        {
+            Fruit fruit = (Fruit) this;
+            fruit.slider.UpdateLines();
+        }
     }
 
     public abstract void UpdateCircleSize();
@@ -71,7 +77,9 @@ public abstract class HitObject : MonoBehaviour, IComparable
         if (transform.parent != GameManager.garbage.transform)
         {
             if (this is Fruit)
-                HitObjectManager.RemoveHitObject((Fruit)this);
+                HitObjectManager.RemoveFruit((Fruit)this);
+            else
+                HitObjectManager.RemoveSlider((Slider)this);
             Selection.Remove(this);
         }
     }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 namespace RuntimeUndo
 {
@@ -22,6 +23,18 @@ namespace RuntimeUndo
             {
                 hitobject.SetPosition(hitobject.transform.position - Grid.Instance.transform.position);
                 HitObjectManager.AddFruit((Fruit) hitobject);
+            }
+            else
+            {
+                Slider slider = (Slider)hitobject;
+                Fruit[] fruits = slider.transform.GetComponentsInChildren<Fruit>();
+                foreach (Fruit fruit in fruits)
+                {
+                    HitObjectManager.AddFruit(fruit);
+                    slider.fruits.Add(fruit);
+                }
+
+                HitObjectManager.AddSlider(slider);
             }
             return new AddGameObject(addedObject);
         }

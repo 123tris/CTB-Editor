@@ -35,9 +35,17 @@ public class GameManager : Singleton<GameManager> {
                 CopyManager.Copy();
             else if (Input.GetKeyDown(KeyCode.V))
                 CopyManager.Paste();
+            else if (Input.GetKeyDown(KeyCode.A))
+            {
+                Selection.SelectAll();
+            }
             //else if (Input.GetKeyDown(KeyCode.E))
             //    BeatmapConverter.WriteOsuFile(BeatmapConverter.CreateBeatmapData());
         }
+        if (Input.GetKeyDown(KeyCode.Delete))
+            Selection.DestroySelected();
+
+        //print($"Window screen: {Screen.width} x {Screen.height}\nScreen resolution: {Screen.currentResolution}");
     }
 	
 }

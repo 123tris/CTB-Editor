@@ -9,20 +9,22 @@ Shader "Unlit/Grid Shader"
 		_Rows("Rows", float) = 3
 		_Columns("Columns", float) = 4
 		_RowOffset("Row offset",float) = 0.2
+		_HitIndicatorWidth("Hit indicator width",float) = 1
+		_HitIndicatorColor("Hit indicator color",Color) = (0,1,1,1)
 		_RowWidth("Row width",float) = 1
 		_ColumnWidth("Column width",float) = 1
 		_ColumnColor("Column Color", Color) = (0, 0, 0, 1)
 		_BeatsnapDivision("Beatsnap divisor",int) = 1
-		_WholeOutlineColor("1/1 Outline color", Color) = (255,255,255,0)
-		_HalfOutlineColor("1/2 Outline color", Color) = (255,0,0,0)
-		_QuaterOutlineColor("1/4 Outline color", Color) = (0,0,255,0)
-		_EighthOutlineColor("1/8 Outline color", Color) = (255,255,0,0)
-		_SixteenthOutlineColor("1/16 Outline color", Color) = (150,150,150,0)
-		_MainTex ("Texture", 2D) = "white" {}
+		_WholeOutlineColor("1/1 Outline color", Color) = (1,1,1,0)
+		_HalfOutlineColor("1/2 Outline color", Color) = (1,0,0,0)
+		_QuaterOutlineColor("1/4 Outline color", Color) = (0,0,1,0)
+		_EighthOutlineColor("1/8 Outline color", Color) = (1,1,0,0)
+		_SixteenthOutlineColor("1/16 Outline color", Color) = (.5,.5,.5,0)
+		_MainTex("Texture", 2D) = "white" {}
 	}
-	SubShader
+		SubShader
 	{
-		Tags { "RenderType"="Opaque" }
+		Tags { "RenderType" = "Opaque" }
 		LOD 100
 
 		Pass
@@ -31,7 +33,7 @@ Shader "Unlit/Grid Shader"
 			#pragma vertex vert
 			#pragma fragment frag
 			#pragma multi_compile_fog
-			
+
 			#include "UnityCG.cginc"
 
 			struct appdata
@@ -59,14 +61,16 @@ Shader "Unlit/Grid Shader"
 			float4 _SixteenthOutlineColor;
 			float4 _MainTex_ST;
 			float4 _RectSize;
+			float4 _HitIndicatorColor;
+			float _HitIndicatorWidth;
 			float _RowWidth;
 			float _ColumnWidth;
 			float _Columns;
 			float4 _ColumnColor;
 			float _RowOffset;
 			float _Rows;
-			
-			v2f vert (appdata v)
+
+			v2f vert(appdata v)
 			{
 				v2f o;
 				o.vertex = UnityObjectToClipPos(v.vertex);
@@ -75,8 +79,8 @@ Shader "Unlit/Grid Shader"
 				UNITY_TRANSFER_FOG(o,o.vertex);
 				return o;
 			}
-			
-			float4 frag (v2f i) : SV_Target
+
+			float4 frag(v2f i) : SV_Target
 			{
 				float x = i.uv.x;
 				float y = i.uv.y;
@@ -86,16 +90,22 @@ Shader "Unlit/Grid Shader"
 				float rows = _Rows;
 				float rowStep = (1 / rows);
 
-				y *= _RectSize.y;
+				y *= _RectSize.y; //Multiply the Y value of the UV with height of the window so that the integer can represent the individual pixel and there is no rounding
 				rowStep *= _RectSize.y;
+
 				y += _RowOffset;
 
-				if (y % rowStep < rowWidth/2 || y % rowStep > rowStep - rowWidth/2)
-				{	
+				if (y < -_HitIndicatorWidth/2)
+				{
+					return float4(0,0,0,0);
+				}
+
+				if (y % rowStep < rowWidth / 2 || y % rowStep > rowStep - rowWidth / 2)
+				{
 					float4 lineColor;
-					int beatsnapDivision = _BeatsnapDivision;
-					int currentLine = (((round(y) + 1) / rowStep) % beatsnapDivision) + 1;
-					if (beatsnapDivision == 16) 
+					uint beatsnapDivision = _BeatsnapDivision;
+					uint currentLine = (((round(y) + 1) / rowStep) % beatsnapDivision) + 1;
+					if (beatsnapDivision == 16)
 					{
 						if (currentLine % 2 == 0) return _SixteenthOutlineColor;
 						if (currentLine % 9 == 0) return _HalfOutlineColor;
@@ -103,13 +113,13 @@ Shader "Unlit/Grid Shader"
 						if (currentLine % 5 == 0 || currentLine % 13 == 0) return _QuaterOutlineColor;
 					}
 
-					if (beatsnapDivision == 8) 
+					if (beatsnapDivision == 8)
 					{
 						if (currentLine % 2 == 0) return _EighthOutlineColor;
 						if (currentLine % 7 == 0 || currentLine % 3 == 0) return _QuaterOutlineColor;
 						if (currentLine % 5 == 0) return _HalfOutlineColor;
 					}
-					if (beatsnapDivision == 4) 
+					if (beatsnapDivision == 4)
 					{
 						if (currentLine % 2 == 0) return _QuaterOutlineColor;
 						if (currentLine % 3 == 0) return _HalfOutlineColor;
@@ -130,7 +140,14 @@ Shader "Unlit/Grid Shader"
 				{
 					return _ColumnColor;
 				}
-				
+
+				//Draw hitindicator
+				y -= _RowOffset;
+				if (abs(y - (_RectSize.y / 10)) < _HitIndicatorWidth)
+				{
+					return _HitIndicatorColor;
+				}
+
 				return _GridColor;
 			}
 			ENDCG

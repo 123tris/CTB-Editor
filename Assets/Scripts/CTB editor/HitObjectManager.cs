@@ -23,7 +23,6 @@ public static class HitObjectManager
         Fruit fruit = Object.Instantiate(fruitPrefab, parent).GetComponent<Fruit>();
         fruit.SetPosition(position);
         AddFruit(fruit);
-        RuntimeUndo.Undo.RegisterCreatedObject(fruit.gameObject);
         return fruit;
     }
 
@@ -138,7 +137,13 @@ public static class HitObjectManager
         return null;
     }
 
+    /// <summary>Returns fruits that are both authored by a slider or independent fruits. If you want non slider fruits uses GetNonSliderFruits()</summary>
     public static List<Fruit> GetFruits() => fruits;
+
+    public static List<Fruit> GetNonSliderFruits()
+    {
+        return fruits.Where(i => !i.isSliderFruit).ToList();
+    }
 
     public static List<Slider> GetSliders() => sliders;
 
@@ -148,11 +153,22 @@ public static class HitObjectManager
         fruits.ForEach(Object.Destroy);
     }
 
-    public static void RemoveHitObject(HitObject hitObject)
+    public static void RemoveFruit(Fruit hitObject) => fruits.Remove(hitObject);
+
+    public static void RemoveSlider(Slider slider) => sliders.Remove(slider);
+
+    public static List<Fruit> GetFruitsByRange(float startTime, float endTime)
     {
-        if (hitObject is Fruit)
-            fruits.Remove((Fruit) hitObject);
-        else
-            sliders.Remove((Slider) hitObject);
+        List<Fruit> output = new List<Fruit>();
+        foreach (Fruit fruit in fruits)
+        {
+            if (endTime < fruit.position.y) break;
+
+            if (startTime <= fruit.position.y)
+            {
+                output.Add(fruit);
+            }
+        }
+        return output;
     }
 }

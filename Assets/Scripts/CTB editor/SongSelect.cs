@@ -11,20 +11,31 @@ public class SongSelect : MonoBehaviour
     private Button button;
     private MusicPlayer player;
 
+    private EditorSettings editorSettings;
+
     void Start ()
     {
+        editorSettings = FindObjectOfType<EditorSettings>();
         player = FindObjectOfType<MusicPlayer>();
 	    button = GetComponent<Button>();
 	    button.onClick.AddListener(SelectSong);
 	}
 
+    void Update()
+    {
+        if (selectedSongText != null)
+            selectedSongText.text = "Selected song:\n" + BeatmapSettings.audioFileName;
+    }
+
     void SelectSong()
     {
         string[] path = StandaloneFileBrowser.OpenFilePanel("Select song","","mp3",false);
+
+        string filepath = path[0];
+
         if (path.Length == 0) return;
-        player.SetSong(path[0]);
-        BeatmapSettings.audioFileName = Path.GetFileName(path[0]);
-        if (selectedSongText != null)
-            selectedSongText.text = "Selected song:\t" + BeatmapSettings.audioFileName;
+        player.SetSong(filepath);
+        BeatmapSettings.audioFileName = Path.GetFileNameWithoutExtension(filepath);
+        editorSettings.metaData.audioSourceFilePath = filepath;
     }
 }

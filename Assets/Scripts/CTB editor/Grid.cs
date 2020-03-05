@@ -52,6 +52,8 @@ public class Grid : Singleton<Grid>
     {
         gridMaterial = GetComponent<Image>().materialForRendering;
         rectTransform = GetComponent<RectTransform>();
+        float pixelHeight = Screen.height * height / 1080;
+        float pixelWidth = Screen.width * width / 1920;
         gridMaterial.SetVector("_RectSize", rectTransform.sizeDelta);
     }
 
@@ -59,7 +61,8 @@ public class Grid : Singleton<Grid>
     {
         rows = CalculateRows();
 
-        rowOffset = TimeLine.currentTimeStamp * (height / GetVisibleTimeRange());
+        var timePerPixel = height / GetVisibleTimeRange();
+        rowOffset = TimeLine.currentTimeStamp * timePerPixel;
     }
 
     private float CalculateRows()
@@ -69,13 +72,11 @@ public class Grid : Singleton<Grid>
         return visibleTimeRange / 1000 * (BeatmapSettings.BPM / 60) * beatsnapDivisor;
     }
 
+    /// <summary> Amount of milliseconds that it takes for a fruit to move from the top to the bottom of the screen </summary>
     public float GetVisibleTimeRange() => DifficultyCalculator.DifficultyRange(BeatmapSettings.AR, 1800, 1200, 450);
 
-    /// <summary>
-    /// Returns the global position of the nearest point on the grid
-    /// </summary>
-    /// <param name="point">A position on the grid</param>
-    /// <returns></returns>
+    /// <summary> Returns the global position of the nearest point on the grid </summary>
+    /// <param name="point">A global position on the grid</param>
     public Vector2 NearestPointOnGrid(Vector2 point)
     {
         //Apply local grid position
@@ -87,6 +88,7 @@ public class Grid : Singleton<Grid>
             columnDistance = width / columns;
         else
             columnDistance = width / 512; //Osu's playfield width is 512 so any x position of a fruit needs to be a fraction of that
+
         point.x = Mathf.Round(point.x / columnDistance) * columnDistance;
 
         //Snap Y position
@@ -97,8 +99,8 @@ public class Grid : Singleton<Grid>
         return point;
     }
 
-    /// <summary>Make sure pos is in Grid space and not global space</summary>
-    private float GetHitTime(int y) => y * GetVisibleTimeRange() / height + TimeLine.currentTimeStamp;
+    /// <summary>Make sure y is in Grid space and not global space</summary>
+    public float GetHitTime(int y) => y * GetVisibleTimeRange() / height + TimeLine.currentTimeStamp;
 
     public float GetHitTime(Vector2 pos) => GetHitTime((int)pos.y);
 
@@ -113,10 +115,5 @@ public class Grid : Singleton<Grid>
         bool withinYBounds = position.y > transform.position.y && position.y < transform.position.y + height;
         bool withinGridRange = withinYBounds && withinXBounds;
         return withinGridRange;
-    }
-
-    public Vector2 GetGridSize()
-    {
-        return rectTransform.sizeDelta;
     }
 }

@@ -9,6 +9,8 @@ public class MusicPlayer : MonoBehaviour
 
     public float audioSourceTime;
 
+    public float mouseScrollDelta;
+
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -19,16 +21,23 @@ public class MusicPlayer : MonoBehaviour
             audioSource.Pause();
         }
 
-        BeatmapSettings.audioFileName = audioSource.clip.name + ".mp3";
+        BeatmapSettings.audioFileName = audioSource.clip.name;
     }
 
     void LateUpdate()
     {
+        mouseScrollDelta = Input.mouseScrollDelta.y;
         if (TimeLine.instance == null) return;
 
         if (Math.Abs(Input.mouseScrollDelta.y) > 0.1f)
-            audioSource.time = Mathf.Clamp(audioSource.time + Input.mouseScrollDelta.y / 100 * TimeLine.instance.scrollSpeed,0,float.MaxValue);
-        TimeLine.instance.SetCurrentTimeStamp((int) (audioSource.time * 1000));
+        {
+            float beatsPerMS = (BeatmapSettings.BPM / 60 /*Beats per second*/) * 1000;
+            float scrollDistance = Input.mouseScrollDelta.y * TimeLine.instance.scrollSpeed / (beatsPerMS * BeatsnapDivisor.Instance.division);
+            //print($"Scroll {scrollDistance}ms\nTarget time: {audioSource.time * 1000+scrollDistance}ms\nAudio clip length: {audioSource.clip.length*1000}");
+            audioSource.time = Mathf.Max(audioSource.time + scrollDistance, 0);
+        }
+
+        TimeLine.instance.SetCurrentTimeStamp(Mathf.RoundToInt(audioSource.time*1000));
 
         audioSourceTime = audioSource.time;
     }
@@ -69,4 +78,9 @@ public class MusicPlayer : MonoBehaviour
         audioSource.UnPause();
     }
 
+    //<summary>The volume of the audio source (0.0 to 1.0) </summary>
+    public void SetVolume(float volume)
+    {
+        audioSource.volume = volume;
+    }
 }

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI.Extensions;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
+using NVector2 = System.Numerics.Vector2;
 
 public class Slider : HitObject
 {
@@ -16,7 +18,7 @@ public class Slider : HitObject
     public int endTime => fruits[fruits.Count-1].position.y;
 
     //Previous fruit should have a lower Y and next fruit should have a higher Y
-    public List<Fruit> fruits { get; private set; } = new List<Fruit>();
+    public List<Fruit> fruits = new List<Fruit>();
     private List<Transform> handles = new List<Transform>();
     private UILineRenderer lineRenderer;
     public int fruitCount => fruits.Count;
@@ -133,9 +135,9 @@ public class Slider : HitObject
 
     public HitObject GetFruitByIndex(int fruitIndex) => fruits[fruitIndex];
 
-    public List<System.Numerics.Vector2> GetSliderPoints()
+    public List<NVector2> GetSliderPoints()
     {
-        List<System.Numerics.Vector2> points = new List<System.Numerics.Vector2>();
+        List<NVector2> points = new List<NVector2>();
         foreach (Fruit fruit in fruits)
         {
             points.Add(fruit.position.ToNumerical());

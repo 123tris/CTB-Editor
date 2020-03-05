@@ -4,6 +4,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.UI.Extensions;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 public enum BrushState
 {
@@ -29,6 +32,11 @@ public class Brush : MonoBehaviour
     [SerializeField] private GameObject fruitDisplayPrefab;
     private Fruit fruitDisplay;
 
+    private Vector2 startSelectPos;
+
+    private SelectionBox selectionBox;
+    private bool createSelectionBox;
+
     void Start()
     {
         if (fruitDisplayPrefab == null)
@@ -41,6 +49,8 @@ public class Brush : MonoBehaviour
         fruitImage.raycastTarget = false;
         fruitImage.color.OverrideAlpha(0.5f);
         fruitDisplay.name = "Fruit preview display";
+        selectionBox = FindObjectOfType<SelectionBox>();
+        selectionBox.enabled = false;
     }
 
     public void SetBrushState(int index)
@@ -52,7 +62,8 @@ public class Brush : MonoBehaviour
     {
         mousePositionOnGrid = grid.GetMousePositionOnGrid();
 
-        brushCoords.text = new Vector2(mousePositionOnGrid.x/Grid.WidthRatio,mousePositionOnGrid.y).ToString("F2");
+        Vector2 brushCoordsVec = new Vector2(mousePositionOnGrid.x / Grid.WidthRatio, grid.GetHitTime((int)mousePositionOnGrid.y));
+        brushCoords.text = $"x: {brushCoordsVec.x}\nhit time: {brushCoordsVec.y:F1}";
 
         //Display fruit over cursor for accurate placement
         if (state != BrushState.Select && WithinGridRange(Input.mousePosition))
@@ -61,9 +72,7 @@ public class Brush : MonoBehaviour
             fruitDisplay.gameObject.SetActive(true);
             fruitDisplay.UpdateCircleSize();
             fruitDisplay.position.x = Mathf.RoundToInt(mousePositionOnGrid.x / Grid.WidthRatio);
-            fruitDisplay.position.y = (int) grid.GetHitTime(mousePositionOnGrid);
-
-            brushCoords.text = fruitDisplay.position.ToString();
+            fruitDisplay.position.y = (int)grid.GetHitTime(mousePositionOnGrid);
         }
         else fruitDisplay.gameObject.SetActive(false);
 
@@ -74,11 +83,18 @@ public class Brush : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
             state = BrushState.Slider;
 
+        if (Input.GetMouseButtonUp(0))
+        {
+            createSelectionBox = false;
+            selectionBox.enabled = false;
+            selectionBox.EndSelection();
+        }
+
         if (!WithinGridRange(Input.mousePosition)) return;
 
         if (Input.GetMouseButtonDown(1))
         {
-            Fruit detectedHitobject = DetectHitObject();
+            Fruit detectedHitobject = DetectHitObject(); //TODO: Add undo
             if (detectedHitobject != null)
             {
                 if (detectedHitobject.isSliderFruit)
@@ -104,6 +120,7 @@ public class Brush : MonoBehaviour
 
     private void OnSelectState()
     {
+        //Select pressed hitobject
         if (Input.GetMouseButtonDown(0))
         {
             //Higlighting of hitobjects
@@ -131,33 +148,49 @@ public class Brush : MonoBehaviour
                     else if (!Selection.Contains(hitObject)) Selection.SetSelected(hitObject);
                 }
             }
-            else Selection.Clear();
+            else
+            {
+                Selection.Clear();
+                startSelectPos = grid.transform.InverseTransformPoint(Input.mousePosition);
+                createSelectionBox = true;
+                selectionBox.enabled = true;
+                selectionBox.BeginSelection();
+            }
         }
 
-        if (Input.GetKeyDown(KeyCode.Delete))
-            Selection.DestroySelected();
+        //Dragging selection box
+        if (createSelectionBox)
+        {
+            Selection.SetSelected(DetectHitObjects());
+        }
+        else
+        {
+            if (Selection.selectedHitObjects.Count == 0) return;
 
-        if (Selection.selectedHitObjects.Count == 0) return;
-
-        SelectionBehaviour();
-
-        Selection.UpdateDragging();
+            SelectionBehaviour();
+            Selection.UpdateDragging();
+        }
     }
 
     private void OnFruitState()
     {
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButtonDown(0))
         {
             if (TimeStampOccupied())
             {
                 HitObject hitObject = HitObjectManager.GetHitObjectByTime((int)grid.GetHitTime(mousePositionOnGrid));
                 if (hitObject is Fruit)
                 {
-                    Undo.RecordFruit(hitObject as Fruit);
+                    Fruit fruit = (Fruit) hitObject;
+                    Undo.RecordFruit(fruit);
                     hitObject.SetXPosition(mousePositionOnGrid.x);
                 }
             }
-            else HitObjectManager.CreateFruit(mousePositionOnGrid, transform);
+            else
+            {
+                var fruit = HitObjectManager.CreateFruit(mousePositionOnGrid, transform);
+                Undo.RegisterCreatedObject(fruit.gameObject);
+            }
         }
     }
 
@@ -222,11 +255,43 @@ public class Brush : MonoBehaviour
                 if (raycastResult.gameObject.CompareTag("HitObject"))
                 {
                     return raycastResult.gameObject.GetComponent<Fruit>();
+
                 }
             }
         }
 
         return null;
+    }
+
+    private List<Fruit> DetectHitObjects()
+    {
+        Vector2 endSelectPos = grid.transform.InverseTransformPoint(Input.mousePosition);
+
+        int minY = (int)Mathf.Min(startSelectPos.y, endSelectPos.y);
+        int maxY = (int)Mathf.Max(startSelectPos.y, endSelectPos.y);
+
+        float startTime = grid.GetHitTime(minY);
+        float endTime = grid.GetHitTime(maxY);
+
+        var fruitsByRange = HitObjectManager.GetFruitsByRange(startTime, endTime);
+
+        var startWorld = grid.transform.TransformPoint(startSelectPos);
+        var endWorld = grid.transform.TransformPoint(endSelectPos);
+
+        float minX = Mathf.Min(startWorld.x, endWorld.x);
+        float maxX = Mathf.Max(startWorld.x, endWorld.x);
+
+        List<Fruit> fruitsWithinSelectionBox = new List<Fruit>();
+
+        foreach (Fruit fruit in fruitsByRange)
+        {
+            if (fruit.transform.position.x >= minX && fruit.transform.position.x <= maxX)
+            {
+                fruitsWithinSelectionBox.Add(fruit);
+            }
+        }
+
+        return fruitsWithinSelectionBox;
     }
 
     private bool TimeStampOccupied()

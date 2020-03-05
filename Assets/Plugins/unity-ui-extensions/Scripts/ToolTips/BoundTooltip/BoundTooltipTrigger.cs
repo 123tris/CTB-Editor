@@ -1,6 +1,6 @@
-﻿///Credit Martin Nerurkar // www.martin.nerurkar.de // www.sharkbombs.com
-///Sourced from - http://www.sharkbombs.com/2015/02/10/tooltips-with-the-new-unity-ui-ugui/
-using UnityEngine.EventSystems;
+﻿using UnityEngine.EventSystems;
+using static CooldownManagerNamespace.CooldownManager;
+
 
 namespace UnityEngine.UI.Extensions
 {
@@ -13,6 +13,10 @@ namespace UnityEngine.UI.Extensions
 		public bool useMousePosition = false;
 
 		public Vector3 offset;
+
+        [SerializeField] private float popupDelay = 1;
+
+        private Coroutine coroutine;
 
 		public void OnPointerEnter(PointerEventData eventData)
 		{
@@ -43,12 +47,13 @@ namespace UnityEngine.UI.Extensions
 
 		void StartHover(Vector3 position)
 		{
-			BoundTooltipItem.Instance.ShowTooltip(text, position);
+            coroutine = Cooldown(popupDelay,() => BoundTooltipItem.Instance.ShowTooltip(text, position),"Tooltip Hover");
 		}
 
 		void StopHover()
 		{
-			BoundTooltipItem.Instance.HideTooltip();
+            if (coroutine != null) StopCoroutine(coroutine);
+            BoundTooltipItem.Instance.HideTooltip();
 		}
 	}
 }

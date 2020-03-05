@@ -1,6 +1,8 @@
 ﻿///Credit Martin Nerurkar // www.martin.nerurkar.de // www.sharkbombs.com
 ///Sourced from - http://www.sharkbombs.com/2015/02/10/tooltips-with-the-new-unity-ui-ugui/
 
+using TMPro;
+
 namespace UnityEngine.UI.Extensions
 {
     [AddComponentMenu("UI/Extensions/Bound Tooltip/Tooltip Item")]
@@ -14,13 +16,13 @@ namespace UnityEngine.UI.Extensions
             }
         }
 
-        public UnityEngine.UI.Text TooltipText;
+        public TextMeshProUGUI TooltipText;
         public Vector3 ToolTipOffset;
 
         void Awake()
         {
             instance = this;
-            if(!TooltipText) TooltipText = GetComponentInChildren<Text>();
+            if(!TooltipText) TooltipText = GetComponentInChildren<TextMeshProUGUI>();
             HideTooltip();
         }
 

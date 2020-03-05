@@ -4,16 +4,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using SliderUI = UnityEngine.UI.Slider;
+
 public class TimeLine : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private static SliderUI slider;
+
+    private static int hitIndicatorOffset
+    {
+        get
+        {
+            Grid grid = Grid.Instance;
+            return (int) (grid.height / 10 * grid.GetVisibleTimeRange() / grid.height);
+        }
+    }
+
     /// <summary>
     /// This is the time in milliseconds which the timeline is currently set at
     /// </summary>
-    public static int currentTimeStamp => (int) slider.value;
+    public static int currentTimeStamp => (int) slider.value - hitIndicatorOffset;
 
     [SerializeField] private Transform level;
-    [SerializeField] public float scrollSpeed = 1;
+    [SerializeField] public int scrollSpeed = 1;
 
     public static TimeLine instance;
     private static bool hovering;
