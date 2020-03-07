@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using OsuParsers.Beatmaps.Sections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,7 +21,9 @@ public class SaveButton : MonoBehaviour
     void OnClick()
     {
         if (BeatmapConverter.importedBeatmap != null)
-            BeatmapConverter.WriteOsuFile(settings.mapSettings.beatmapFilepath + "/" + BeatmapSettings.audioFileName + ".osu");
+        {
+            BeatmapConverter.WriteOsuFile(BeatmapConverter.importedBeatmapPath);
+        }
         else
             BeatmapConverter.WriteOsuFile(settings.mapSettings.beatmapFilepath + "/" + BeatmapSettings.audioFileName + ".osu");
     }

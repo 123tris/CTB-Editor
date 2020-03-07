@@ -2,6 +2,7 @@
 using System.Collections;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class MusicPlayer : MonoBehaviour
 {
@@ -11,10 +12,14 @@ public class MusicPlayer : MonoBehaviour
 
     public float mouseScrollDelta;
 
+    public static MusicPlayer instance;
+
+    void Awake() => instance = this;
+
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        TimeLine.instance.SetTimeLineLength((int) (audioSource.clip.length*1000));
+        TimeLine.instance.SetTimeLineLength((int)(audioSource.clip.length * 1000));
         if (!audioSource.isPlaying)
         {
             audioSource.Play();
@@ -37,28 +42,34 @@ public class MusicPlayer : MonoBehaviour
             audioSource.time = Mathf.Max(audioSource.time + scrollDistance, 0);
         }
 
-        TimeLine.instance.SetCurrentTimeStamp(Mathf.RoundToInt(audioSource.time*1000));
+        TimeLine.instance.SetCurrentTimeStamp(Mathf.RoundToInt(audioSource.time * 1000));
 
         audioSourceTime = audioSource.time;
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (audioSource.isPlaying) PauseSong();
+            else ResumeSong();
+        }
     }
 
     public void SetSong(string filepath)
     {
-        AudioClip audioClip = MP3Loader.LoadMP3(filepath);
+        var audioClip = MP3Loader.LoadMP3(filepath);
         audioSource.clip = audioClip;
         audioSource.Play();
         audioSource.Pause();
-        TimeLine.instance.SetTimeLineLength((int) (audioClip.length*1000)); //Multiply with a 1000 to convert from seconds to milliseconds
+        TimeLine.instance.SetTimeLineLength((int)(audioClip.length * 1000)); //Multiply with a 1000 to convert from seconds to milliseconds
     }
 
     public void SetPlayback(float playbackMS)
     {
-        audioSource.time = playbackMS/1000f;
+        audioSource.time = playbackMS / 1000f;
     }
 
     public void PlaySong()
     {
-        print("Pressed play, AudioSource time: "+audioSource.time);
+        print("Pressed play, AudioSource time: " + audioSource.time);
         audioSource.Play();
     }
 
@@ -82,5 +93,10 @@ public class MusicPlayer : MonoBehaviour
     public void SetVolume(float volume)
     {
         audioSource.volume = volume;
+    }
+
+    public void SetPlaybackSpeed(float sliderValue)
+    {
+        audioSource.pitch = sliderValue;
     }
 }

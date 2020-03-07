@@ -32,7 +32,7 @@ public class Brush : MonoBehaviour
     [SerializeField] private GameObject fruitDisplayPrefab;
     private Fruit fruitDisplay;
 
-    private Vector2 startSelectPos;
+    public static Vector2 startSelectPos;
 
     private SelectionBox selectionBox;
     private bool createSelectionBox;
@@ -181,8 +181,7 @@ public class Brush : MonoBehaviour
                 HitObject hitObject = HitObjectManager.GetHitObjectByTime((int)grid.GetHitTime(mousePositionOnGrid));
                 if (hitObject is Fruit)
                 {
-                    Fruit fruit = (Fruit) hitObject;
-                    Undo.RecordFruit(fruit);
+                    Undo.RecordHitObject(hitObject);
                     hitObject.SetXPosition(mousePositionOnGrid.x);
                 }
             }

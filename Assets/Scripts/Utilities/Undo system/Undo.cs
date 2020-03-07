@@ -34,10 +34,15 @@ namespace RuntimeUndo
             revertedChanges.Clear();
         }
 
-        public static void RecordFruit(Fruit fruit)
+        public static void RecordHitObject(HitObject hitObject)
         {
-            changes.Push(new FruitSnapshot(fruit));
+            changes.Push(new HitObjectSnapshot(hitObject));
             revertedChanges.Clear();
+        }
+
+        public static void RecordHitObjects(List<HitObject> hitObjects)
+        {
+            changes.Push(new HitObjectsSnapshot(hitObjects));
         }
 
         public static void DestroyObject(GameObject objectToUndo)

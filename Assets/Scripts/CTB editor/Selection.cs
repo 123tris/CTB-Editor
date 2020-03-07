@@ -61,11 +61,8 @@ public static class Selection
 
         if (Input.GetMouseButtonDown(0)) //On Start Dragging
         {
-            foreach (HitObject selectedHitObject in selectedHitObjects)
-            {
-                if (selectedHitObject is Fruit)
-                    Undo.RecordFruit(selectedHitObject as Fruit);
-            }
+            Undo.RecordHitObjects(selectedHitObjects); //Record undo snapshot before dragging
+
             startDragPos = Grid.Instance.GetSnappedMousePosition();
             startPositions = selectedHitObjects.Select(item => Grid.Instance.NearestPointOnGrid(item.transform.position)).ToList(); //use grid to resnap when dragging
         }

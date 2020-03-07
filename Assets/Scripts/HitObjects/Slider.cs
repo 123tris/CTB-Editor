@@ -35,8 +35,6 @@ public class Slider : HitObject
 
     public void AddFruit(Vector2 spawnPosition)
     {
-        //TODO: Set position of slider when the first fruit is placed
-
         //Spawn fruit
         Fruit fruit = HitObjectManager.CreateFruit(spawnPosition, transform);
 
@@ -99,14 +97,6 @@ public class Slider : HitObject
         fruits.ForEach(f => f.UnHighlight());
     }
 
-    public void MoveSlider(Vector2 targetPos)
-    {
-        transform.position = targetPos + Grid.Instance.transform.position.ToVector2();
-
-        foreach (Fruit fruit in fruits)
-            fruit.SetPosition(fruit.transform.position - Grid.Instance.transform.position);
-    }
-
     /// <summary> Displays a preview of a slider if `previewFruit` was added </summary>
     public void DisplayPreview(Fruit previewFruit)
     {
@@ -140,7 +130,7 @@ public class Slider : HitObject
         List<NVector2> points = new List<NVector2>();
         foreach (Fruit fruit in fruits)
         {
-            points.Add(fruit.position.ToNumerical());
+            points.Add(new NVector2(fruit.position.x,0));
         }
         return points;
     }

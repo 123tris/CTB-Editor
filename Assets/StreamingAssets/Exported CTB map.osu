@@ -1,7 +1,7 @@
 osu file format v12
 
 [General]
-AudioFilename: nakigara.mp3
+AudioFilename: 96Neko_-_Tapioca_Sennou_Song_-memoReal_ver.mp3
 AudioLeadIn: 0
 PreviewTime: 0
 Countdown: 0
@@ -14,12 +14,12 @@ WidescreenStoryboard: 0
 [Editor]
 Bookmarks: 0
 DistanceSpacing: 0
-BeatDivisor: 8
+BeatDivisor: 4
 GridSize: 0
 TimelineZoom: 1
 
 [Metadata]
-Title:nakigara
+Title:96Neko_-_Tapioca_Sennou_Song_-memoReal_ver
 TitleUnicode:0
 Artist:Rick Astley
 ArtistUnicode:0
@@ -52,10 +52,7 @@ SliderTickRate:1
 [TimingPoints]
 0,333.333333333333,4,2,1,100,1,0
 0,333.333333333333,0,0,0,0,0,0
-83,0.00318887352082373,0,0,0,0,1,0
-250,0.00314966605950213,0,0,0,0,1,0
-874,0.00126262626262626,0,0,0,0,1,0
-1291,0.00436953807740325,0,0,0,0,1,0
+166,0.00826896415131709,0,0,0,0,1,0
 
 
 [Colours]
@@ -64,7 +61,4 @@ Combo2 : 0,255,0
 Combo3 : 0,0,255
 
 [HitObjects]
-83,0,83,6,0,L|346:166,0,241,,,0:0:0:0:
-250,0,250,6,0,L|352:333,0,244,,,0:0:0:0:
-874,0,874,6,0,L|404:916,0,308,,,0:0:0:0:
-1291,0,1291,6,0,L|181:1333,0,89,,,0:0:0:0:
+140,0,166,6,0,L|327:0,0,187

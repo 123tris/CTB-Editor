@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OsuParsers.Beatmaps.Objects.Catch;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 using UnityEngine;
 using Object = UnityEngine.Object;
+using PSlider = OsuParsers.Beatmaps.Objects.Slider;
 
 public static class HitObjectManager
 {
@@ -18,7 +20,7 @@ public static class HitObjectManager
     private static List<Slider> sliders = new List<Slider>();
 
     /// <summary> Instantiates a fruit and adds it to the managed hitobjects of the hitobjectmanager </summary>
-    public static Fruit CreateFruit(Vector2 position,Transform parent)
+    public static Fruit CreateFruit(Vector2 position, Transform parent)
     {
         Fruit fruit = Object.Instantiate(fruitPrefab, parent).GetComponent<Fruit>();
         fruit.SetPosition(position);
@@ -26,17 +28,18 @@ public static class HitObjectManager
         return fruit;
     }
 
-    public static void CreateFruitByData(Vector2 position)
+    public static void CreateFruitByParser(CatchFruit hitObject)
     {
+        var position = new Vector2(hitObject.Position.X, hitObject.StartTime);
+
         Fruit fruit = Object.Instantiate(fruitPrefab, GameManager.Instance.level).GetComponent<Fruit>();
         fruit.position = position.ToVector2Int();
 
-        float xPos = position.x * Grid.WidthRatio + grid.transform.position.x;
+        float xPos = position.x * Grid.WidthRatio;
         float yPos = grid.GetYPosition(position.y);
-        fruit.transform.position = new Vector3(xPos,yPos);
+        fruit.transform.position = new Vector3(xPos, yPos) + grid.transform.position;
 
         AddFruit(fruit);
-        RuntimeUndo.Undo.RegisterCreatedObject(fruit.gameObject);
     }
 
     public static Slider CreateSlider(Vector2 position, Transform parent)
@@ -47,13 +50,31 @@ public static class HitObjectManager
         AddSlider(slider);
 
         Debug.Log(slider.fruits.First().transform.localPosition);
-        RuntimeUndo.Undo.RegisterCreatedObject(slider.gameObject);
         return slider;
     }
 
-    public static void CreateSliderByData(float positionX, int startTime, List<System.Numerics.Vector2> sliderPoints, int repeats)
+    public static void CreateSliderByParser(CatchJuiceStream pSlider)
     {
-        throw new NotImplementedException();
+        //TODO: implement repeat sliders & remove hardcode
+        if (pSlider.Repeats > 1) return;
+        var startTime = pSlider.StartTime;
+        var endTime = pSlider.EndTime;
+
+        var points = pSlider.SliderPoints;
+
+        float xPos = pSlider.Position.X * Grid.WidthRatio;
+        float yPos = grid.GetYPosition(startTime);
+
+        var position = new Vector2(xPos, yPos);
+
+        var brush = Object.FindObjectOfType<Brush>();
+        var slider = CreateSlider(position, brush.transform);
+
+        xPos = points[0].X * Grid.WidthRatio;
+        yPos = grid.GetYPosition(endTime);
+        position = new Vector2(xPos, yPos);
+
+        slider.AddFruit(position);
     }
 
     /// <summary>
@@ -73,7 +94,7 @@ public static class HitObjectManager
         sliders.Sort();
     }
 
-    public static void EditFruitTimeStamp(Fruit fruit,int timeStamp)
+    public static void EditFruitTimeStamp(Fruit fruit, int timeStamp)
     {
         fruit.position.y = timeStamp;
         fruits.Sort();
@@ -121,7 +142,7 @@ public static class HitObjectManager
 
     public static HitObject GetNextFruit(Fruit fruit)
     {
-        if (fruits.IndexOf(fruit) == fruits.Count-1)
+        if (fruits.IndexOf(fruit) == fruits.Count - 1)
             return null;
 
         return fruits[fruits.IndexOf(fruit) + 1];
@@ -149,8 +170,8 @@ public static class HitObjectManager
 
     public static void Reset()
     {
-        sliders.ForEach(Object.Destroy);
-        fruits.ForEach(Object.Destroy);
+        sliders.ForEach(slider => Object.Destroy(slider.gameObject));
+        fruits.ForEach(fruit => Object.Destroy(fruit.gameObject));
     }
 
     public static void RemoveFruit(Fruit hitObject) => fruits.Remove(hitObject);

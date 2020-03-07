@@ -37,6 +37,6 @@ public class ImportButton : MonoBehaviour
         string directory = Path.GetDirectoryName(path.First());
         mapSettings.beatmapFilepath = directory;
 
-        player.SetSong(directory+"\\"+BeatmapSettings.audioFileName);
+        player.SetSong(directory+"\\"+BeatmapSettings.audioFileName+".mp3");
     }
 }

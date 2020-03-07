@@ -9,6 +9,7 @@ public class GameManager : Singleton<GameManager> {
 
     public Transform level;
     public static GameObject garbage;
+    public EditorSettings settings;
 
     protected override void Awake()
     {
@@ -36,11 +37,14 @@ public class GameManager : Singleton<GameManager> {
             else if (Input.GetKeyDown(KeyCode.V))
                 CopyManager.Paste();
             else if (Input.GetKeyDown(KeyCode.A))
-            {
                 Selection.SelectAll();
+            else if (Input.GetKeyDown(KeyCode.E)) //Test function
+                BeatmapConverter.WriteOsuFile(Application.streamingAssetsPath + "/Exported CTB map.osu"); 
+            else if (Input.GetKeyDown(KeyCode.S))
+            {
+                if (BeatmapConverter.importedBeatmap != null)
+                    BeatmapConverter.WriteOsuFile(BeatmapConverter.importedBeatmapPath);
             }
-            //else if (Input.GetKeyDown(KeyCode.E))
-            //    BeatmapConverter.WriteOsuFile(BeatmapConverter.CreateBeatmapData());
         }
         if (Input.GetKeyDown(KeyCode.Delete))
             Selection.DestroySelected();

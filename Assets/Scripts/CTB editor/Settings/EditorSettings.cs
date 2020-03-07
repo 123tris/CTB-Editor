@@ -9,12 +9,12 @@ public class EditorSettings : MonoBehaviour
     public EditorMapSettings mapSettings = new EditorMapSettings();
 
     public string settingsPath => Application.streamingAssetsPath + "/EditorSettings.json";
-    public string mapPath => Application.streamingAssetsPath + "/MapSettings.json";
+    public string mapSettingsPath => Application.streamingAssetsPath + "/MapSettings.json";
 
     void Awake()
     {
         if (!File.Exists(settingsPath)) SaveSettings();
-        if (!File.Exists(mapPath)) SaveMap();
+        if (!File.Exists(mapSettingsPath)) SaveMap();
 
         LoadSettings();
         LoadMap();
@@ -30,9 +30,9 @@ public class EditorSettings : MonoBehaviour
 
     public void SaveSettings() => Save(metaData,settingsPath);
 
-    public void LoadMap() => Load(out mapSettings,mapPath);
+    public void LoadMap() => Load(out mapSettings,mapSettingsPath);
 
-    public void SaveMap() => Save(mapSettings,mapPath);
+    public void SaveMap() => Save(mapSettings,mapSettingsPath);
 
     private void Load<T>(out T obj,string path)
     {

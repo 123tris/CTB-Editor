@@ -104,9 +104,10 @@ public class Grid : Singleton<Grid>
 
     public float GetHitTime(Vector2 pos) => GetHitTime((int)pos.y);
 
-    public float GetYPosition(float y)
+    //Gets the Y position of a specific hit time
+    public float GetYPosition(float hitTime)
     {
-        return (y - TimeLine.currentTimeStamp) / (GetVisibleTimeRange() / height);
+        return (hitTime - TimeLine.currentTimeStamp) / (GetVisibleTimeRange() / height);
     }
 
     public bool WithinGridRange(Vector2 position)

@@ -35,7 +35,6 @@ namespace UnityEngine.UI.Extensions
 	[AddComponentMenu("UI/Extensions/Selection Box")]
 	public class SelectionBox : MonoBehaviour
 	{
-		
 		// The color of the selection box.
 		public Color color;
 		
@@ -45,13 +44,16 @@ namespace UnityEngine.UI.Extensions
 		public Sprite art;
 		
 		// Will store the location of wherever we first click before dragging.
-		private Vector2 origin;
+		public static Vector2 origin;
 		
 		// A rectTransform set by the User that can limit which part of the screen is eligable for drag selection
 		public RectTransform selectionMask;
 		
 		//Stores the rectTransform connected to the generated gameObject being used for the selection box visuals
 		private RectTransform boxRect;
+
+		//Transform to the grid level to scroll changes to the selection box
+        private Transform level;
 		
 		// Stores all of the selectable game objects
 		private IBoxSelectable[] selectables;
@@ -425,7 +427,8 @@ namespace UnityEngine.UI.Extensions
 			onSelectionChange.Invoke(GetAllSelected());
 		}
 		
-		void Awake(){
+		void Awake()
+        {
 			ValidateCanvas();
 			CreateBoxRect();
 			ResetBoxRect();
