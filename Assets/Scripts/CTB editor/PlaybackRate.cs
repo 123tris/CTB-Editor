@@ -13,6 +13,7 @@ public class PlaybackRate : MonoBehaviour
     {
         slider = GetComponent<USlider>();
         slider.onValueChanged.AddListener(OnSliderChange);
+        OnSliderChange(slider.value);
     }
 
     private void OnSliderChange(float sliderValue)

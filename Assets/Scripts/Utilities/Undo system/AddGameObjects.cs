@@ -15,7 +15,7 @@ namespace RuntimeUndo
         public RemoveGameObjects Revert()
         {
             //TODO: temporarily uses first index for testing purposes. However it should be changed to a list of parents so that every gameobject can have a unique parent if that will ever become necessary
-            RemoveGameObjects removedObject = new RemoveGameObjects(addedObjects,addedObjects[0].transform.parent); 
+            RemoveGameObjects removedObject = new RemoveGameObjects(addedObjects, addedObjects[0].transform.parent);
             foreach (GameObject addedObject in addedObjects)
             {
                 Object.Destroy(addedObject);

@@ -68,6 +68,8 @@ public static class Vector3Extensions
         return vector;
     }
 
+    //TODO: Create own extension classes for vector2int and vector2
+
     public static Vector2 ToVector2(this Vector3 vector)
     {
         Vector2 output = new Vector2
@@ -86,10 +88,14 @@ public static class Vector3Extensions
         return output;
     }
 
-    //TODO: Create own extension classes for vector2int and vector2
     public static System.Numerics.Vector2 ToNumerical(this Vector2Int vector)
     {
         return new System.Numerics.Vector2(vector.x, vector.y);
+    }
+
+    public static Vector2 ToUnityVector(this System.Numerics.Vector2 vector)
+    {
+        return new Vector2(vector.X,vector.Y);
     }
 
     public static Vector2Int ToVector2Int(this Vector2 vector)

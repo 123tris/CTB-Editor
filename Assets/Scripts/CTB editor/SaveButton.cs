@@ -12,10 +12,17 @@ public class SaveButton : MonoBehaviour
 
     private Button button => GetComponent<Button>();
 
+    private DropdownBehaviour fileDropdown;
+
     void Start()
     {
+        fileDropdown = GetComponentInParent<DropdownBehaviour>();
+        if (fileDropdown == null) 
+            Debug.LogError("Missing DropdownBehaviour script inside of the parent of the import button",this);
+
         settings = FindObjectOfType<EditorSettings>();
         button.onClick.AddListener(OnClick);
+        button.onClick.AddListener(fileDropdown.ToggleDropdown);
     }
 
     void OnClick()
@@ -25,6 +32,11 @@ public class SaveButton : MonoBehaviour
             BeatmapConverter.WriteOsuFile(BeatmapConverter.importedBeatmapPath);
         }
         else
-            BeatmapConverter.WriteOsuFile(settings.mapSettings.beatmapFilepath + "/" + BeatmapSettings.audioFileName + ".osu");
+        {
+            PopupManager.Show("You have to first import a beatmap before you can save. B-b-b-baka!!!");
+            //TODO: edit when export/import task is being worked on
+            //string path = settings.mapSettings.beatmapFilepath + "/" + BeatmapSettings.audioFileName + ".osu";
+            //BeatmapConverter.WriteOsuFile(path);
+        }
     }
 }

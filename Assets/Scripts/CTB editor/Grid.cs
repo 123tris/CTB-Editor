@@ -1,42 +1,47 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
+// ReSharper disable Unity.PreferAddressByIdToGraphicsParams
 
-public class Grid : Singleton<Grid>
+public class Grid : MonoBehaviour
 {
     public const int DEFAULT_OSU_PLAYFIELD_WIDTH = 512;
     public const int DEFAULT_OSU_PLAYFIELD_HEIGHT = 384;
 
-    public const int EDITOR_FIELD_WIDTH = 1280; // will have to stop being hard-coded 
-
     /// <summary>
     /// How big the editor is compared to the playfield. 
     /// Should always be > 1.
+    /// <para> width / OSU_PLAYFIELD_WIDTH</para>
     /// </summary>
-    public const float WidthRatio = EDITOR_FIELD_WIDTH / (float) DEFAULT_OSU_PLAYFIELD_WIDTH;
+    public static float GetWidthRatio() => Instance.width / DEFAULT_OSU_PLAYFIELD_WIDTH;
+
+    public static float GetHeightRatio() => Instance.height / DEFAULT_OSU_PLAYFIELD_HEIGHT;
+
+    ///<summary>The amount of milliseconds passed in the beatmap relative to a single pixel
+    /// <para>This takes zoom into consideration. If you want a clean msPerPixel without the zoom taken into consideration you will have to recalculate it.</para></summary>
+    public float msPerPixel => height / zoom / GetVisibleTimeRange(); 
 
     public float columns
     {
-        get { return gridMaterial.GetFloat("_Columns"); } //TODO: retrieving from material is slow, value could be cached
-        set { gridMaterial.SetFloat("_Columns", value); }
+        get => gridMaterial.GetFloat("_Columns");  //TODO: retrieving from material is slow, value could be cached
+        set => gridMaterial.SetFloat("_Columns", value);
     }
 
     public float rows
     {
-        get { return gridMaterial.GetFloat("_Rows"); }
-        set { gridMaterial.SetFloat("_Rows", value); }
+        get => gridMaterial.GetFloat("_Rows");
+        set => gridMaterial.SetFloat("_Rows", value);
     }
 
     public float rowOffset
     {
-        get { return gridMaterial.GetFloat("_RowOffset"); }
-        set { gridMaterial.SetFloat("_RowOffset", value); }
+        get => gridMaterial.GetFloat("_RowOffset");
+        set => gridMaterial.SetFloat("_RowOffset", value);
     }
 
     public int beatsnapDivisor
     {
-        get { return gridMaterial.GetInt("_BeatsnapDivision"); }
-        set { gridMaterial.SetInt("_BeatsnapDivision", value); }
+        get => gridMaterial.GetInt("_BeatsnapDivision");
+        set => gridMaterial.SetInt("_BeatsnapDivision", value);
     }
 
     private Material gridMaterial;
@@ -47,6 +52,16 @@ public class Grid : Singleton<Grid>
 
     public Vector2 GetSnappedMousePosition() => NearestPointOnGrid(Input.mousePosition);
     public Vector2 GetMousePositionOnGrid() => GetSnappedMousePosition() - transform.position.ToVector2();
+
+    public static Grid Instance;
+
+    public float zoom = 1;
+    public float minZoom = 1;
+    public float maxZoom = 4;
+
+    public int test = 80;
+
+    void Awake() => Instance = this;
 
     void Start()
     {
@@ -61,13 +76,27 @@ public class Grid : Singleton<Grid>
     {
         rows = CalculateRows();
 
-        var timePerPixel = height / GetVisibleTimeRange();
-        rowOffset = TimeLine.currentTimeStamp * timePerPixel;
+        if (Input.GetKey(KeyCode.LeftControl) && Input.mouseScrollDelta.y != 0)
+        {
+            zoom = Mathf.Clamp(zoom - Input.mouseScrollDelta.y / 5, minZoom, maxZoom);
+        }
+
+        rowOffset = TimeLine.CurrentTimeStamp * msPerPixel - height / 10 - BeatmapSettings.BPMOffset * msPerPixel;
+    }
+
+    public float GetTimeStampOffset() => GetHitIndicatorOffset() + BeatmapSettings.BPMOffset;
+
+    public float GetHitIndicatorOffset() => GetVisibleTimeRange() / 10;
+
+    ///<summary>Returns how much distance in global space is moved due to the BPM Offset and Hitindicator offset. Takes zoom into consideration</summary>
+    public float GetOffset()
+    {
+        return height / 10 + BeatmapSettings.BPMOffset * msPerPixel;
     }
 
     private float CalculateRows()
     {
-        float visibleTimeRange = GetVisibleTimeRange();
+        float visibleTimeRange = zoom * GetVisibleTimeRange();
         beatsnapDivisor = BeatsnapDivisor.Instance.division;
         return visibleTimeRange / 1000 * (BeatmapSettings.BPM / 60) * beatsnapDivisor;
     }
@@ -95,19 +124,23 @@ public class Grid : Singleton<Grid>
         float rowDistance = height / rows;
         float nearestRow = Mathf.Round((point.y + rowOffset % rowDistance) / rowDistance);
         point.y = nearestRow * rowDistance - rowOffset % rowDistance;
-        point += new Vector2(transform.position.x, transform.position.y);
+        point += transform.position.ToVector2();
         return point;
     }
 
     /// <summary>Make sure y is in Grid space and not global space</summary>
-    public float GetHitTime(int y) => y * GetVisibleTimeRange() / height + TimeLine.currentTimeStamp;
+    public float GetHitTime(float y)
+    {
+        y -= height / 10; //Apply hit indicator offset
+        return y * (GetVisibleTimeRange() * zoom) / height + TimeLine.CurrentTimeStamp - BeatmapSettings.BPMOffset;
+    }
 
-    public float GetHitTime(Vector2 pos) => GetHitTime((int)pos.y);
+    public float GetHitTime(Vector2 pos) => GetHitTime(pos.y);
 
     //Gets the Y position of a specific hit time
     public float GetYPosition(float hitTime)
     {
-        return (hitTime - TimeLine.currentTimeStamp) / (GetVisibleTimeRange() / height);
+        return (hitTime + GetHitIndicatorOffset()) * (height / GetVisibleTimeRange() /*ms/s*/);
     }
 
     public bool WithinGridRange(Vector2 position)

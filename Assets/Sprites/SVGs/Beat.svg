@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="168" height="168" viewBox="0 0 168 168">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="Beat" class="cls-1" d="M129,437a84,84,0,1,1,84-84A84,84,0,0,1,129,437Zm0-162a78,78,0,1,0,78,78A78,78,0,0,0,129,275Zm-0.5,149A71.5,71.5,0,1,1,200,352.5,71.5,71.5,0,0,1,128.5,424Z" transform="translate(-45 -269)"/>
+</svg>

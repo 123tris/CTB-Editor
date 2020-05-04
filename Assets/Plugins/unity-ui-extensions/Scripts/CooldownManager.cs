@@ -9,16 +9,21 @@ namespace CooldownManagerNamespace
     {
         private class HiddenMonobehaviour : MonoBehaviour { }
 
-        private static readonly MonoBehaviour mono;
+        private static MonoBehaviour mono;
 
         private static Dictionary<string, Coroutine> coroutines = new Dictionary<string, Coroutine>();
 
-        static CooldownManager()
+        [RuntimeInitializeOnLoadMethod]
+        static void Init()
         {
-            //This will not function with Unity 2019.3 and up when domain reloading is disabled
             GameObject obj = new GameObject("Cooldown Manager");
             UnityEngine.Object.DontDestroyOnLoad(obj);
             mono = obj.AddComponent<HiddenMonobehaviour>();
+        }
+
+        static CooldownManager()
+        {
+            Init();
         }
 
         /// <summary>Delays <b>action</b> by <b>cooldownDurations (in seconds)</b></summary>

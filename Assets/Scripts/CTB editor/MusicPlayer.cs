@@ -1,25 +1,30 @@
 ﻿using System;
-using System.Collections;
-using System.IO;
 using UnityEngine;
-using UnityEngine.Networking;
+using UnityEngine.Audio;
 
+[RequireComponent(typeof(NAudioImporter))]
 public class MusicPlayer : MonoBehaviour
 {
     private AudioSource audioSource;
 
-    public float audioSourceTime;
-
-    public float mouseScrollDelta;
-
     public static MusicPlayer instance;
+    private AudioMixer audioMixer;
+    private AudioImporter audioImporter;
 
-    void Awake() => instance = this;
+    void Awake()
+    {
+        instance = this;
+        audioSource = GetComponent<AudioSource>();
+        AudioMixerGroup mixerGroup = Resources.Load<AudioMixerGroup>("AudioMixer");
+        audioMixer = mixerGroup.audioMixer;
+
+        audioImporter = GetComponent<AudioImporter>();
+        audioImporter.Loaded += SongLoaded;
+    }
 
     private void Start()
     {
-        audioSource = GetComponent<AudioSource>();
-        TimeLine.instance.SetTimeLineLength((int)(audioSource.clip.length * 1000));
+        TimeLine.Instance.SetTimeLineLength((int)(audioSource.clip.length * 1000));
         if (!audioSource.isPlaying)
         {
             audioSource.Play();
@@ -31,20 +36,19 @@ public class MusicPlayer : MonoBehaviour
 
     void LateUpdate()
     {
-        mouseScrollDelta = Input.mouseScrollDelta.y;
-        if (TimeLine.instance == null) return;
+        if (TimeLine.Instance == null) return;
 
-        if (Math.Abs(Input.mouseScrollDelta.y) > 0.1f)
+        if (Math.Abs(Input.mouseScrollDelta.y) > 0.1f && !Input.GetKey(KeyCode.LeftControl))
         {
-            float beatsPerMS = (BeatmapSettings.BPM / 60 /*Beats per second*/) * 1000;
-            float scrollDistance = Input.mouseScrollDelta.y * TimeLine.instance.scrollSpeed / (beatsPerMS * BeatsnapDivisor.Instance.division);
-            //print($"Scroll {scrollDistance}ms\nTarget time: {audioSource.time * 1000+scrollDistance}ms\nAudio clip length: {audioSource.clip.length*1000}");
-            audioSource.time = Mathf.Max(audioSource.time + scrollDistance, 0);
+            float beatLength = 60 / BeatmapSettings.BPM; //Length of a beat in seconds
+
+            //Scroll the length of a divided beat (dictated by the beatsnap)
+            float scrollDistance = Input.mouseScrollDelta.y * TimeLine.Instance.scrollSpeed * beatLength / BeatsnapDivisor.Instance.division;
+            
+            audioSource.time = Mathf.Clamp(audioSource.time + scrollDistance, BeatmapSettings.BPMOffset / 1000f, audioSource.clip.length);
         }
 
-        TimeLine.instance.SetCurrentTimeStamp(Mathf.RoundToInt(audioSource.time * 1000));
-
-        audioSourceTime = audioSource.time;
+        TimeLine.Instance.SetCurrentTimeStamp(Mathf.RoundToInt(audioSource.time * 1000));
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -55,11 +59,15 @@ public class MusicPlayer : MonoBehaviour
 
     public void SetSong(string filepath)
     {
-        var audioClip = MP3Loader.LoadMP3(filepath);
+        audioImporter.Import(filepath);
+    }
+
+    private void SongLoaded(AudioClip audioClip)
+    {
         audioSource.clip = audioClip;
         audioSource.Play();
         audioSource.Pause();
-        TimeLine.instance.SetTimeLineLength((int)(audioClip.length * 1000)); //Multiply with a 1000 to convert from seconds to milliseconds
+        TimeLine.Instance.SetTimeLineLength((int)(audioClip.length * 1000)); //Multiply with a 1000 to convert from seconds to milliseconds
     }
 
     public void SetPlayback(float playbackMS)
@@ -98,5 +106,6 @@ public class MusicPlayer : MonoBehaviour
     public void SetPlaybackSpeed(float sliderValue)
     {
         audioSource.pitch = sliderValue;
+        audioMixer.SetFloat("pitch", 1f / sliderValue);
     }
 }

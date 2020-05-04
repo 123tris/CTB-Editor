@@ -6,27 +6,37 @@ public class PopupManager : MonoBehaviour
 {
     [SerializeField] private GameObject popupPrefab;
     [SerializeField] private GameObject questionPopupPrefab;
+    [SerializeField] private GameObject shadow;
+
+    private static PopupManager Instance;
+
+    void Awake() => Instance = this;
 
     /// <summary>Displays a question popup where you can select yes or no</summary>
-    public void ShowYesNo(string text, Action onYesPressed, Action onNoPressed)
+    public static void ShowYesNo(string text, Action onYesPressed, Action onNoPressed)
     {
-        PopupWindow currentPopup = Instantiate(questionPopupPrefab, transform).GetComponent<PopupWindow>();
+        PopupWindow currentPopup = Instantiate(Instance.questionPopupPrefab, Instance.transform).GetComponent<PopupWindow>();
 
         if (onNoPressed == null)
             onNoPressed = () => { };
 
         currentPopup.Show(text, onYesPressed, onNoPressed);
+        Instance.shadow.SetActive(true);
+        currentPopup.onClose += () => Instance.shadow.SetActive(false);
     }
 
-    public void ShowYesNo(string text, Action onYesPressed) => ShowYesNo(text, onYesPressed, () => { });
+    public static void ShowYesNo(string text, Action onYesPressed) => ShowYesNo(text, onYesPressed, () => { });
 
     /// <summary>Shows a popup with text and an ok button</summary>
-    public void Show(string text, Action onOkPressed)
+    public static void Show(string text, Action onOkPressed)
     {
-        var currentPopup = Instantiate(popupPrefab,transform).GetComponent<PopupWindow>();
+        var currentPopup = Instantiate(Instance.popupPrefab,Instance.transform).GetComponent<PopupWindow>();
         currentPopup.Show(text, onOkPressed);
+
+        Instance.shadow.SetActive(true);
+        currentPopup.onClose += () => Instance.shadow.SetActive(false);
     }
 
     /// <summary>Shows a popup with text and an ok button</summary>
-    public void Show(string text) => Show(text, () => { });
+    public static void Show(string text) => Show(text, () => { });
 }

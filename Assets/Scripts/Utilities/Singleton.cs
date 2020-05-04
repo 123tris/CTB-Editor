@@ -38,6 +38,13 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         }
     }
 
+    [RuntimeInitializeOnLoadMethod]
+    static void Init()
+    {
+        _instance = null;
+        Destroyed = false;
+    }
+
     private static void CreateInstance()
     {
         if (Destroyed) return;

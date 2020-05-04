@@ -23,7 +23,6 @@ public abstract class HitObject : MonoBehaviour, IComparable
     protected virtual void Start()
     {
         UnHighlight();
-        UpdateCircleSize();
     }
 
     /// <summary> SetPosition requires a local position from the grid's perspective
@@ -55,7 +54,7 @@ public abstract class HitObject : MonoBehaviour, IComparable
 
     public void SetXPosition(float x)
     {
-        position.x = Mathf.RoundToInt(x / Grid.WidthRatio);
+        position.x = Mathf.RoundToInt(x / Grid.GetWidthRatio());
         transform.position = new Vector2(x + Grid.Instance.transform.position.x, transform.position.y);
 
         if (this is Fruit && ((Fruit) this).isSliderFruit)
@@ -64,8 +63,6 @@ public abstract class HitObject : MonoBehaviour, IComparable
             fruit.slider.UpdateLines();
         }
     }
-
-    public abstract void UpdateCircleSize();
 
     public abstract void OnHightlight();
 

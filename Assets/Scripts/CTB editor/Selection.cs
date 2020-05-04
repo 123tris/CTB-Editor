@@ -17,6 +17,9 @@ public static class Selection
     public static HitObject first => selectedHitObjects.First();
     public static HitObject last => selectedHitObjects.Last();
 
+    [RuntimeInitializeOnLoadMethod]
+    static void Init() => selectedHitObjects.Clear();
+
     public static void Add(HitObject hitObject)
     {
         selectedHitObjects.Add(hitObject);
@@ -72,36 +75,13 @@ public static class Selection
         for (int i = 0; i < selectedHitObjects.Count; i++)
         {
             HitObject selectedHitObject = selectedHitObjects[i];
-            Vector3 targetPos = startPositions[i].ToVector3() - Grid.Instance.transform.position + dragDelta;
 
-            if (targetPos.ToVector2() == startPositions[i]) return;
+            if (dragDelta.x == 0 && dragDelta.y == 0) return;
+
+            Vector3 targetPos = startPositions[i].ToVector3() - Grid.Instance.transform.position + dragDelta;
 
             selectedHitObject.SetPosition(targetPos);
         }
-    }
-
-    private static void DragFruit(Fruit fruit, int index)
-    {
-        //Update position of dragging fruit
-        Vector3 targetPos = startPositions[index].ToVector3() - Grid.Instance.transform.position + dragDelta;
-
-        if (targetPos.ToVector2() == startPositions[index]) return;
-
-        fruit.SetXPosition(targetPos.x);
-        fruit.SetPosition(targetPos);
-    }
-
-    private static void DragSlider(Slider slider, int index)
-    {
-        //TODO: slider behaviour needs to be properly designed
-
-        //Update position of dragging fruit
-        Vector3 targetPos = startPositions[index].ToVector3() - Grid.Instance.transform.position + dragDelta;
-
-        if (targetPos.ToVector2() == startPositions[index]) return;
-
-        slider.SetXPosition(targetPos.x);
-        slider.SetPosition(targetPos);
     }
 
     public static void SetSelected(HitObject hitObject)
@@ -134,40 +114,7 @@ public static class Selection
 
     public static void DestroySelected()
     {
-        //TODO: instead of this convoluted code the list of selected hitobjects should be split into slider and fruit in the first place
-        List<Slider> sliders = new List<Slider>();
-        List<Fruit> fruits = new List<Fruit>();
-        foreach (HitObject selectedHitObject in selectedHitObjects)
-        {
-            var fruit = selectedHitObject as Fruit;
-            if (fruit != null)
-            {
-                if (fruit.isSliderFruit)
-                {
-                    if (!sliders.Contains(fruit.slider))
-                        sliders.Add(fruit.slider);
-                }
-                else
-                    fruits.Add(fruit);
-            }
-            else if (!sliders.Contains(selectedHitObject))
-            {
-                sliders.Add((Slider)selectedHitObject);
-            }
-        }
-
-        foreach (Fruit fruit in fruits)
-        {
-            fruit.UnHighlight();
-            Undo.DestroyObject(fruit.gameObject);
-        }
-
-        foreach (Slider slider in sliders)
-        {
-            slider.UnHighlight();
-            Undo.DestroyObject(slider.gameObject);
-        }
-
+        Undo.DestroyObjects(selectedHitObjects.Select(i => i.gameObject).ToList());
         selectedHitObjects.Clear();
     }
 

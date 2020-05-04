@@ -12,6 +12,8 @@ public class PopupWindow : MonoBehaviour
     [SerializeField] private bool isQuestionPopup;
     [SerializeField] private TextMeshProUGUI textUI;
 
+    public Action onClose = () => { };
+
     void Start()
     {
         //Clean up popup after button press
@@ -33,5 +35,10 @@ public class PopupWindow : MonoBehaviour
         textUI.text = text;
 
         okButton.onClick.AddListener(onOkPressed.Invoke);
+    }
+
+    private void OnDestroy()
+    {
+        onClose.Invoke();
     }
 }

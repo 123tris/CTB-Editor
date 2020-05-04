@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace RuntimeUndo
 {
@@ -7,6 +8,14 @@ namespace RuntimeUndo
     {
         private static Stack<IMemento<object>> changes = new Stack<IMemento<object>>();
         private static Stack<IMemento<object>> revertedChanges = new Stack<IMemento<object>>();
+
+
+        [RuntimeInitializeOnLoadMethod]
+        static void Init()
+        {
+            changes.Clear();
+            revertedChanges.Clear();
+        }
 
         public static void PerformUndo()
         {
@@ -19,7 +28,7 @@ namespace RuntimeUndo
         {
             if (revertedChanges.Count == 0) return;
             IMemento<object> memento = revertedChanges.Pop();
-            changes.Push((IMemento<object>) memento.Revert());
+            changes.Push((IMemento<object>)memento.Revert());
         }
 
         public static void RegisterCreatedObject(GameObject obj)
@@ -43,12 +52,22 @@ namespace RuntimeUndo
         public static void RecordHitObjects(List<HitObject> hitObjects)
         {
             changes.Push(new HitObjectsSnapshot(hitObjects));
+            revertedChanges.Clear();
         }
 
         public static void DestroyObject(GameObject objectToUndo)
         {
-            changes.Push(new RemoveGameObject(objectToUndo,objectToUndo.transform.parent));
+            changes.Push(new RemoveGameObject(objectToUndo, objectToUndo.transform.parent));
             Object.Destroy(objectToUndo);
+            revertedChanges.Clear();
+        }
+
+        public static void DestroyObjects(List<GameObject> objectsToUndo)
+        {
+            Assert.IsTrue(objectsToUndo.Count > 0);
+            changes.Push(new RemoveGameObjects(objectsToUndo, objectsToUndo[0].transform.parent));
+            objectsToUndo.ForEach(Object.Destroy);
+            revertedChanges.Clear();
         }
 
         public static void RegisterCreatedObjects(List<GameObject> gameObjects)

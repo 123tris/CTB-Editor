@@ -19,6 +19,15 @@ public static class HitObjectManager
     private static List<Fruit> fruits = new List<Fruit>();
     private static List<Slider> sliders = new List<Slider>();
 
+    #region DomainReloadingSupport
+    [RuntimeInitializeOnLoadMethod]
+    static void Init() //Static references need to be cleared if the domain is not reloaded
+    {
+        fruits.Clear();
+        sliders.Clear();
+    }
+    #endregion
+
     /// <summary> Instantiates a fruit and adds it to the managed hitobjects of the hitobjectmanager </summary>
     public static Fruit CreateFruit(Vector2 position, Transform parent)
     {
@@ -30,16 +39,42 @@ public static class HitObjectManager
 
     public static void CreateFruitByParser(CatchFruit hitObject)
     {
-        var position = new Vector2(hitObject.Position.X, hitObject.StartTime);
+        Vector2 position = new Vector2(hitObject.Position.X, hitObject.StartTime);
 
         Fruit fruit = Object.Instantiate(fruitPrefab, GameManager.Instance.level).GetComponent<Fruit>();
         fruit.position = position.ToVector2Int();
 
-        float xPos = position.x * Grid.WidthRatio;
+        float xPos = position.x * Grid.GetWidthRatio();
         float yPos = grid.GetYPosition(position.y);
         fruit.transform.position = new Vector3(xPos, yPos) + grid.transform.position;
 
         AddFruit(fruit);
+    }
+
+    public static void CreateSliderByParser(CatchJuiceStream pSlider)
+    {
+        //TODO: implement repeat sliders & remove hardcode
+        if (pSlider.Repeats > 1) return;
+        int startTime = pSlider.StartTime;
+        int endTime = pSlider.EndTime;
+
+        List<System.Numerics.Vector2> points = pSlider.SliderPoints;
+
+        float xPos = pSlider.Position.X * Grid.GetWidthRatio();
+        float yPos = grid.GetYPosition(startTime);
+
+        Vector2 position = new Vector2(xPos, yPos);
+
+        Brush brush = GameManager.Instance.brush;
+        Slider slider = CreateSlider(position, brush.transform);
+
+        Vector2 sliderDirection = (points[0] - pSlider.Position).ToUnityVector().normalized;
+
+        xPos += (float)(pSlider.PixelLength * sliderDirection.x * Grid.GetWidthRatio());
+        yPos = grid.GetYPosition(endTime);
+        position = new Vector2(xPos, yPos);
+
+        slider.AddFruit(position);
     }
 
     public static Slider CreateSlider(Vector2 position, Transform parent)
@@ -51,30 +86,6 @@ public static class HitObjectManager
 
         Debug.Log(slider.fruits.First().transform.localPosition);
         return slider;
-    }
-
-    public static void CreateSliderByParser(CatchJuiceStream pSlider)
-    {
-        //TODO: implement repeat sliders & remove hardcode
-        if (pSlider.Repeats > 1) return;
-        var startTime = pSlider.StartTime;
-        var endTime = pSlider.EndTime;
-
-        var points = pSlider.SliderPoints;
-
-        float xPos = pSlider.Position.X * Grid.WidthRatio;
-        float yPos = grid.GetYPosition(startTime);
-
-        var position = new Vector2(xPos, yPos);
-
-        var brush = Object.FindObjectOfType<Brush>();
-        var slider = CreateSlider(position, brush.transform);
-
-        xPos = points[0].X * Grid.WidthRatio;
-        yPos = grid.GetYPosition(endTime);
-        position = new Vector2(xPos, yPos);
-
-        slider.AddFruit(position);
     }
 
     /// <summary>
@@ -102,7 +113,7 @@ public static class HitObjectManager
 
     public static HitObject GetHitObjectByTime(int timeStamp)
     {
-        var fruitsAtTimeStamp = fruits.Where(fruit => fruit.position.y == timeStamp).ToList();
+        List<Fruit> fruitsAtTimeStamp = fruits.Where(fruit => fruit.position.y == timeStamp).ToList();
         if (fruitsAtTimeStamp.Count == 0)
             return null;
         else
@@ -114,16 +125,10 @@ public static class HitObjectManager
         return fruits.Any(fruit => fruit.position.y == timeStamp);
     }
 
-    public static void UpdateAllCircleSize()
-    {
-        foreach (Fruit h in fruits)
-        {
-            h.UpdateCircleSize();
-        }
-    }
-
     public static Fruit GetPreviousFruit(Fruit fruit)
     {
+        if (fruit == null) return null; //Fix code that references this function that forces this check
+
         if (fruits.IndexOf(fruit) == 0)
             return null;
 
@@ -142,6 +147,8 @@ public static class HitObjectManager
 
     public static HitObject GetNextFruit(Fruit fruit)
     {
+        if (fruit == null) return null; //Fix code that references this function that forces this check
+
         if (fruits.IndexOf(fruit) == fruits.Count - 1)
             return null;
 
@@ -158,7 +165,7 @@ public static class HitObjectManager
         return null;
     }
 
-    /// <summary>Returns fruits that are both authored by a slider or independent fruits. If you want non slider fruits uses GetNonSliderFruits()</summary>
+    /// <summary>Returns all fruits that could be either a slider fruit or independent fruit. If you want non slider fruits uses GetNonSliderFruits()</summary>
     public static List<Fruit> GetFruits() => fruits;
 
     public static List<Fruit> GetNonSliderFruits()
@@ -167,6 +174,35 @@ public static class HitObjectManager
     }
 
     public static List<Slider> GetSliders() => sliders;
+
+    /// <summary>Updates the active states of only fruit that are inside of the graph to save performance</summary>
+    public static void UpdateActiveStates()
+    {
+        throw new NotImplementedException(); //TODO: Finish implementation for performance boost
+
+        float maxY = Grid.Instance.height * Grid.Instance.zoom * 1.5f;
+        float minY = 0;
+
+        foreach (Fruit fruit in fruits)
+        {
+            if (fruit.isSliderFruit == false)
+            {
+                Vector3 fruitPosition = fruit.transform.position;
+                bool active = fruitPosition.y > maxY || fruitPosition.y < minY;
+                fruit.gameObject.SetActive(!active);
+            }
+            else //TODO: Change to foreach loop
+            {
+                Vector3 fruitPosition1 = fruit.slider.fruits[0].transform.position;
+                Vector3 fruitPosition2 = fruit.slider.fruits[1].transform.position;
+
+                bool activeFruit1 = fruitPosition1.y > maxY || fruitPosition1.y < minY;
+                bool activeFruit2 = fruitPosition2.y > maxY || fruitPosition2.y < minY;
+
+                fruit.slider.gameObject.SetActive(!activeFruit1 && !activeFruit2);
+            }
+        }
+    }
 
     public static void Reset()
     {
@@ -191,5 +227,14 @@ public static class HitObjectManager
             }
         }
         return output;
+    }
+
+    public static void UpdateFruitVisuals()
+    {
+        foreach (Fruit fruit in fruits)
+        {
+            if (fruit.gameObject.activeInHierarchy)
+                fruit.UpdateVisuals();
+        }
     }
 }

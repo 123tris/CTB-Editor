@@ -75,16 +75,9 @@ public class Slider : HitObject
 
        foreach (Fruit fruit in fruits)
        {
-           fruit.SetPosition(fruit.transform.localPosition + newPosition);
+           Vector3 delta = fruit.transform.position - transform.position;
+           fruit.SetPosition(delta + newPosition);
        }
-    }
-
-    public override void UpdateCircleSize()
-    {
-        foreach (Fruit fruit in fruits)
-        {
-            fruit.UpdateCircleSize();
-        }
     }
 
     public override void OnHightlight()

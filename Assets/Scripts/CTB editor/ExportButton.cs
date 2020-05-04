@@ -11,14 +11,12 @@ public class ExportButton : MonoBehaviour
     private Button button;
     private EditorSettings settings;
     private EditorMapSettings mapSettings => settings.mapSettings;
-    private PopupManager popupManager;
 
     private void Start()
     {
         exportWindow.SetActive(false);
-        popupManager = FindObjectOfType<PopupManager>();
         settings = FindObjectOfType<EditorSettings>();
-        if (popupManager == null || settings == null) Debug.LogError("Whoops",this);
+        if (settings == null) Debug.LogError("Whoops",this);
         button = GetComponent<Button>();
         button.onClick.AddListener(OnClick);
     }
@@ -28,10 +26,10 @@ public class ExportButton : MonoBehaviour
         void OnYes()
         {
             CreateMapInOsuDirectory();
-            popupManager.Show("New beatmap created! Saving wil now update the beatmap you're working on!");
+            PopupManager.Show("New beatmap created! Saving wil now update the beatmap you're working on!");
         }
 
-        popupManager.ShowYesNo("Do you want to create a new beatmap?", OnYes);
+        PopupManager.ShowYesNo("Do you want to create a new beatmap?", OnYes);
     }
 
     public void CreateMapInOsuDirectory()

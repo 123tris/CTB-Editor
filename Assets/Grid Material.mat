@@ -60,7 +60,7 @@ Material:
     - _BumpScale: 1
     - _ColumnOffset: 67
     - _ColumnWidth: 1
-    - _Columns: 0.001
+    - _Columns: 0
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -74,7 +74,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RowOffset: 87942
+    - _RowOffset: 149913.88
     - _RowWidth: 1
     - _Rows: 7.2
     - _SmoothnessTextureChannel: 0
@@ -89,15 +89,15 @@ Material:
     - _BrickColor: {r: 0.8207547, g: 0.32561797, b: 0.21293166, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _ColumnColor: {r: 0, g: 0, b: 0, a: 1}
-    - _EighthOutlineColor: {r: 255, g: 255, b: 0, a: 0}
+    - _EighthOutlineColor: {r: 0.7490196, g: 0.7490196, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _GridColor: {r: 0.16862746, g: 0.16862746, b: 0.16862746, a: 1}
+    - _GridColor: {r: 0.1764706, g: 0.1764706, b: 0.1764706, a: 1}
     - _GridColour: {r: 1, g: 1, b: 1, a: 1}
     - _GridRect: {r: 100, g: 100, b: 0, a: 0}
     - _HalfOutlineColor: {r: 255, g: 0, b: 0, a: 1}
-    - _HitIndicatorColor: {r: 0, g: 340.44495, b: 301.03296, a: 0.9372549}
+    - _HitIndicatorColor: {r: 0, g: 0.89485645, b: 1, a: 0.92156863}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 0}
-    - _QuaterOutlineColor: {r: 0, g: 0, b: 255, a: 0}
-    - _RectSize: {r: 1280, g: 900, b: 0, a: 0}
-    - _SixteenthOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 0}
+    - _QuaterOutlineColor: {r: 0.15294118, g: 0.5921569, b: 0.6627451, a: 1}
+    - _RectSize: {r: 1638, g: 880, b: 0, a: 0}
+    - _SixteenthOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _WholeOutlineColor: {r: 1, g: 1, b: 1, a: 1}

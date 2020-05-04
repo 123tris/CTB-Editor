@@ -1,19 +1,23 @@
 ﻿using RuntimeUndo;
 using UnityEngine;
 
-public class GameManager : Singleton<GameManager> {
+public class GameManager : MonoBehaviour {
 
     public GameObject fruitPrefab;
     public GameObject sliderPrefab;
     public GameObject handlePrefab;
 
-    public Transform level;
+    public RectTransform level;
+    public Brush brush;
     public static GameObject garbage;
     public EditorSettings settings;
 
-    protected override void Awake()
+    public static GameManager Instance;
+
+    void Awake()
     {
-        base.Awake();
+        Instance = this;
+        if (brush == null) brush = FindObjectOfType<Brush>();
         if (level == null) Debug.LogError("Reference to the level instance is not set in the game manager",this);
         garbage = new GameObject("Garbage Collection");
     }
@@ -22,10 +26,14 @@ public class GameManager : Singleton<GameManager> {
 	{
 	    HitObjectManager.fruitPrefab = fruitPrefab;
 	    HitObjectManager.sliderPrefab = sliderPrefab;
-	}
+
+        Application.targetFrameRate = 120;
+    }
 
     void Update()
     {
+        HitObjectManager.UpdateFruitVisuals();
+
         if (Input.GetKey(KeyCode.LeftControl))
         {
             if (Input.GetKeyDown(KeyCode.Z))
@@ -46,6 +54,7 @@ public class GameManager : Singleton<GameManager> {
                     BeatmapConverter.WriteOsuFile(BeatmapConverter.importedBeatmapPath);
             }
         }
+
         if (Input.GetKeyDown(KeyCode.Delete))
             Selection.DestroySelected();
 

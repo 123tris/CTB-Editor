@@ -14,7 +14,7 @@ namespace RuntimeUndo
         {
             foreach (GameObject gameObject in objects)
             {
-                removedObjects.Add(Object.Instantiate(gameObject,GameManager.garbage.transform));
+                removedObjects.Add(Object.Instantiate(gameObject, GameManager.garbage.transform));
             }
             this.parent = parent;
         }
@@ -27,10 +27,10 @@ namespace RuntimeUndo
                 GameObject addedObject = Object.Instantiate(removedObject, parent);
                 HitObject hitobject = addedObject.GetComponent<HitObject>();
 
-                if (hitobject is Fruit)
+                if (hitobject is Fruit fruit)
                 {
-                    hitobject.SetPosition(hitobject.transform.position - Grid.Instance.transform.position);
-                    HitObjectManager.AddFruit((Fruit) hitobject);
+                    fruit.SetPosition(fruit.transform.position - Grid.Instance.transform.position);
+                    HitObjectManager.AddFruit(fruit);
                 }
                 else throw new NotImplementedException();
                 addedObjects.Add(addedObject);
