@@ -132,7 +132,7 @@ public class Grid : MonoBehaviour
     public float GetHitTime(float y)
     {
         y -= height / 10; //Apply hit indicator offset
-        return y * (GetVisibleTimeRange() * zoom) / height + TimeLine.CurrentTimeStamp - BeatmapSettings.BPMOffset;
+        return y * (GetVisibleTimeRange() * zoom) / height + TimeLine.CurrentTimeStamp;
     }
 
     public float GetHitTime(Vector2 pos) => GetHitTime(pos.y);

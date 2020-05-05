@@ -81,6 +81,8 @@ public static class BeatmapConverter
         //Load slider data
         foreach (Slider slider in HitObjectManager.GetSliders())
         {
+            slider.fruits.Sort((fruit1,fruit2) => fruit1.position.y.CompareTo(fruit2.position.y));
+
             int startTime = slider.startTime;
             int endTime = slider.endTime;
 

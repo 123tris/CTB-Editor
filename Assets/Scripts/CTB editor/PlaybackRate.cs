@@ -18,7 +18,7 @@ public class PlaybackRate : MonoBehaviour
 
     private void OnSliderChange(float sliderValue)
     {
-        MusicPlayer.instance.SetPlaybackSpeed(sliderValue/100);
-        text.text = sliderValue + "%";
+        MusicPlayer.instance.SetPlaybackSpeed(sliderValue/4);
+        text.text = sliderValue*25 + "%";
     }
 }

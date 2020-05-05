@@ -74,7 +74,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RowOffset: 149913.88
+    - _RowOffset: -88
     - _RowWidth: 1
     - _Rows: 7.2
     - _SmoothnessTextureChannel: 0

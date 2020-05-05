@@ -1,4 +1,5 @@
 ﻿using System;
+using OsuParsers.Beatmaps;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -40,17 +41,22 @@ public class MusicPlayer : MonoBehaviour
 
         if (Math.Abs(Input.mouseScrollDelta.y) > 0.1f && !Input.GetKey(KeyCode.LeftControl))
         {
-            float beatLength = 60 / BeatmapSettings.BPM; //Length of a beat in seconds
+            float beatLength = 60 / BeatmapSettings.BPM / BeatsnapDivisor.Instance.division; //Length of a beat in seconds
+            float bpmOffset = BeatmapSettings.BPMOffset / 1000f;
 
             //Scroll the length of a divided beat (dictated by the beatsnap)
-            float scrollDistance = Input.mouseScrollDelta.y * TimeLine.Instance.scrollSpeed * beatLength / BeatsnapDivisor.Instance.division;
-            
-            audioSource.time = Mathf.Clamp(audioSource.time + scrollDistance, BeatmapSettings.BPMOffset / 1000f, audioSource.clip.length);
+            float scrollDistance = Input.mouseScrollDelta.y * TimeLine.Instance.scrollSpeed * beatLength;
+            audioSource.time = Mathf.Clamp(audioSource.time + scrollDistance, bpmOffset, audioSource.clip.length);
+
+            //Snap time to nearest beat
+            audioSource.time -= bpmOffset;
+            audioSource.time = Mathf.Round(audioSource.time / beatLength) * beatLength;
+            audioSource.time += bpmOffset;
         }
 
         TimeLine.Instance.SetCurrentTimeStamp(Mathf.RoundToInt(audioSource.time * 1000));
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && !PopupManager.Instance.shadow.activeInHierarchy)
         {
             if (audioSource.isPlaying) PauseSong();
             else ResumeSong();
@@ -106,6 +112,8 @@ public class MusicPlayer : MonoBehaviour
     public void SetPlaybackSpeed(float sliderValue)
     {
         audioSource.pitch = sliderValue;
-        audioMixer.SetFloat("pitch", 1f / sliderValue);
+        float pitchShift = 1f / sliderValue;
+        audioMixer.SetFloat("pitch1", pitchShift);
+        audioMixer.SetFloat("pitch2", Mathf.Clamp(pitchShift - 1,1,2));
     }
 }

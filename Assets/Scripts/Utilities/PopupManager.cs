@@ -6,9 +6,9 @@ public class PopupManager : MonoBehaviour
 {
     [SerializeField] private GameObject popupPrefab;
     [SerializeField] private GameObject questionPopupPrefab;
-    [SerializeField] private GameObject shadow;
+    public GameObject shadow;
 
-    private static PopupManager Instance;
+    public static PopupManager Instance;
 
     void Awake() => Instance = this;
 

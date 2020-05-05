@@ -114,7 +114,30 @@ public static class Selection
 
     public static void DestroySelected()
     {
-        Undo.DestroyObjects(selectedHitObjects.Select(i => i.gameObject).ToList());
+        //TODO: instead of this convoluted code the list of selected hitobjects should be split into slider and fruit in the first place
+        List<GameObject> sliders = new List<GameObject>();
+        List<GameObject> fruits = new List<GameObject>();
+
+        foreach (HitObject selectedHitObject in selectedHitObjects)
+        {
+            var fruit = selectedHitObject as Fruit;
+            if (fruit != null)
+            {
+                if (fruit.isSliderFruit)
+                {
+                    if (!sliders.Contains(fruit.slider.gameObject))
+                        sliders.Add(fruit.slider.gameObject);
+                }
+                else fruits.Add(fruit.gameObject);
+            }
+            else if (!sliders.Contains(selectedHitObject.gameObject))
+            {
+                sliders.Add(selectedHitObject.gameObject);
+            }
+        }
+
+        List<GameObject> destroyObjects = fruits.Concat(sliders).ToList();
+        Undo.DestroyObjects(destroyObjects);
         selectedHitObjects.Clear();
     }
 

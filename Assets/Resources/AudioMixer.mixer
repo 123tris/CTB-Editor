@@ -1,5 +1,27 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!244 &-1908778966139968798
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 99930785192d5c54ebbf5e8558486f36
+  m_EffectName: Pitch Shifter
+  m_MixLevel: 6f890c25134d7c54183697609bf4c1f5
+  m_Parameters:
+  - m_ParameterName: Pitch
+    m_GUID: c58acd36ec5f9b74d8b88a62ac24debe
+  - m_ParameterName: FFT size
+    m_GUID: a5f5d4475de64864999c328edeb751e8
+  - m_ParameterName: Overlap
+    m_GUID: 3e92160bb2b17bf4087bfb84c4d9c434
+  - m_ParameterName: Max channels
+    m_GUID: e787495b10a03bf43a4cd15f18d2eb6e
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
 --- !u!241 &24100000
 AudioMixerController:
   m_ObjectHideFlags: 0
@@ -17,7 +39,9 @@ AudioMixerController:
   m_UpdateMode: 0
   m_ExposedParameters:
   - guid: 1a3b608232069284181302a9b7c57622
-    name: pitch
+    name: pitch1
+  - guid: c58acd36ec5f9b74d8b88a62ac24debe
+    name: pitch2
   m_AudioMixerGroupViews:
   - guids:
     - 5898a960b63e0b2459ba57745c8af598
@@ -40,6 +64,7 @@ AudioMixerGroupController:
   m_Effects:
   - {fileID: 24400004}
   - {fileID: 3003387156673819552}
+  - {fileID: -1908778966139968798}
   m_UserColorIndex: 0
   m_Mute: 0
   m_Solo: 0
@@ -70,14 +95,18 @@ AudioMixerSnapshotController:
   m_FloatValues:
     c7070570bbcab584fb27932a0b4df079: 4096
     94f16cb1faf922546836f50ba69dd3a1: 4096
-    1a3b608232069284181302a9b7c57622: 1
-    41342054e5aa47c4c96cde04683a07d1: 16
+    1a3b608232069284181302a9b7c57622: 2
+    41342054e5aa47c4c96cde04683a07d1: 0
     195374a455aed1f41a504d2dc108df20: 1
     0ce179457af027248a65ab9e9b4b9ccc: 16
+    c58acd36ec5f9b74d8b88a62ac24debe: 1
+    a5f5d4475de64864999c328edeb751e8: 4096
+    3e92160bb2b17bf4087bfb84c4d9c434: 32
+    e787495b10a03bf43a4cd15f18d2eb6e: 0
     5586218cae9ef8b478f8ae9c8f2c9813: 1
     8e4ac22de6b4f364abba7c85d5f16b36: 0
     f475a79e0faccf04cb3ab4cde4e013f8: 32
-    3eac4eeedc95f954da48f7f5473d2d1f: 32
+    3eac4eeedc95f954da48f7f5473d2d1f: 24
   m_TransitionOverrides: {}
 --- !u!244 &3003387156673819552
 AudioMixerEffectController:

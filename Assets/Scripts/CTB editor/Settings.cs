@@ -1,17 +1,15 @@
-﻿using System;
-using System.Globalization;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Globalization;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 //TODO: Remove this class from the earth and replace it with something that doesn't encourage spaghetti
 public class Settings : MonoBehaviour
 {
-    [SerializeField] private InputField ARInputField;
-    [SerializeField] private InputField BPMInputField;
-    [SerializeField] private InputField CSInputField;
-    [SerializeField] private InputField HPInputField;
+    [SerializeField] private TMP_InputField ARInputField;
+    [SerializeField] private TMP_InputField BPMInputField;
+    [SerializeField] private TMP_InputField CSInputField;
+    [SerializeField] private TMP_InputField HPInputField;
 
     Settings()
     {
@@ -33,6 +31,14 @@ public class Settings : MonoBehaviour
             UpdateValue(ref BeatmapSettings.CS, input);
         });
         HPInputField.onEndEdit.AddListener(input => UpdateValue(ref BeatmapSettings.HP, input));
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+
+        }
     }
 
     private void OnEnable()

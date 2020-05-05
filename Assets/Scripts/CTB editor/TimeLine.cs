@@ -16,7 +16,7 @@ public class TimeLine : MonoBehaviour
 
     private int currentTimeStamp => (int)slider.value;
 
-    public int scrollSpeed = 1;
+    public float scrollSpeed = 1;
     [SerializeField] private int scrollMultiplier = 5;
 
     private RectTransform level => GameManager.Instance.level;
@@ -28,7 +28,7 @@ public class TimeLine : MonoBehaviour
     private SliderUI slider;
     private Grid grid => Grid.Instance;
 
-    private int startScrollSpeed;
+    private float startScrollSpeed;
 
     void Awake()
     {
