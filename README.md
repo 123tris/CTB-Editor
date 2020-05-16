@@ -1,7 +1,7 @@
 # CTB-Editor
 An editor for osu ctb made in Unity (WIP)
 
-Latest working Unity version: 2019.3.2f1
+Latest working Unity version: 2019.3.13f1
 
 # Contributing
 CAUTION: All development is done on the develop branch, so if you want to submit pull-requests please do so on the develop branch
