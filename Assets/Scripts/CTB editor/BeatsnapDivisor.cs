@@ -11,7 +11,7 @@ public class BeatsnapDivisor : MonoBehaviour
     [HideInInspector] public int division;
     private UnityEngine.UI.Slider slider;
 
-    private int[] divisionSettings = { 1, 2, 3, 4, 6, 8, 12, 16};
+    private int[] divisionSettings = { 1, 2, 3, 4, 6, 8, 12, 16 };
 
     void Awake()
     {

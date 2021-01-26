@@ -107,4 +107,10 @@ public static class Vector3Extensions
     {
         return new Vector3(vector.x,vector.y);
     }
+
+    public static Vector3 Multiply(this Vector3 a, Vector3 b)
+    {
+        a.Scale(b);
+        return a;
+    }
 }

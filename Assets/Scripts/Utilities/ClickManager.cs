@@ -3,8 +3,8 @@
 public static class ClickManager
 {
     //property variables
-    private const float maxTimeToClick = 0.60f;
-    private const float minTimeToClick = 0.05f;
+    private const float maxTimeToClick = 0.40f;
+    private const float minTimeToClick = 0.025f;
 
     //private variables to keep track
     private static float _minCurrentTime;

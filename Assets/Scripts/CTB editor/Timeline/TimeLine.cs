@@ -72,7 +72,7 @@ public class TimeLine : MonoBehaviour
     private void OnSliderChange(float value)
     {
         if (Input.GetMouseButton(0))
-            player.SetPlayback(value);
+            player.SetPlayback(value/1000f);
     }
 
     public void SetCurrentTimeStamp(int value)

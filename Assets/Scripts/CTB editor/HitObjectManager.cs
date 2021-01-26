@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using OsuParsers.Beatmaps.Objects.Catch;
+using OsuParsers.Enums.Beatmaps;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -42,6 +43,9 @@ public static class HitObjectManager
         Vector2 position = new Vector2(hitObject.Position.X, hitObject.StartTime);
 
         Fruit fruit = Object.Instantiate(fruitPrefab, GameManager.Instance.level).GetComponent<Fruit>();
+        fruit.hitSound = hitObject.HitSound;
+        fruit.hitSound ^= HitSoundType.Normal;
+        fruit.isNewCombo = hitObject.IsNewCombo;
         fruit.position = position.ToVector2Int();
 
         float xPos = position.x * Grid.GetWidthRatio();
@@ -67,6 +71,8 @@ public static class HitObjectManager
 
         Brush brush = GameManager.Instance.brush;
         Slider slider = CreateSlider(position, brush.transform);
+        slider.hitSound = pSlider.HitSound;
+        slider.isNewCombo = pSlider.IsNewCombo;
 
         Vector2 sliderDirection = (points[0] - pSlider.Position).ToUnityVector().normalized;
 
@@ -83,16 +89,13 @@ public static class HitObjectManager
         slider.SetPosition(position);
         slider.AddFruit(position);
         AddSlider(slider);
-
-        Debug.Log(slider.fruits.First().transform.localPosition);
         return slider;
     }
 
     /// <summary>
-    /// Adds a created hitobject to the hitobjectmanager's list of hitobjects that it manages over
-    /// Use HitObjectManager.CreateFruit whenever possible
+    /// Adds a created fruit to the hitobjectmanager's list of fruits that it manages over
+    /// <para>Use HitObjectManager.CreateFruit whenever possible</para>
     /// </summary>
-    /// <param name="fruit"></param>
     public static void AddFruit(Fruit fruit)
     {
         fruits.Add(fruit);
@@ -111,7 +114,7 @@ public static class HitObjectManager
         fruits.Sort();
     }
 
-    public static HitObject GetHitObjectByTime(int timeStamp)
+    public static Fruit GetFruitByTime(int timeStamp)
     {
         List<Fruit> fruitsAtTimeStamp = fruits.Where(fruit => fruit.position.y == timeStamp).ToList();
         if (fruitsAtTimeStamp.Count == 0)
@@ -229,12 +232,12 @@ public static class HitObjectManager
         return output;
     }
 
-    public static void UpdateFruitVisuals()
+    public static void UpdateFruits()
     {
         foreach (Fruit fruit in fruits)
         {
             if (fruit.gameObject.activeInHierarchy)
-                fruit.UpdateVisuals();
+                fruit.OnUpdate();
         }
     }
 }

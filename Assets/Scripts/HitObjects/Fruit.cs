@@ -1,7 +1,9 @@
 ﻿using System;
+using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
+using static CooldownManagerNamespace.CooldownManager;
 
 public class Fruit : HitObject
 {
@@ -9,7 +11,6 @@ public class Fruit : HitObject
 
     public float Scale => (1.0f - 0.7f * (BeatmapSettings.CS - 5) / 5f) * Grid.GetHeightRatio();
 
-    public bool isSliderFruit => slider;
     public Slider slider => transform.parent.GetComponent<Slider>();
 
     private NicerOutline outline;
@@ -21,6 +22,8 @@ public class Fruit : HitObject
     private Fruit fruitPreview => brush.fruitDisplay;
 
     private RectTransform rect;
+
+    private double oldTimeStamp;
 
     public Fruit()
     {
@@ -35,13 +38,20 @@ public class Fruit : HitObject
         rect = GetComponent<RectTransform>();
     }
 
-    protected override void Start()
+    public void OnUpdate()
     {
-        base.Start();
-    }
+        double currenTime = MusicPlayer.instance.currentTime * 1000;
 
-    public void UpdateVisuals()
-    {
+        if (MusicPlayer.instance.isPlaying && oldTimeStamp <= position.y &&
+            currenTime > position.y)
+        {
+            //image.color = Color.red; //TODO: Remove debug code
+            //Cooldown(0.001f, () => image.color = Color.white);
+        }
+
+        oldTimeStamp = currenTime; //add schedule delay to trigger sound effect ahead of time
+
+        //Is the fruit in the current view of the user?
         float posY = transform.position.y;
         if (posY > Grid.Instance.height * Grid.Instance.zoom * 1.5f || posY < 0)
             return;

@@ -37,7 +37,8 @@ public class Settings : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-
+            gameObject.SetActive(false);
+            PopupManager.Instance.shadow.SetActive(false);
         }
     }
 

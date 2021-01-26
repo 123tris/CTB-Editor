@@ -1,4 +1,5 @@
 ﻿using System;
+using OsuParsers.Enums.Beatmaps;
 using UnityEngine;
 
 public abstract class HitObject : MonoBehaviour, IComparable
@@ -8,7 +9,13 @@ public abstract class HitObject : MonoBehaviour, IComparable
     /// e.g. If the object's position is the same as the grid's position then position is 0
     /// </summary>
     public Vector2Int position = Vector2Int.down; //It defaults to down to indicate that the hitobject's position has not been set yet
+    
     public HitObjectType type;
+
+    public bool isNewCombo;
+
+    [NonSerialized]
+    public HitSoundType hitSound = HitSoundType.Normal;
 
     /// <summary>
     /// Whether this fruit can initiate a hyperdash.
@@ -19,6 +26,8 @@ public abstract class HitObject : MonoBehaviour, IComparable
     /// The target fruit if we are to initiate a hyperdash.
     /// </summary>
     public HitObject hyperDashTarget;
+
+    public bool isSliderFruit => this is Fruit && ((Fruit) this).slider != null;
 
     protected virtual void Start()
     {

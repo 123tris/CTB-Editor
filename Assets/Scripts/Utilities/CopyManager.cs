@@ -33,7 +33,21 @@ public static class CopyManager
 
         for (int i = 0; i < copy.Count; i++)
         {
-            HitObject createdHitObject = HitObjectManager.CreateFruit(Vector2.zero,level);
+            HitObject createdHitObject = Object.Instantiate(copy[i], level);
+
+            if (createdHitObject is Fruit)
+                HitObjectManager.AddFruit(createdHitObject as Fruit);
+            else
+            {
+                Slider slider = createdHitObject as Slider;
+                HitObjectManager.AddSlider(slider);
+                foreach (Fruit sliderFruit in slider.fruits)
+                {
+                    HitObjectManager.AddFruit(sliderFruit);
+                }
+                
+            }
+
             Selection.Add(createdHitObject);
 
             if (i == 0)

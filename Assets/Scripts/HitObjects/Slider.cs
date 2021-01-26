@@ -15,7 +15,7 @@ public class Slider : HitObject
     private GameObject handlePrefab => GameManager.Instance.handlePrefab;
 
     public int startTime => fruits[0].position.y;
-    public int endTime => fruits[fruits.Count-1].position.y;
+    public int endTime => fruits[fruits.Count - 1].position.y;
 
     //Previous fruit should have a lower Y and next fruit should have a higher Y
     public List<Fruit> fruits = new List<Fruit>();
@@ -40,20 +40,21 @@ public class Slider : HitObject
 
         //Update slider's fruits
         fruits.Add(fruit);
-        fruits.Sort((fruit1,fruit2) => fruit1.position.y.CompareTo(fruit2.position.y));
+        fruits.Sort((fruit1, fruit2) => fruit1.position.y.CompareTo(fruit2.position.y));
 
         UpdateLines();
     }
 
     public void AddHandle(Vector3 mousePositionOnGrid)
     {
-        Transform handle = Instantiate(handlePrefab,transform).transform;
+        Transform handle = Instantiate(handlePrefab, transform).transform;
         handles.Add(handle);
         UpdateLines();
     }
 
     public void UpdateLines()
     {
+        if (lineRenderer == null) lineRenderer = GetComponent<UILineRenderer>();
         lineRenderer.Points = new Vector2[fruits.Count];
         for (int i = 0; i < fruits.Count; i++)
         {
@@ -71,13 +72,13 @@ public class Slider : HitObject
         position.y = timeStamp;
         SetXPosition(newPosition.x);
 
-       transform.position = newPosition + Grid.Instance.transform.position; //Apply grid's position to set global position
+        transform.position = newPosition + Grid.Instance.transform.position; //Apply grid's position to set global position
 
-       foreach (Fruit fruit in fruits)
-       {
-           Vector3 delta = fruit.transform.position - transform.position;
-           fruit.SetPosition(delta + newPosition);
-       }
+        foreach (Fruit fruit in fruits)
+        {
+            Vector3 delta = fruit.transform.position - transform.position;
+            fruit.SetPosition(delta + newPosition);
+        }
     }
 
     public override void OnHightlight()
@@ -94,7 +95,7 @@ public class Slider : HitObject
     public void DisplayPreview(Fruit previewFruit)
     {
         fruits.Add(previewFruit);
-        fruits.Sort((fruit1,fruit2) => fruit1.position.y.CompareTo(fruit2.position.y));
+        fruits.Sort((fruit1, fruit2) => fruit1.position.y.CompareTo(fruit2.position.y));
         UpdateLines();
         fruits.Remove(previewFruit);
     }
@@ -123,7 +124,7 @@ public class Slider : HitObject
         List<NVector2> points = new List<NVector2>();
         foreach (Fruit fruit in fruits)
         {
-            points.Add(new NVector2(fruit.position.x,0));
+            points.Add(new NVector2(fruit.position.x, 0));
         }
         return points;
     }

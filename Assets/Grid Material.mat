@@ -74,7 +74,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RowOffset: -88
+    - _RowOffset: 3256
     - _RowWidth: 1
     - _Rows: 7.2
     - _SmoothnessTextureChannel: 0
@@ -98,6 +98,7 @@ Material:
     - _HitIndicatorColor: {r: 0, g: 0.89485645, b: 1, a: 0.92156863}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 0}
     - _QuaterOutlineColor: {r: 0.15294118, g: 0.5921569, b: 0.6627451, a: 1}
-    - _RectSize: {r: 1638, g: 880, b: 0, a: 0}
+    - _RectSize: {r: 1173.3334, g: 880, b: 0, a: 0}
     - _SixteenthOutlineColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _WholeOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []

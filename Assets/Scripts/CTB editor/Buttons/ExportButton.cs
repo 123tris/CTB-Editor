@@ -16,20 +16,20 @@ public class ExportButton : MonoBehaviour
     {
         exportWindow.SetActive(false);
         settings = FindObjectOfType<EditorSettings>();
-        if (settings == null) Debug.LogError("Whoops",this);
+        if (settings == null) Debug.LogError("Whoops", this);
         button = GetComponent<Button>();
         button.onClick.AddListener(OnClick);
     }
 
     private void OnClick()
     {
+        PopupManager.ShowYesNo("Do you want to create a new beatmap?", OnYes);
+
         void OnYes()
         {
             CreateMapInOsuDirectory();
             PopupManager.Show("New beatmap created! Saving wil now update the beatmap you're working on!");
         }
-
-        PopupManager.ShowYesNo("Do you want to create a new beatmap?", OnYes);
     }
 
     public void CreateMapInOsuDirectory()
@@ -43,8 +43,8 @@ public class ExportButton : MonoBehaviour
         else Directory.CreateDirectory(folderPath);
 
         mapSettings.beatmapFilepath = folderPath;
-        
-        File.Copy(settings.metaData.audioSourceFilePath,folderPath+$"/{BeatmapSettings.audioFileName}.mp3");
+
+        File.Copy(settings.metaData.audioSourceFilePath, folderPath + $"/{BeatmapSettings.audioFileName}.mp3");
 
         SaveMapInOsuDirectory();
     }

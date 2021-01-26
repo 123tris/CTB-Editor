@@ -13,7 +13,7 @@ public class StatusInfo : TextBehaviour
     {
         //Display text
         Vector2 brushCoordsVec = new Vector2();
-        brushCoordsVec.x = brush.mousePositionOnGrid.x / Grid.GetWidthRatio();
+        brushCoordsVec.x = Mathf.RoundToInt(brush.mousePositionOnGrid.x / Grid.GetWidthRatio());
         brushCoordsVec.y = Grid.Instance.GetHitTime((int)brush.mousePositionOnGrid.y);
 
         string text;

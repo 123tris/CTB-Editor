@@ -17,11 +17,14 @@ public static class Selection
     public static HitObject first => selectedHitObjects.First();
     public static HitObject last => selectedHitObjects.Last();
 
+    public static bool hasSelection => selectedHitObjects.Count > 0;
+
     [RuntimeInitializeOnLoadMethod]
     static void Init() => selectedHitObjects.Clear();
 
     public static void Add(HitObject hitObject)
     {
+        SoundManager.PlayHitObjectClickSound();
         selectedHitObjects.Add(hitObject);
         hitObject.OnHightlight();
     }
@@ -87,6 +90,7 @@ public static class Selection
     public static void SetSelected(HitObject hitObject)
     {
         Clear();
+        SoundManager.PlayHitObjectClickSound();
         selectedHitObjects.Add(hitObject);
         hitObject.OnHightlight();
     }

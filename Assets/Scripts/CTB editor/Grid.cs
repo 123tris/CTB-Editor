@@ -18,7 +18,7 @@ public class Grid : MonoBehaviour
 
     ///<summary>The amount of milliseconds passed in the beatmap relative to a single pixel
     /// <para>This takes zoom into consideration. If you want a clean msPerPixel without the zoom taken into consideration you will have to recalculate it.</para></summary>
-    public float msPerPixel => height / zoom / GetVisibleTimeRange(); 
+    public float msPerPixel => height / zoom / GetVisibleTimeRange();
 
     public float columns
     {
@@ -50,16 +50,15 @@ public class Grid : MonoBehaviour
     public float height => rectTransform.sizeDelta.y;
     public float width => rectTransform.sizeDelta.x;
 
-    public Vector2 GetSnappedMousePosition() => NearestPointOnGrid(Input.mousePosition);
+    public Vector2 GetSnappedMousePosition() => NearestPointOnGrid(InputManager.mousePosition);
     public Vector2 GetMousePositionOnGrid() => GetSnappedMousePosition() - transform.position.ToVector2();
 
     public static Grid Instance;
 
+    public int test;
     public float zoom = 1;
     public float minZoom = 1;
     public float maxZoom = 4;
-
-    public int test = 80;
 
     void Awake() => Instance = this;
 
@@ -74,6 +73,8 @@ public class Grid : MonoBehaviour
 
     void Update()
     {
+        //BeatmapSettings.BPMOffset = test;
+
         rows = CalculateRows();
 
         if (Input.GetKey(KeyCode.LeftControl) && Input.mouseScrollDelta.y != 0)
@@ -88,7 +89,7 @@ public class Grid : MonoBehaviour
 
     public float GetHitIndicatorOffset() => GetVisibleTimeRange() / 10;
 
-    ///<summary>Returns how much distance in global space is moved due to the BPM Offset and Hitindicator offset. Takes zoom into consideration</summary>
+    ///<summary> Returns how much distance in global space is moved due to the BPM Offset and Hitindicator offset. Takes zoom into consideration</summary>
     public float GetOffset()
     {
         return height / 10 + BeatmapSettings.BPMOffset * msPerPixel;
@@ -101,7 +102,7 @@ public class Grid : MonoBehaviour
         return visibleTimeRange / 1000 * (BeatmapSettings.BPM / 60) * beatsnapDivisor;
     }
 
-    /// <summary> Amount of milliseconds that it takes for a fruit to move from the top to the bottom of the screen </summary>
+    ///<summary> Amount of milliseconds that it takes for a fruit to move from the top to the bottom of the screen </summary>
     public float GetVisibleTimeRange() => DifficultyCalculator.DifficultyRange(BeatmapSettings.AR, 1800, 1200, 450);
 
     /// <summary> Returns the global position of the nearest point on the grid </summary>
@@ -128,7 +129,7 @@ public class Grid : MonoBehaviour
         return point;
     }
 
-    /// <summary>Make sure y is in Grid space and not global space</summary>
+    ///<summary> Make sure y is in Grid space and not global space</summary>
     public float GetHitTime(float y)
     {
         y -= height / 10; //Apply hit indicator offset
@@ -137,7 +138,7 @@ public class Grid : MonoBehaviour
 
     public float GetHitTime(Vector2 pos) => GetHitTime(pos.y);
 
-    //Gets the Y position of a specific hit time
+    ///<summary>Gets the Y position of a specific hit time</summary>
     public float GetYPosition(float hitTime)
     {
         return (hitTime + GetHitIndicatorOffset()) * (height / GetVisibleTimeRange() /*ms/s*/);

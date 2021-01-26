@@ -60,6 +60,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   position: {x: 0, y: 0}
   type: 2
+  isNewCombo: 0
+  hitSound: 0
   hyperDashTarget: {fileID: 0}
   fruits: []
 --- !u!114 &-3592968809627527873
@@ -77,6 +79,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []

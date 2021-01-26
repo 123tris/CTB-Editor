@@ -11,6 +11,7 @@ using UnityEngine;
 using PHitObject = OsuParsers.Beatmaps.Objects.HitObject;
 using PSlider = OsuParsers.Beatmaps.Objects.Slider;
 using NVector2 = System.Numerics.Vector2;
+// ReSharper disable CompareOfFloatsByEqualityOperator
 
 public static class BeatmapConverter
 {
@@ -41,7 +42,8 @@ public static class BeatmapConverter
         beatmap.GeneralSection.Mode = Ruleset.Fruits;
 
         //Meta data
-        beatmap.MetadataSection.Title = BeatmapSettings.audioFileName;
+        if (beatmap.MetadataSection.Title == "")
+            beatmap.MetadataSection.Title = BeatmapSettings.audioFileName;
 
 
         //Difficulty
@@ -52,6 +54,7 @@ public static class BeatmapConverter
         TimingPoint timingPoint = new TimingPoint();
         timingPoint.Inherited = false;
         timingPoint.BeatLength = 60000f / BeatmapSettings.BPM;
+        timingPoint.Volume = 80;
 
         if (importedBeatmap != null && beatmap.TimingPoints.Count > 0)
         {
@@ -71,10 +74,9 @@ public static class BeatmapConverter
             var position = (Vector2Int.right * fruit.position).ToNumerical();
             int hitTime = fruit.position.y;
 
-            HitSoundType hitSoundType = HitSoundType.None;
             Extras extras = new Extras();
 
-            CatchFruit addFruit = new CatchFruit(position, hitTime, hitTime, hitSoundType, extras, true, 0);
+            CatchFruit addFruit = new CatchFruit(position, hitTime, hitTime, fruit.hitSound, extras, true, 0);
             pHitObjects.Add(addFruit);
         }
 
@@ -95,9 +97,9 @@ public static class BeatmapConverter
             float timeDifference = endTime - startTime; //the delta between startTime and endTime
             float leftOverTime = timeDifference - xTime; //How much time is left after the slider moves along the delta in X
 
-            if (Math.Abs(xDelta) < 0.01f)
+            if (xDelta == 0)
             {
-                //calculate Y
+                //Calculate Y
                 y = Mathf.Round(leftOverTime * sliderSpeed / 10);
             }
             else
@@ -119,7 +121,7 @@ public static class BeatmapConverter
             sliderPoints.RemoveAt(0);
 
             PSlider pSlider = new PSlider(position, startTime, endTime, HitSoundType.None, CurveType.Linear,
-                sliderPoints, 0, xDelta, true, 0);
+                sliderPoints, 1, xDelta, true, 0);
 
             pHitObjects.Add(pSlider);
         }
@@ -140,6 +142,7 @@ public static class BeatmapConverter
 
     private static void LoadImportedBeatmap()
     {
+        //-------------------- Load Beatmap Settings ---------------------
         HitObjectManager.Reset(); //destroy currently loaded hitobjects
         var audioFilename = importedBeatmap.GeneralSection.AudioFilename;
         BeatmapSettings.audioFileName = audioFilename.Remove(audioFilename.Length - 4);
@@ -150,12 +153,14 @@ public static class BeatmapConverter
         BeatmapSettings.AR = importedBeatmap.DifficultySection.ApproachRate;
         BeatmapSettings.CS = importedBeatmap.DifficultySection.CircleSize;
 
+        //TODO: implement timing points
         var firstTimingPoint = importedBeatmap.TimingPoints.First();
 
         BeatmapSettings.BPM = (float)(60000f / firstTimingPoint.BeatLength);
         BeatmapSettings.BPMOffset = firstTimingPoint.Offset;
         TimeLine.Instance.UpdateLevelPosition();
 
+        //-------------------- Load Beatmap Objects -----------------------
         foreach (PHitObject hitobject in importedBeatmap.HitObjects)
         {
             if (hitobject is CatchFruit fruit)

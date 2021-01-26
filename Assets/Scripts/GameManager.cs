@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour {
 
     void Update()
     {
-        HitObjectManager.UpdateFruitVisuals();
+        HitObjectManager.UpdateFruits();
 
         if (Input.GetKey(KeyCode.LeftControl))
         {

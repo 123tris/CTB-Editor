@@ -8,22 +8,25 @@ namespace UnityEngine.UI.Extensions
     [AddComponentMenu("UI/Extensions/Bound Tooltip/Tooltip Item")]
     public class BoundTooltipItem : MonoBehaviour
     {
-        public bool IsActive
-        {
-            get
-            {
-                return gameObject.activeSelf;
-            }
-        }
+        public bool IsActive => gameObject.activeSelf;
 
         public TextMeshProUGUI TooltipText;
         public Vector3 ToolTipOffset;
 
+        public Vector2 backgroundMargin;
+        private RectTransform rectTransform;
+
         void Awake()
         {
             instance = this;
+            rectTransform = GetComponent<RectTransform>();
             if(!TooltipText) TooltipText = GetComponentInChildren<TextMeshProUGUI>();
             HideTooltip();
+        }
+
+        void Update()
+        {
+            rectTransform.sizeDelta = TooltipText.GetComponent<RectTransform>().sizeDelta + backgroundMargin;
         }
 
         public void ShowTooltip(string text, Vector3 pos)

@@ -94,6 +94,16 @@ namespace CooldownManagerNamespace
             action.Invoke();
         }
 
+        public static Coroutine OnEndOfFrame(Action action)
+        {
+            return mono.StartCoroutine(InternalOnEndOfFrame(action));
+        }
+
+        private static IEnumerator InternalOnEndOfFrame(Action action)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
         public static void IterateOverTime(float duration, Action action, int iterationsPerSecond = 60)
         {
             mono.StartCoroutine(InternalIterateOverTime(duration, action, iterationsPerSecond));
