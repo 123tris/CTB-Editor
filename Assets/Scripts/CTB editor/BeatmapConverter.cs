@@ -76,7 +76,7 @@ public static class BeatmapConverter
 
             Extras extras = new Extras();
 
-            CatchFruit addFruit = new CatchFruit(position, hitTime, hitTime, fruit.hitSound, extras, true, 0);
+            CatchFruit addFruit = new CatchFruit(position, hitTime, hitTime, fruit.hitSound, extras, fruit.isNewCombo, 0);
             pHitObjects.Add(addFruit);
         }
 

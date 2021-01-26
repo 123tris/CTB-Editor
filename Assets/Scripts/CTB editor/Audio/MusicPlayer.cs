@@ -144,6 +144,7 @@ public class MusicPlayer : MonoBehaviour
             SetPlayback(0);
             audioSource.Pause();
         }
+        SoundManager.CancelSchedule();
     }
 
     ///<summary>The volume of the audio source (0.0 to 1.0) </summary>
