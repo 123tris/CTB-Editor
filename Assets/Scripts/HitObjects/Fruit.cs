@@ -40,16 +40,16 @@ public class Fruit : HitObject
 
     public void OnUpdate()
     {
-        double currenTime = MusicPlayer.instance.currentTime * 1000;
+        double currentTime = MusicPlayer.instance.currentTime * 1000;
 
         if (MusicPlayer.instance.isPlaying && oldTimeStamp <= position.y &&
-            currenTime > position.y)
+            currentTime > position.y)
         {
             //image.color = Color.red; //TODO: Remove debug code
             //Cooldown(0.001f, () => image.color = Color.white);
         }
 
-        oldTimeStamp = currenTime; //add schedule delay to trigger sound effect ahead of time
+        oldTimeStamp = currentTime; //add schedule delay to trigger sound effect ahead of time
 
         //Is the fruit in the current view of the user?
         float posY = transform.position.y;
