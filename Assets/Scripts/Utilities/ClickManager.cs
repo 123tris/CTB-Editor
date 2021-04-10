@@ -1,25 +1,25 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 public static class ClickManager
 {
     //property variables
-    private const float maxTimeToClick = 0.40f;
-    private const float minTimeToClick = 0.025f;
+    const float maximumDelay = 0.2f;
 
-    //private variables to keep track
-    private static float _minCurrentTime;
-    private static float _maxCurrentTime;
+    //The time the mouse was clicked
+    public static float mouseClickTime;
 
     public static bool DoubleClick()
     {
-        if (Time.time >= _minCurrentTime && Time.time <= _maxCurrentTime)
+        return mouseClickTime + maximumDelay > Time.unscaledTime;
+    }
+
+    //Requires some kind of monobehaviour to call this every update (this is bad practice but because of lack of framework and to avoid spending too much time on a framework, a compromise has been made)
+    public static void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
         {
-            _minCurrentTime = 0;
-            _maxCurrentTime = 0;
-            return true;
+            mouseClickTime = Time.unscaledTime;
         }
-        _minCurrentTime = Time.time + minTimeToClick;
-        _maxCurrentTime = Time.time + maxTimeToClick;
-        return false;
     }
 }

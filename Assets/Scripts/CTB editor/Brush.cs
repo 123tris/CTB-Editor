@@ -110,7 +110,7 @@ public class Brush : MonoBehaviour
             selectionBox.EndSelection();
         }
 
-        if (!WithinGridRange(InputManager.mousePosition)) return;
+        //if (!WithinGridRange(InputManager.mousePosition)) return;
 
         if (Input.GetMouseButtonDown(1))
         {
@@ -148,6 +148,7 @@ public class Brush : MonoBehaviour
             if (hitObject != null)
             {
                 Slider slider = hitObject.transform.parent.GetComponent<Slider>();
+                print($"Double click: {ClickManager.DoubleClick()}");
                 if (slider && !ClickManager.DoubleClick()) //Select slider
                 {
                     if (Input.GetKey(KeyCode.LeftControl))
@@ -281,14 +282,11 @@ public class Brush : MonoBehaviour
         return null;
     }
 
+    public float debugStartTime;
+    public float debugEndTime;
+
     private List<Fruit> DetectHitObjects()
     {
-        float GetHitTime(float y)
-        {
-            y -= grid.height / 10; //Apply hit indicator offset
-            return y * grid.GetVisibleTimeRange() * grid.zoom / grid.height + TimeLine.CurrentTimeStamp; 
-        }
-
         //Find fruits within the y-axis of the selection box
         Vector2 endSelectPos = grid.transform.InverseTransformPoint(InputManager.mousePosition); //mouse position in grid space
 
@@ -296,8 +294,8 @@ public class Brush : MonoBehaviour
         int maxY = (int)Mathf.Max(startSelectPos.y, endSelectPos.y);
 
 
-        float startTime = GetHitTime(minY);
-        float endTime = GetHitTime(maxY);
+        float startTime = debugStartTime = grid.GetHitTime(minY);
+        float endTime = debugEndTime = grid.GetHitTime(maxY);
 
         var fruitsByRange = HitObjectManager.GetFruitsByRange(startTime, endTime);
 

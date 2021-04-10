@@ -6,7 +6,8 @@ public abstract class HitObject : MonoBehaviour, IComparable
 {
     /// <summary>
     /// The local position from the grid's perspective.
-    /// e.g. If the object's position is the same as the grid's position then position is 0
+    /// e.g. If the object's position is the same as the grid's position then position is 0.
+    /// the y-axis is used as the timestamp for when the hitobject is played in milliseconds
     /// </summary>
     public Vector2Int position = Vector2Int.down; //It defaults to down to indicate that the hitobject's position has not been set yet
     

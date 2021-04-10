@@ -11,7 +11,6 @@ using NVector2 = System.Numerics.Vector2;
 
 public class Slider : HitObject
 {
-    private GameObject fruitPrefab => GameManager.Instance.fruitPrefab;
     private GameObject handlePrefab => GameManager.Instance.handlePrefab;
 
     public int startTime => fruits[0].position.y;
@@ -31,6 +30,11 @@ public class Slider : HitObject
     void Awake()
     {
         lineRenderer = GetComponent<UILineRenderer>();
+    }
+
+    void Update()
+    {
+        UpdateDroplets();
     }
 
     public void AddFruit(Vector2 spawnPosition)
@@ -127,6 +131,20 @@ public class Slider : HitObject
             points.Add(new NVector2(fruit.position.x, 0));
         }
         return points;
+    }
+
+    void UpdateDroplets()
+    {
+        //Check if in between start and end point there is a beat
+        float beatPerMS = BeatmapSettings.BPM / 60 / 1000;
+
+        const int tolerance = 1;
+
+        //if (whatever % beatPerMS)
+        //{
+
+        //}
+
     }
 
 }

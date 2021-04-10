@@ -5,7 +5,7 @@ using UnityEngine;
 public class FPSCounter : TextBehaviour
 {
     private float timer;
-    private float refreshRate = 0.5f;
+    private float refreshRate = 0.2f;
 
     private void Update()
     {

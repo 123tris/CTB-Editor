@@ -161,6 +161,8 @@ public static class BeatmapConverter
         TimeLine.Instance.UpdateLevelPosition();
 
         //-------------------- Load Beatmap Objects -----------------------
+        TimeLine.Instance.SetCurrentTimeStamp(0); //Current time stamp has to be set to 0 so sliders are ensured correct timing. TODO: fix this stupidity to minimize technical debt
+
         foreach (PHitObject hitobject in importedBeatmap.HitObjects)
         {
             if (hitobject is CatchFruit fruit)

@@ -17,7 +17,7 @@ public class SoundManager : MonoBehaviour
     private AudioSource audioSource;
     private static SoundManager Instance;
 
-    private List<double> scheduledHitsounds = new List<double>();
+    private List<int> scheduledHitsounds = new List<int>();
 
     //Hitsound settings
     private float[] hitsoundSamples;
@@ -27,7 +27,7 @@ public class SoundManager : MonoBehaviour
     private AudioBuffer hitsoundBuffer;
 
     //Keep track of playback time, like some sort of music
-    private double currentTime;
+    private int currentTime;
 
     void Awake()
     {
@@ -42,6 +42,12 @@ public class SoundManager : MonoBehaviour
         hitsoundBuffer = new AudioBuffer(normalHitSound.channels, hitsoundSamples, normalHitSound.frequency);
         sampleRate = AudioSettings.outputSampleRate;
         currentTime = 0;
+    }
+
+    void Update()
+    {
+        //string time = StringFormatter.GetTimeFormat((int) (currentTime * 1000 / (float) sampleRate));
+        //print($"current time: {time}");
     }
 
     public static void PlayHitSound(HitSoundType hitSound)
@@ -70,7 +76,7 @@ public class SoundManager : MonoBehaviour
     {
         List<Fruit> fruits = HitObjectManager.GetFruits();
 
-        Instance.scheduledHitsounds = new List<double>(fruits.Count);
+        Instance.scheduledHitsounds = new List<int>(fruits.Count);
 
         for (var i = 0; i < fruits.Count; i++)
         {
@@ -79,8 +85,8 @@ public class SoundManager : MonoBehaviour
             float currentTime = MusicPlayer.instance.currentTime * 1000;
             if (fruit.position.y <= currentTime) continue;
 
-            double scheduleTime = (fruit.position.y - currentTime) / 1000;
-            Instance.scheduledHitsounds.Add(scheduleTime);
+            double scheduleTime = (fruit.position.y - currentTime) / MusicPlayer.playbackSpeed / 1000d;
+            Instance.scheduledHitsounds.Add((int)(scheduleTime * Instance.sampleRate));
         }
     }
 
@@ -93,8 +99,9 @@ public class SoundManager : MonoBehaviour
         AudioBuffer outputBuffer = new AudioBuffer(channels, data, sampleRate);
 
         //The time it takes to play a hit sound
-        double soundToPlayLength = hitsoundSamples.Length / (double)sampleRate;
+        int soundToPlayLength = hitsoundSamples.Length;
         var i = scheduledHitsound;
+        currentTime += outputBuffer.sampleCount;
 
         if (scheduledHitsounds.Count == 0) return;
         if (currentTime >= scheduledHitsounds[i]) //Play scheduled hit sound
@@ -102,19 +109,21 @@ public class SoundManager : MonoBehaviour
             //Reschedule
             bool finishedPlayingSound = currentTime - soundToPlayLength >= scheduledHitsounds[i];
             bool nextIndexOutOfBounds = i + 1 >= scheduledHitsounds.Count;
-            bool nextSoundScheduled = nextIndexOutOfBounds || currentTime >= scheduledHitsounds[i + 1];
+            bool scheduleNextSound = nextIndexOutOfBounds || currentTime >= scheduledHitsounds[i + 1];
 
-            if (finishedPlayingSound || nextSoundScheduled)
+            if (finishedPlayingSound || scheduleNextSound)
             {
                 if (scheduledHitsound < scheduledHitsounds.Count - 1)
+                {
                     scheduledHitsound++;
+                }
             }
 
             if (currentTime < scheduledHitsounds[scheduledHitsound]) return;
-            
+
+
             //Play scheduled sound
-            double deltaTime = currentTime - scheduledHitsounds[scheduledHitsound];
-            double sampleIndex = deltaTime * sampleRate;
+            double sampleIndex = currentTime - scheduledHitsounds[scheduledHitsound];
             double hitsoundSR = hitsoundBuffer.sampleRate / (double)outputBuffer.sampleRate;
             for (int j = 0; j < outputBuffer.sampleCount; j++)
             {
@@ -127,7 +136,6 @@ public class SoundManager : MonoBehaviour
             }
         }
 
-        currentTime += outputBuffer.sampleCount / (double)sampleRate;
     }
 
     public static void PlaySound(AudioClip clip) => Instance.audioSource.PlayOneShot(clip);
@@ -135,7 +143,8 @@ public class SoundManager : MonoBehaviour
     ///<summary>Set time in seconds</summary>
     public static void SetTime(double time)
     {
-        Instance.currentTime = time;
+        Instance.currentTime = (int)(time * Instance.sampleRate);
+
         var scheduledHitsounds = Instance.scheduledHitsounds;
         for (var i = 0; i < scheduledHitsounds.Count; i++)
         {
@@ -146,6 +155,7 @@ public class SoundManager : MonoBehaviour
             }
         }
     }
+
     public static void PlayHitObjectClickSound()
     {
         Instance.audioSource.PlayOneShot(Instance.hitObjectClickSound);

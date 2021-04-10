@@ -53,7 +53,9 @@ public class Fruit : HitObject
 
         //Is the fruit in the current view of the user?
         float posY = transform.position.y;
-        if (posY > Grid.Instance.height * Grid.Instance.zoom * 1.5f || posY < 0)
+        bool outsideOfScreen = posY > Grid.Instance.height * Grid.Instance.zoom * 1.5f || posY < 0;
+        gameObject.SetActive(!outsideOfScreen);
+        if (outsideOfScreen)
             return;
 
         UpdateHyperDashState();
@@ -69,6 +71,9 @@ public class Fruit : HitObject
         float timeStamp = Grid.Instance.GetHitTime(newPosition);
 
         HitObjectManager.EditFruitTimeStamp(this, Mathf.RoundToInt(timeStamp)); //Essentially setting the y position
+
+        //Clamp the x position before applying it
+        newPosition.x = Mathf.Clamp(newPosition.x, 0, Grid.Instance.width);
         SetXPosition(newPosition.x);
 
         transform.position = newPosition + Grid.Instance.transform.position; //Apply grid's position to set global position

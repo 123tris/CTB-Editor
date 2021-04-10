@@ -141,7 +141,9 @@ public class Grid : MonoBehaviour
     ///<summary>Gets the Y position of a specific hit time</summary>
     public float GetYPosition(float hitTime)
     {
-        return (hitTime + GetHitIndicatorOffset()) * (height / GetVisibleTimeRange() /*ms/s*/);
+        float hitIndicatorOffset = GetHitIndicatorOffset();
+        float visibleTimeRange = GetVisibleTimeRange();
+        return (hitTime + hitIndicatorOffset) * (height / visibleTimeRange /*ms/s*/);
     }
 
     public bool WithinGridRange(Vector2 position)

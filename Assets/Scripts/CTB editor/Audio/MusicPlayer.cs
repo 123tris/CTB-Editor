@@ -11,6 +11,9 @@ public class MusicPlayer : MonoBehaviour
 
     public bool useNAudio;
 
+    //temporary
+    public static float playbackSpeed => instance.audioSource.pitch;
+
     private AudioSource audioSource;
     private AudioMixer audioMixer;
     private AudioImporter audioImporter;
@@ -163,8 +166,9 @@ public class MusicPlayer : MonoBehaviour
     public void SetPlaybackSpeed(float sliderValue)
     {
         audioSource.pitch = sliderValue;
-        float pitchShift = 1f / sliderValue;
-        audioMixer.SetFloat("pitch1", pitchShift);
-        audioMixer.SetFloat("pitch2", Mathf.Clamp(pitchShift - 1, 1, 2));
+        //audioSource.pitch = sliderValue;
+        //float pitchShift = 1f / sliderValue;
+        //audioMixer.SetFloat("pitch1", pitchShift);
+        //audioMixer.SetFloat("pitch2", Mathf.Clamp(pitchShift - 1, 1, 2));
     }
 }

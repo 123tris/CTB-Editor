@@ -178,39 +178,15 @@ public static class HitObjectManager
 
     public static List<Slider> GetSliders() => sliders;
 
-    /// <summary>Updates the active states of only fruit that are inside of the graph to save performance</summary>
-    public static void UpdateActiveStates()
-    {
-        throw new NotImplementedException(); //TODO: Finish implementation for performance boost
-
-        float maxY = Grid.Instance.height * Grid.Instance.zoom * 1.5f;
-        float minY = 0;
-
-        foreach (Fruit fruit in fruits)
-        {
-            if (fruit.isSliderFruit == false)
-            {
-                Vector3 fruitPosition = fruit.transform.position;
-                bool active = fruitPosition.y > maxY || fruitPosition.y < minY;
-                fruit.gameObject.SetActive(!active);
-            }
-            else //TODO: Change to foreach loop
-            {
-                Vector3 fruitPosition1 = fruit.slider.fruits[0].transform.position;
-                Vector3 fruitPosition2 = fruit.slider.fruits[1].transform.position;
-
-                bool activeFruit1 = fruitPosition1.y > maxY || fruitPosition1.y < minY;
-                bool activeFruit2 = fruitPosition2.y > maxY || fruitPosition2.y < minY;
-
-                fruit.slider.gameObject.SetActive(!activeFruit1 && !activeFruit2);
-            }
-        }
-    }
-
+    ///<summary>Clears the slider and fruit lists after destroying all the containing objects</summary>
     public static void Reset()
     {
         sliders.ForEach(slider => Object.Destroy(slider.gameObject));
         fruits.ForEach(fruit => Object.Destroy(fruit.gameObject));
+
+        //TODO: bug found where after destruction of fruits/sliders the instances weren't removed from the list so further testing required before removing commented code
+        //sliders.Clear();
+        //fruits.Clear();
     }
 
     public static void RemoveFruit(Fruit hitObject) => fruits.Remove(hitObject);
@@ -236,7 +212,7 @@ public static class HitObjectManager
     {
         foreach (Fruit fruit in fruits)
         {
-            if (fruit.gameObject.activeInHierarchy)
+            //if (fruit.gameObject.activeInHierarchy)
                 fruit.OnUpdate();
         }
     }
