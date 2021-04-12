@@ -148,7 +148,6 @@ public class Brush : MonoBehaviour
             if (hitObject != null)
             {
                 Slider slider = hitObject.transform.parent.GetComponent<Slider>();
-                print($"Double click: {ClickManager.DoubleClick()}");
                 if (slider && !ClickManager.DoubleClick()) //Select slider
                 {
                     if (Input.GetKey(KeyCode.LeftControl))
