@@ -52,7 +52,7 @@ public class Fruit : HitObject
         oldTimeStamp = currentTime; //add schedule delay to trigger sound effect ahead of time
 
         //Is the fruit in the current view of the user?
-        float posY = transform.position.y;
+        float posY = transform.GetGlobalPivot().y;
         bool outsideOfScreen = posY > Grid.Instance.height * Grid.Instance.zoom * 1.5f || posY < 0;
         gameObject.SetActive(!outsideOfScreen);
         if (outsideOfScreen)
@@ -76,7 +76,10 @@ public class Fruit : HitObject
         newPosition.x = Mathf.Clamp(newPosition.x, 0, Grid.Instance.width);
         SetXPosition(newPosition.x);
 
-        transform.position = newPosition + Grid.Instance.transform.position; //Apply grid's position to set global position
+
+        transform.SetGlobalPivot(newPosition); //Apply grid's position to set global position
+
+        transform.position += Grid.Instance.transform.position;
     }
 
     private void UpdateCircleSize()

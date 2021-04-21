@@ -70,7 +70,9 @@ public static class Selection
             Undo.RecordHitObjects(selectedHitObjects); //Record undo snapshot before dragging
 
             startDragPos = Grid.Instance.GetSnappedMousePosition();
-            startPositions = selectedHitObjects.Select(item => Grid.Instance.NearestPointOnGrid(item.transform.position)).ToList(); //use grid to resnap when dragging
+            startPositions = selectedHitObjects
+                .Select(item => Grid.Instance.NearestPointOnGrid(item.transform.GetGlobalPivot()))
+                .ToList(); //use grid to resnap when dragging
         }
 
         dragDelta = Grid.Instance.GetSnappedMousePosition() - startDragPos;
@@ -81,7 +83,7 @@ public static class Selection
 
             if (dragDelta.x == 0 && dragDelta.y == 0) return;
 
-            Vector3 targetPos = startPositions[i].ToVector3() - Grid.Instance.transform.position + dragDelta;
+            Vector3 targetPos = startPositions[i] - Grid.Instance.transform.GetGlobalPivot() + dragDelta.ToVector2();
 
             selectedHitObject.SetPosition(targetPos);
         }

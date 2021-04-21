@@ -10,7 +10,7 @@ public abstract class HitObject : MonoBehaviour, IComparable
     /// the y-axis is used as the timestamp for when the hitobject is played in milliseconds
     /// </summary>
     public Vector2Int position = Vector2Int.down; //It defaults to down to indicate that the hitobject's position has not been set yet
-    
+
     public HitObjectType type;
 
     public bool isNewCombo;
@@ -28,7 +28,7 @@ public abstract class HitObject : MonoBehaviour, IComparable
     /// </summary>
     public HitObject hyperDashTarget;
 
-    public bool isSliderFruit => this is Fruit && ((Fruit) this).slider != null;
+    public bool isSliderFruit => this is Fruit && ((Fruit)this).slider != null;
 
     protected virtual void Start()
     {
@@ -65,11 +65,13 @@ public abstract class HitObject : MonoBehaviour, IComparable
     public void SetXPosition(float x)
     {
         position.x = Mathf.RoundToInt(x / Grid.GetWidthRatio());
-        transform.position = new Vector2(x + Grid.Instance.transform.position.x, transform.position.y);
+        transform.SetGlobalPivot(new Vector2(x, transform.GetGlobalPivot().y));
+        transform.Translate(Grid.Instance.transform.position.x, 0, 0);
 
-        if (this is Fruit && ((Fruit) this).isSliderFruit)
+        Fruit fruit = this as Fruit;
+
+        if (fruit != null && fruit.isSliderFruit)
         {
-            Fruit fruit = (Fruit) this;
             fruit.slider.UpdateLines();
         }
     }

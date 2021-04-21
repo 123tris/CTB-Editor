@@ -156,7 +156,7 @@ namespace UnityEngine.UI.Extensions
 			boxRect.gameObject.SetActive(true);
 			
 			// Get the initial click position of the mouse. 
-			origin = Input.mousePosition;
+			origin = InputManager.mousePosition;
 			
 			//If the initial click point is not inside the selection mask, we abort the selection
 			if (!PointIsValidAgainstSelectionMask(origin)) {
@@ -166,15 +166,9 @@ namespace UnityEngine.UI.Extensions
 			
 			// The anchor is set to the same place.
 			boxRect.anchoredPosition = origin;
-			
-			MonoBehaviour[] behavioursToGetSelectionsFrom;
-			
-			// If we do not have a group of selectables already set, we'll just loop through every object that's a monobehaviour, and look for selectable interfaces in them
-			if (selectableGroup == null) {
-				behavioursToGetSelectionsFrom = GameObject.FindObjectsOfType<MonoBehaviour>();
-			} else {
-				behavioursToGetSelectionsFrom = selectableGroup;
-			}
+
+            // If we do not have a group of selectables already set, we'll just loop through every object that's a monobehaviour, and look for selectable interfaces in them
+			MonoBehaviour[] behavioursToGetSelectionsFrom = selectableGroup ?? FindObjectsOfType<MonoBehaviour>();
 			
 			//Temporary list to store the found selectables before converting to the main selectables array
 			List<IBoxSelectable> selectableList = new List<IBoxSelectable>();
@@ -213,7 +207,7 @@ namespace UnityEngine.UI.Extensions
 		
 		IBoxSelectable GetSelectableAtMousePosition() {
 			//Firstly, we cannot click on something that is not inside the selection mask (if we have one)
-			if (!PointIsValidAgainstSelectionMask(Input.mousePosition)) {
+			if (!PointIsValidAgainstSelectionMask(InputManager.mousePosition)) {
 				return null;
 			}
 			
@@ -229,7 +223,7 @@ namespace UnityEngine.UI.Extensions
 					
 					//Once we've found the rendering camera, we check if the selectables rectTransform contains the click. That way we
 					//Can click anywhere on a rectTransform to select it.
-					if (RectTransformUtility.RectangleContainsScreenPoint(rectTransform, Input.mousePosition, screenCamera)) {
+					if (RectTransformUtility.RectangleContainsScreenPoint(rectTransform, InputManager.mousePosition, screenCamera)) {
 						
 						//And if it does, we select it and send it back
 						return selectable;
@@ -237,7 +231,7 @@ namespace UnityEngine.UI.Extensions
 				} else {
 					//If it doesn't have a rectTransform, we need to get the radius so we can use it as an area around the center to detect a click.
 					//This works because a 2D or 3D renderer will both return a radius
-					var radius = selectable.transform.GetComponent<UnityEngine.Renderer>().bounds.extents.magnitude;
+					var radius = selectable.transform.GetComponent<Renderer>().bounds.extents.magnitude;
 					
 					var selectableScreenPoint = GetScreenPointOfSelectable(selectable);
 					
@@ -261,7 +255,7 @@ namespace UnityEngine.UI.Extensions
 				return;
 			
 			// Store the current mouse position in screen space.
-			Vector2 currentMousePosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+			Vector2 currentMousePosition = InputManager.mousePosition;
 			
 			// How far have we moved the mouse?
 			Vector2 difference = currentMousePosition - origin;

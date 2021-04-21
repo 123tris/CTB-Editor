@@ -23,9 +23,33 @@ public class InputManager : MonoBehaviour
 {
     public Dictionary<InputAction, List<KeyCode>> inputActions = new Dictionary<InputAction, List<KeyCode>>();
 
-    private static InputManager instance; //
+    private static InputManager instance;
+    [SerializeField] private bool simulateResolution;
+    [SerializeField] bool useNormalMouseInput;
 
-    public static Vector2 mousePosition => Input.mousePosition.Multiply(new Vector3(Screen.width/1920f,Screen.height/1080f));
+    public static Vector2 mousePosition
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindObjectOfType<InputManager>();
+            }
+
+            if (instance.useNormalMouseInput) return Input.mousePosition;
+
+            Vector2 mainGameViewSize = Vector2.zero;
+#if UNITY_EDITOR
+            mainGameViewSize = Handles.GetMainGameViewSize();
+#endif
+
+            bool useMainGameView = mainGameViewSize != Vector2.zero;
+
+            float screenWidth = useMainGameView ? mainGameViewSize.x : Screen.width;
+            float screenHeight = useMainGameView ? mainGameViewSize.y : Screen.height;
+            return Input.mousePosition.Divide(new Vector3(screenWidth / 1920f, screenHeight / 1080f));
+        }
+    }
 
     void Awake()
     {
@@ -94,6 +118,14 @@ public class InputManagerEditor : Editor
             GUILayout.EndHorizontal();
         }
         GUILayout.EndVertical();
+
+        EditorGUILayout.Vector2Field("Mouse position manager", InputManager.mousePosition);
+        EditorGUILayout.Vector2Field("Real mouse position", Input.mousePosition);
+        EditorGUILayout.IntField("Screen width", Screen.width);
+        EditorGUILayout.IntField("Screen height", Screen.height);
+        EditorGUILayout.IntField("Screen resolution width", Screen.currentResolution.width);
+        EditorGUILayout.IntField("Screen resolution height", Screen.currentResolution.height);
+        Repaint();
     }
 }
 #endif

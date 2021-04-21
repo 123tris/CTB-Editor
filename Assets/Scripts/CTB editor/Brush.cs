@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OsuParsers.Enums.Beatmaps;
 using RuntimeUndo;
-using TMPro;
 using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -85,9 +82,11 @@ public class Brush : MonoBehaviour
         UpdatePanels();
 
         mousePositionOnGrid = grid.GetMousePositionOnGrid();
+        RealtimeDebugger.AddDebugProperty("Mouse position on grid", mousePositionOnGrid);
+        RealtimeDebugger.AddDebugProperty("Within grid range", WithinGridRange(InputManager.mousePosition));
 
         //Display fruit over cursor for accurate placement
-        if (state != BrushState.Select && WithinGridRange(InputManager.mousePosition))
+        if (state != BrushState.Select)
         {
             fruitDisplay.SetPosition(mousePositionOnGrid);
             fruitDisplay.OnUpdate();
@@ -109,8 +108,6 @@ public class Brush : MonoBehaviour
             selectionBox.enabled = false;
             selectionBox.EndSelection();
         }
-
-        //if (!WithinGridRange(InputManager.mousePosition)) return;
 
         if (Input.GetMouseButtonDown(1))
         {
@@ -141,7 +138,7 @@ public class Brush : MonoBehaviour
     private void OnSelectState()
     {
         //Select pressed hitobject
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && WithinGridRange(InputManager.mousePosition))
         {
             //Higlighting of hitobjects
             Fruit hitObject = DetectHitObject();
@@ -171,7 +168,8 @@ public class Brush : MonoBehaviour
             else
             {
                 Selection.Clear();
-                startSelectPos = grid.transform.InverseTransformPoint(InputManager.mousePosition);
+                startSelectPos = InputManager.mousePosition - grid.transform.GetGlobalPivot();
+                RealtimeDebugger.AddDebugProperty("Start select position",startSelectPos);
                 createSelectionBox = true;
                 selectionBox.enabled = true;
                 selectionBox.BeginSelection();
@@ -185,7 +183,6 @@ public class Brush : MonoBehaviour
         }
         else
         {
-
             Selection.UpdateDragging();
         }
     }
@@ -261,7 +258,7 @@ public class Brush : MonoBehaviour
     private Fruit DetectHitObject()
     {
         PointerEventData pointerData = new PointerEventData(EventSystem.current);
-        pointerData.position = InputManager.mousePosition;
+        pointerData.position = Input.mousePosition;
 
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerData, results);
@@ -273,7 +270,6 @@ public class Brush : MonoBehaviour
                 if (raycastResult.gameObject.CompareTag("HitObject"))
                 {
                     return raycastResult.gameObject.GetComponent<Fruit>();
-
                 }
             }
         }
@@ -287,7 +283,7 @@ public class Brush : MonoBehaviour
     private List<Fruit> DetectHitObjects()
     {
         //Find fruits within the y-axis of the selection box
-        Vector2 endSelectPos = grid.transform.InverseTransformPoint(InputManager.mousePosition); //mouse position in grid space
+        Vector2 endSelectPos = InputManager.mousePosition - grid.transform.GetGlobalPivot(); //mouse position in grid space
 
         int minY = (int)Mathf.Min(startSelectPos.y, endSelectPos.y);
         int maxY = (int)Mathf.Max(startSelectPos.y, endSelectPos.y);
@@ -328,7 +324,7 @@ public class Brush : MonoBehaviour
     /// </summary>
     private bool WithinGridRange(Vector2 vec)
     {
-        Vector3 gridPos = grid.transform.position;
+        Vector3 gridPos = grid.transform.GetGlobalPivot();
         RectTransform gridRect = grid.GetComponent<RectTransform>();
         return vec.x > gridPos.x && vec.y > gridPos.y && vec.x < gridPos.x + gridRect.sizeDelta.x && vec.y < gridPos.y + gridRect.sizeDelta.y;
     }

@@ -1,0 +1,16 @@
+{
+    "name": "Unity-UI-Extensions",
+    "references": [
+        "GUID:418eb1a5bf0995b4bb750f6f1b7e2e6b",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

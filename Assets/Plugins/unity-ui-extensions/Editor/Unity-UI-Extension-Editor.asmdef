@@ -1,0 +1,17 @@
+{
+    "name": "Unity-UI-Extension-Editor",
+    "references": [
+        "GUID:e6ae9d9becd7744499b636ad7f4fd387"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

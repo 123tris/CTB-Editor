@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using NAudio.Wave;
+using NaughtyAttributes;
 using OsuParsers.Enums.Beatmaps;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))]
 public class SoundManager : MonoBehaviour
 {
+    [Header("Audio clips")]
     [SerializeField] private AudioClip normalHitSound;
     [SerializeField] private AudioClip whistleHitSound;
     [SerializeField] private AudioClip finishHitSound;
@@ -14,150 +17,178 @@ public class SoundManager : MonoBehaviour
 
     [SerializeField] private AudioClip hitObjectClickSound;
 
-    private AudioSource audioSource;
+    [Header("Settings")]
+    [SerializeField] float audioSourcePoolSize = 5;
+    public float volume = 0.1f;
+
+    public int scheduledHitsoundIndex; //index of the scheduled hitsound
+
     private static SoundManager Instance;
 
-    private List<int> scheduledHitsounds = new List<int>();
+    public List<ScheduledHitsound> scheduledHitsounds = new List<ScheduledHitsound>();
 
-    //Hitsound settings
-    private float[] hitsoundSamples;
-    private int sampleRate;
-    //When play is pressed
-    private float startTime;
-    private AudioBuffer hitsoundBuffer;
+    private List<AudioSource> audioSources = new List<AudioSource>();
 
-    //Keep track of playback time, like some sort of music
-    private int currentTime;
+    private double currentTime => TimeLine.CurrentTimeStamp;
 
     void Awake()
     {
         Instance = this;
 
-        //string hitObjectClickPath = Application.streamingAssetsPath + "/HitobjectClick.wav";
-        //soundPool = new SoundPool(hitObjectClickPath);
-        audioSource = GetComponent<AudioSource>();
-
-        hitsoundSamples = new float[normalHitSound.samples * normalHitSound.channels];
-        normalHitSound.GetData(hitsoundSamples, 0);
-        hitsoundBuffer = new AudioBuffer(normalHitSound.channels, hitsoundSamples, normalHitSound.frequency);
-        sampleRate = AudioSettings.outputSampleRate;
-        currentTime = 0;
+        for (int i = 0; i < audioSourcePoolSize; i++)
+        {
+            AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+            audioSources.Add(audioSource);
+            audioSource.playOnAwake = false;
+            audioSource.Pause();
+            audioSource.clip = normalHitSound;
+            audioSource.volume = volume;
+        }
     }
 
     void Update()
     {
-        //string time = StringFormatter.GetTimeFormat((int) (currentTime * 1000 / (float) sampleRate));
-        //print($"current time: {time}");
+        if (scheduledHitsoundIndex >= scheduledHitsounds.Count || scheduledHitsounds.Count == 0)
+            return;
+
+        if (TimeLine.CurrentTimeStamp > scheduledHitsounds[scheduledHitsoundIndex - 1].hitTime * 1000)
+        {
+            ScheduleNextHitSound();
+        }
     }
 
-    public static void PlayHitSound(HitSoundType hitSound)
+    double GetTrackTime(AudioSource audioSource)
     {
-        //if (hitSound != HitSoundType.None)
-        Instance.audioSource.PlayOneShot(Instance.normalHitSound);
-        //Instance.soundPool.PlaySound();
-        //switch (hitSound)
-        //{
-        //    case HitSoundType.Normal:
-        //        Instance.audioSource.PlayOneShot(Instance.normalHitSound);
-        //        break;
-        //    case HitSoundType.Whistle:
-        //        Instance.audioSource.PlayOneShot(Instance.whistleHitSound);
-        //        break;
-        //    case HitSoundType.Finish:
-        //        Instance.audioSource.PlayOneShot(Instance.finishHitSound);
-        //        break;
-        //    case HitSoundType.Clap:
-        //        Instance.audioSource.PlayOneShot(Instance.clapHitSound);
-        //        break;
-        //}
+        return audioSource.timeSamples / (double)audioSource.clip.frequency;
+    }
+
+    void ScheduleNextHitSound()
+    {
+        if (scheduledHitsoundIndex >= scheduledHitsounds.Count)
+            return;
+
+        for (int i = 0; i < audioSources.Count; i++)
+        {
+            AudioSource audioSource = audioSources[i];
+            //print($"Scheduling next hitsound audio source index: {i}, track time: {GetTrackTime(audioSource)}");
+            if (audioSource.isPlaying && GetTrackTime(audioSource) < 0.2f)
+                continue;
+
+            var scheduledHitsound = scheduledHitsounds[scheduledHitsoundIndex];
+            double scheduledTime = (scheduledHitsound.hitTime - currentTime/1000) / MusicPlayer.playbackSpeed;
+
+            //print($"Schedule hitsound for audio source index: {i}, scheduled {scheduledHitsoundIndex} for {scheduledTime}");
+
+            audioSource.clip = GetHitSoundClip(scheduledHitsound.hitSoundType);
+            audioSource.PlayScheduled(AudioSettings.dspTime + scheduledTime);
+            break;
+        }
+
+        scheduledHitsoundIndex++;
+    }
+
+    AudioClip GetHitSoundClip(HitSoundType hitSoundType)
+    {
+        if (hitSoundType == HitSoundType.Normal)
+            return normalHitSound;
+        if (hitSoundType.HasFlag(HitSoundType.Whistle))
+            return whistleHitSound;
+        if (hitSoundType.HasFlag(HitSoundType.Finish))
+            return finishHitSound;
+        if (hitSoundType.HasFlag(HitSoundType.Clap))
+            return clapHitSound;
+
+        return normalHitSound;
     }
 
     public static void ScheduleHitsounds()
     {
         List<Fruit> fruits = HitObjectManager.GetFruits();
 
-        Instance.scheduledHitsounds = new List<int>(fruits.Count);
+        Instance.scheduledHitsounds = new List<ScheduledHitsound>(fruits.Count);
+        Instance.scheduledHitsoundIndex = -1;
+
+        double currentTime = TimeLine.CurrentTimeStamp;
 
         for (var i = 0; i < fruits.Count; i++)
         {
             Fruit fruit = fruits[i];
 
-            float currentTime = MusicPlayer.instance.currentTime * 1000;
-            if (fruit.position.y <= currentTime) continue;
+            Instance.scheduledHitsounds.Add(new ScheduledHitsound(fruit.position.y / 1000d, fruit.hitSound)); //convert to seconds
 
-            double scheduleTime = (fruit.position.y - currentTime) / MusicPlayer.playbackSpeed / 1000d;
-            Instance.scheduledHitsounds.Add((int)(scheduleTime * Instance.sampleRate));
+            if (currentTime < fruit.position.y && Instance.scheduledHitsoundIndex == -1)
+            {
+                Instance.scheduledHitsoundIndex = i;
+                Instance.ScheduleNextHitSound();
+            }
+
+            //double scheduleTime = (fruit.position.y - currentTime) / MusicPlayer.playbackSpeed / 1000d;
+            //Instance.scheduledHitsounds.Add((int)(scheduleTime * Instance.sampleRate));
         }
     }
 
-    public static void CancelSchedule() => Instance.scheduledHitsounds.Clear();
-
-    private int scheduledHitsound; //index of the scheduled hitsound
-
-    private void OnAudioFilterRead(float[] data, int channels)
+    public static void CancelSchedule()
     {
-        AudioBuffer outputBuffer = new AudioBuffer(channels, data, sampleRate);
-
-        //The time it takes to play a hit sound
-        int soundToPlayLength = hitsoundSamples.Length;
-        var i = scheduledHitsound;
-        currentTime += outputBuffer.sampleCount;
-
-        if (scheduledHitsounds.Count == 0) return;
-        if (currentTime >= scheduledHitsounds[i]) //Play scheduled hit sound
+        foreach (AudioSource audioSource in Instance.audioSources)
         {
-            //Reschedule
-            bool finishedPlayingSound = currentTime - soundToPlayLength >= scheduledHitsounds[i];
-            bool nextIndexOutOfBounds = i + 1 >= scheduledHitsounds.Count;
-            bool scheduleNextSound = nextIndexOutOfBounds || currentTime >= scheduledHitsounds[i + 1];
-
-            if (finishedPlayingSound || scheduleNextSound)
-            {
-                if (scheduledHitsound < scheduledHitsounds.Count - 1)
-                {
-                    scheduledHitsound++;
-                }
-            }
-
-            if (currentTime < scheduledHitsounds[scheduledHitsound]) return;
-
-
-            //Play scheduled sound
-            double sampleIndex = currentTime - scheduledHitsounds[scheduledHitsound];
-            double hitsoundSR = hitsoundBuffer.sampleRate / (double)outputBuffer.sampleRate;
-            for (int j = 0; j < outputBuffer.sampleCount; j++)
-            {
-                for (int k = 0; k < hitsoundBuffer.channels || k < outputBuffer.channels; k++)
-                {
-                    float finalSample = hitsoundBuffer.LinearSample((float)sampleIndex, k);
-                    outputBuffer.SetSampleForChannel(j, k, finalSample);
-                }
-                sampleIndex += hitsoundSR;
-            }
+            audioSource.Stop();
         }
-
+        Instance.scheduledHitsounds.Clear();
     }
-
-    public static void PlaySound(AudioClip clip) => Instance.audioSource.PlayOneShot(clip);
 
     ///<summary>Set time in seconds</summary>
     public static void SetTime(double time)
     {
-        Instance.currentTime = (int)(time * Instance.sampleRate);
+        ScheduleHitsounds();
+    }
 
-        var scheduledHitsounds = Instance.scheduledHitsounds;
-        for (var i = 0; i < scheduledHitsounds.Count; i++)
+    public static void PlaySound(AudioClip clip)
+    {
+        if (Instance.audioSources.Count == 0)
         {
-            if (scheduledHitsounds[i] >= Instance.currentTime)
-            {
-                Instance.scheduledHitsound = i;
-                break;
-            }
+            Debug.LogError("Attempting to play a sound but is unable to do so due to the sound manager not having loaded the audiosources in yet", Instance);
+            return;
         }
+        Instance.audioSources[0].PlayOneShot(clip);
     }
 
     public static void PlayHitObjectClickSound()
     {
-        Instance.audioSource.PlayOneShot(Instance.hitObjectClickSound);
+        PlaySound(Instance.hitObjectClickSound);
     }
 }
+
+public class ScheduledHitsound
+{
+    ///<summary>hit time of the hitsound in seconds</summary>
+    public double hitTime;
+    public HitSoundType hitSoundType;
+
+    public ScheduledHitsound(double scheduleTime, HitSoundType fruitHitSound)
+    {
+        hitTime = scheduleTime;
+        hitSoundType = fruitHitSound;
+    }
+}
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(SoundManager))]
+public class SoundManagerEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+
+        SoundManager soundManager = (SoundManager)target;
+
+        soundManager.scheduledHitsoundIndex = EditorGUILayout.IntField("Scheduled hitsound index", soundManager.scheduledHitsoundIndex);
+
+        for (int i = 0; i < soundManager.scheduledHitsounds.Count; i++)
+        {
+            var scheduledHitsound = soundManager.scheduledHitsounds[i];
+            var label = $"Hitobject #{i + 1} Scheduled for:\nHit time: {scheduledHitsound.hitTime}\t Hit type: {scheduledHitsound.hitSoundType.ToString()}";
+            EditorGUILayout.TextArea(label);
+        }
+    }
+}
+#endif

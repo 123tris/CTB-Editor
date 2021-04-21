@@ -4,16 +4,26 @@ using UnityEngine;
 
 public class FPSCounter : TextBehaviour
 {
-    private float timer;
+    [SerializeField]
     private float refreshRate = 0.2f;
+
+    float counter;
+    float startTime;
+
+    void ResetTimer()
+    {
+        counter = 0;
+        startTime = Time.unscaledTime;
+    }
 
     private void Update()
     {
-        if (Time.unscaledTime > timer)
+        counter++;
+        if (startTime + refreshRate <= Time.unscaledTime)
         {
-            int fps = (int)(1f / Time.unscaledDeltaTime);
+            int fps = (int)(counter / (Time.unscaledTime - startTime));
             textMesh.text = $"FPS: {fps}";
-            timer = Time.unscaledTime + refreshRate;
+            ResetTimer();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using NaughtyAttributes;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -12,7 +13,7 @@ public class MusicPlayer : MonoBehaviour
     public bool useNAudio;
 
     //temporary
-    public static float playbackSpeed => instance.audioSource.pitch;
+    public static float playbackSpeed = 1;
 
     private AudioSource audioSource;
     private AudioMixer audioMixer;
@@ -25,8 +26,10 @@ public class MusicPlayer : MonoBehaviour
 
     private NAudioPlayer nAudioPlayer;
     //When play is executed
-    public double startTime;
-    public double test;
+    [ShowNonSerializedField]
+    private double startTime;
+    [ShowNonSerializedField]
+    private double timePassedAudioThread;
 
     void Awake()
     {
@@ -49,15 +52,20 @@ public class MusicPlayer : MonoBehaviour
             audioSource.Pause();
         }
         SetPlayback(0);
+        startTime = AudioSettings.dspTime;
 
         BeatmapSettings.audioFileName = audioSource.clip.name;
+    }
+
+    void Update()
+    {
+        timePassedAudioThread = AudioSettings.dspTime - startTime;
     }
 
     void LateUpdate()
     {
         if (TimeLine.Instance == null) return;
 
-        test = AudioSettings.dspTime - startTime;
 
         float beatLength = 60 / BeatmapSettings.BPM / BeatsnapDivisor.Instance.division; //Length of a beat in seconds
 
@@ -110,7 +118,8 @@ public class MusicPlayer : MonoBehaviour
         else
         {
             audioSource.time = playbackTime;
-            SoundManager.SetTime(playbackTime);
+            if (audioSource.isPlaying)
+                SoundManager.ScheduleHitsounds();
         }
     }
 
@@ -119,12 +128,11 @@ public class MusicPlayer : MonoBehaviour
         if (useNAudio) nAudioPlayer.Play();
         else
         {
-            //startTime = AudioSettings.dspTime + 50;
+            //startTime = AudioSettings.dspTime + .05;
             //audioSource.PlayScheduled(startTime);
             //startTime -= currentTime;
             audioSource.Play();
             SoundManager.ScheduleHitsounds();
-            SoundManager.SetTime(0);
         }
     }
 
@@ -165,10 +173,13 @@ public class MusicPlayer : MonoBehaviour
 
     public void SetPlaybackSpeed(float sliderValue)
     {
-        audioSource.pitch = sliderValue;
         //audioSource.pitch = sliderValue;
-        //float pitchShift = 1f / sliderValue;
-        //audioMixer.SetFloat("pitch1", pitchShift);
+        audioSource.pitch = sliderValue;
+        float pitchShift = 1f / sliderValue;
+        audioMixer.SetFloat("pitch1", pitchShift);
+        playbackSpeed = sliderValue;
+        SoundManager.CancelSchedule();
+        SoundManager.ScheduleHitsounds();
         //audioMixer.SetFloat("pitch2", Mathf.Clamp(pitchShift - 1, 1, 2));
     }
 }

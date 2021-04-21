@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 // ReSharper disable Unity.PreferAddressByIdToGraphicsParams
 
@@ -47,11 +50,16 @@ public class Grid : MonoBehaviour
     private Material gridMaterial;
     private RectTransform rectTransform;
 
-    public float height => rectTransform.sizeDelta.y;
-    public float width => rectTransform.sizeDelta.x;
+    public float height => rectTransform.sizeDelta.y /** Handles.GetMainGameViewSize().y / 1080*/;
+    public float width => rectTransform.sizeDelta.x /** Handles.GetMainGameViewSize().x / 1920*/;
 
-    public Vector2 GetSnappedMousePosition() => NearestPointOnGrid(InputManager.mousePosition);
-    public Vector2 GetMousePositionOnGrid() => GetSnappedMousePosition() - transform.position.ToVector2();
+    public Vector2 GetSnappedMousePosition()
+    {
+        RealtimeDebugger.AddDebugProperty("Mouse position",InputManager.mousePosition);
+        return NearestPointOnGrid(InputManager.mousePosition);
+    }
+
+    public Vector2 GetMousePositionOnGrid() => GetSnappedMousePosition() - transform.GetGlobalPivot();
 
     public static Grid Instance;
 
@@ -66,15 +74,13 @@ public class Grid : MonoBehaviour
     {
         gridMaterial = GetComponent<Image>().materialForRendering;
         rectTransform = GetComponent<RectTransform>();
-        float pixelHeight = Screen.height * height / 1080;
-        float pixelWidth = Screen.width * width / 1920;
+        float pixelHeight = Screen.height * (height / 1080);
+        float pixelWidth = Screen.width * (width / 1920);
         gridMaterial.SetVector("_RectSize", rectTransform.sizeDelta);
     }
 
     void Update()
     {
-        //BeatmapSettings.BPMOffset = test;
-
         rows = CalculateRows();
 
         if (Input.GetKey(KeyCode.LeftControl) && Input.mouseScrollDelta.y != 0)
@@ -110,7 +116,7 @@ public class Grid : MonoBehaviour
     public Vector2 NearestPointOnGrid(Vector2 point)
     {
         //Apply local grid position
-        point -= new Vector2(transform.position.x, transform.position.y);
+        point -= transform.GetGlobalPivot();
 
         //Snap X position
         float columnDistance;
@@ -125,7 +131,7 @@ public class Grid : MonoBehaviour
         float rowDistance = height / rows;
         float nearestRow = Mathf.Round((point.y + rowOffset % rowDistance) / rowDistance);
         point.y = nearestRow * rowDistance - rowOffset % rowDistance;
-        point += transform.position.ToVector2();
+        point += transform.GetGlobalPivot();
         return point;
     }
 
