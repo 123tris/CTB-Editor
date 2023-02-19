@@ -11,3 +11,7 @@ We have a discord where you can ask anything from features request to pull reque
 https://discord.gg/4FU9zqe
 
 ![l7l5fTIMVzxz8Woa](https://user-images.githubusercontent.com/4441805/219961190-7baed2b4-be31-4ac7-ac12-c4bf1175de7a.gif)
+
+Running with audio and correctly timed hitsounds:
+
+https://user-images.githubusercontent.com/4441805/219961474-19ebce67-591f-4519-ada8-2c319a6c935b.mp4
